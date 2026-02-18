@@ -1227,16 +1227,16 @@ function deserializeTasks(data) {
   }));
 }
 
-let _skipNextSync = false; // Flag to prevent listener from overwriting local changes
+let _lastSaveTime = 0; // Timestamp of our last write — ignore echoes within 2s
 
 function saveToDB() {
   if (!dbReady) { console.warn('⚠️ saveToDB called but dbReady is false'); return; }
-  _skipNextSync = true; // Our own write will trigger the listener — skip it
+  _lastSaveTime = Date.now();
   console.log('💾 Saving', allTasks.length, 'tasks to Firebase...');
   const data = allTasks.length > 0 ? serializeTasks(allTasks) : null;
   db.ref('tasks').set(data)
     .then(() => console.log('✅ Tasks saved successfully'))
-    .catch(err => { console.error('❌ Firebase save FAILED:', err); toast('❌ שגיאה בשמירה: ' + err.message); _skipNextSync = false; });
+    .catch(err => { console.error('❌ Firebase save FAILED:', err); toast('❌ שגיאה בשמירה: ' + err.message); });
   db.ref('meta/nextId').set(nextId);
 }
 let _saveTimer = null;
@@ -1252,7 +1252,11 @@ function saveTasksNow() {
 function initFirebaseSync() {
   console.log('🔄 Starting Firebase sync...');
   db.ref('tasks').on('value', snap => {
-    if (_skipNextSync) { _skipNextSync = false; console.log('⏭️ Skipping own write echo'); return; }
+    // Ignore echoes from our own writes (within 2 seconds)
+    if (Date.now() - _lastSaveTime < 2000) {
+      console.log('⏭️ Skipping own write echo');
+      return;
+    }
     const data = snap.val();
     console.log('📥 Firebase data received:', data ? 'has data' : 'empty/null');
     if (data) {
