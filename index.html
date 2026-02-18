@@ -861,10 +861,20 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
     <!-- TASKS -->
     <div class="tab-content" id="view-tasks">
       <div class="filters-bar" id="filtersBar"></div>
+      <!-- Batch action bar -->
+      <div id="batchBar" style="display:none;padding:10px 16px;background:var(--accent);color:#fff;border-radius:var(--radius);margin-bottom:10px;display:none;align-items:center;gap:12px;font-size:13px;">
+        <span id="batchCount">0 נבחרו</span>
+        <button onclick="batchDeleteSelected()" style="background:var(--red);color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;">🗑️ מחק נבחרים</button>
+        <button onclick="batchStatusSelected('done')" style="background:var(--green);color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;">✅ סמן כהושלם</button>
+        <button onclick="batchStatusSelected('todo')" style="background:var(--yellow);color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;">📝 החזר ללביצוע</button>
+        <div style="flex:1;"></div>
+        <button onclick="batchClearSelection()" style="background:rgba(255,255,255,0.2);color:#fff;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;">✕ בטל בחירה</button>
+      </div>
       <div class="task-table-wrap">
         <table class="task-table">
           <thead>
             <tr>
+              <th style="width:36px"><input type="checkbox" id="selectAllTasks" onchange="batchToggleAll(this.checked)" title="בחר הכל"></th>
               <th onclick="sortTasks('priority')" style="width:50px">עדיפות</th>
               <th onclick="sortTasks('name')">משימה</th>
               <th onclick="sortTasks('category')">קטגוריה</th>
@@ -877,6 +887,10 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
           </thead>
           <tbody id="taskTableBody"></tbody>
         </table>
+      </div>
+      <!-- Admin: Delete all tasks -->
+      <div style="margin-top:20px;padding:16px;background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);text-align:center;">
+        <button onclick="deleteAllTasks()" style="background:none;border:1px solid var(--red);color:var(--red);padding:8px 20px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:13px;">🗑️ מחק את כל המשימות (התחל מאפס)</button>
       </div>
     </div>
 
@@ -1245,10 +1259,10 @@ function initFirebaseSync() {
         return;
       }
     }
-    // First time — generate default tasks and push to DB
-    console.log('🆕 No data in Firebase, generating default tasks...');
-    allTasks = generateTasks();
-    enrichTasks();
+    // First time — start with empty slate
+    console.log('🆕 No data in Firebase, starting with 0 tasks');
+    allTasks = [];
+    nextId = 1;
     dbReady = true;
     saveToDB();
     generateInitialNotifs();
@@ -1811,13 +1825,25 @@ function bankUnassign(taskId) {
 }
 
 // ===== TASKS TABLE =====
+let selectedTaskIds = new Set();
+
 function renderTasks() {
   renderFilters();
   const sorted = sortTaskList(getFilteredTasks());
+  // Update batch bar
+  const batchBar = document.getElementById('batchBar');
+  if (selectedTaskIds.size > 0) {
+    batchBar.style.display = 'flex';
+    document.getElementById('batchCount').textContent = selectedTaskIds.size + ' נבחרו';
+  } else {
+    batchBar.style.display = 'none';
+  }
   document.getElementById('taskTableBody').innerHTML = sorted.map(t=>{
     const c=CATEGORIES.find(x=>x.id===t.category), m=TEAM.find(x=>x.id===t.assignee);
     const od=t.endDate&&t.endDate<today&&t.status!=='done';
-    return `<tr>
+    const checked = selectedTaskIds.has(t.id) ? 'checked' : '';
+    return `<tr style="${checked?'background:rgba(74,108,247,0.06);':''}">
+      <td><input type="checkbox" ${checked} onchange="batchToggleTask(${t.id}, this.checked)"></td>
       <td><span class="priority-dot priority-${t.priority}"></span></td>
       <td class="task-name-cell" onclick="openEditTask(${t.id})">
         <div>${t.name}${t.recurrence&&t.recurrence!=='none'?' <span class="recur-badge">🔁 '+getRecurrenceLabel(t.recurrence)+'</span>':''}</div>
@@ -1879,6 +1905,50 @@ function sortTaskList(tasks) {
 }
 function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();}}
 function filterTasks(){renderView();}
+
+// ===== BATCH OPERATIONS =====
+function batchToggleTask(id, checked) {
+  if (checked) selectedTaskIds.add(id); else selectedTaskIds.delete(id);
+  renderTasks();
+}
+function batchToggleAll(checked) {
+  const visible = sortTaskList(getFilteredTasks());
+  if (checked) visible.forEach(t => selectedTaskIds.add(t.id));
+  else selectedTaskIds.clear();
+  renderTasks();
+}
+function batchClearSelection() {
+  selectedTaskIds.clear();
+  const cb = document.getElementById('selectAllTasks');
+  if (cb) cb.checked = false;
+  renderTasks();
+}
+function batchDeleteSelected() {
+  const count = selectedTaskIds.size;
+  if (!count) return;
+  if (!confirm(`למחוק ${count} משימות? פעולה זו לא ניתנת לביטול.`)) return;
+  allTasks = allTasks.filter(t => !selectedTaskIds.has(t.id));
+  selectedTaskIds.clear();
+  saveTasks();renderView();
+  toast(`🗑️ ${count} משימות נמחקו`);
+}
+function batchStatusSelected(status) {
+  const count = selectedTaskIds.size;
+  if (!count) return;
+  allTasks.forEach(t => { if (selectedTaskIds.has(t.id)) t.status = status; });
+  selectedTaskIds.clear();
+  saveTasks();renderView();
+  toast(`✅ ${count} משימות עודכנו ל${getStatusLabel(status)}`);
+}
+function deleteAllTasks() {
+  if (!confirm('אתה בטוח? פעולה זו תמחק את כל המשימות לצמיתות!')) return;
+  if (!confirm('בטוח בטוח? אין דרך חזרה!')) return;
+  allTasks = [];
+  nextId = 1;
+  selectedTaskIds.clear();
+  saveTasks();renderView();
+  toast('🗑️ כל המשימות נמחקו — התחלה מאפס');
+}
 
 // ===== GANTT WITH DRAG =====
 let ganttFilterVal='all';
