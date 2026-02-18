@@ -714,8 +714,29 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 .kr-value { font-size:20px; font-weight:700; min-width:50px; text-align:center; }
 .okr-add-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
 </style>
+
+<!-- Firebase SDKs (compat version for simple use) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+
 </head>
 <body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen" style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--bg);position:fixed;top:0;left:0;right:0;bottom:0;z-index:9999;">
+  <div style="background:var(--surface);border-radius:16px;padding:48px 40px;text-align:center;box-shadow:var(--shadow-md);max-width:400px;width:90%;">
+    <div style="font-size:48px;margin-bottom:12px;">🎬</div>
+    <h1 style="font-size:24px;font-weight:700;margin-bottom:6px;color:var(--text);">Studio Manager</h1>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:32px;">ניהול סטודיו אנימציה ותלת-מימד</p>
+    <button id="googleSignInBtn" onclick="signInWithGoogle()" style="display:inline-flex;align-items:center;gap:10px;padding:12px 28px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:15px;font-weight:500;color:var(--text);transition:all 0.2s;box-shadow:var(--shadow-sm);">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#4285F4" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#34A853" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59A14.5 14.5 0 019.5 24c0-1.59.28-3.14.76-4.59l-7.98-6.19A23.99 23.99 0 000 24c0 3.77.87 7.35 2.56 10.78l7.97-6.19z"/><path fill="#EA4335" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      התחבר עם Google
+    </button>
+    <p id="loginError" style="margin-top:16px;color:var(--red);font-size:13px;display:none;"></p>
+    <p id="loginLoading" style="margin-top:16px;color:var(--text2);font-size:13px;display:none;">⏳ מתחבר...</p>
+  </div>
+</div>
 
 <div class="sidebar" id="sidebar">
   <div class="sidebar-header">
@@ -802,6 +823,7 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <button class="btn btn-google" onclick="exportAllToGCal()">📅 ייצוא ל-Google Calendar</button>
       <button class="btn btn-secondary" onclick="exportICS()">⬇️ ICS</button>
       <div class="notif-bell" onclick="toggleNotifPanel()" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></div>
+      <div id="userInfo" style="display:flex;align-items:center;gap:8px;margin-right:8px;"></div>
     </div>
   </div>
 
@@ -1087,6 +1109,151 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 </div>
 
 <script>
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyC-9uit_eC83a2OjzVLkJbSNF4omX7ZUyI",
+  authDomain: "replica-dashboard-52a64.firebaseapp.com",
+  databaseURL: "https://replica-dashboard-52a64-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "replica-dashboard-52a64",
+  storageBucket: "replica-dashboard-52a64.firebasestorage.app",
+  messagingSenderId: "506950396387",
+  appId: "1:506950396387:web:47d580b6c178403131d8d6"
+};
+
+const ALLOWED_EMAILS = [
+  "rubi@replica.works",
+  "gilad@replica.works",
+  "dana@replica.works"
+];
+
+// Map emails to team member IDs
+const EMAIL_TO_TEAM = {
+  "rubi@replica.works": "rubi",
+  "gilad@replica.works": "gilad",
+  "dana@replica.works": "dana"
+};
+
+// Initialize Firebase
+const firebaseApp = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const auth = firebase.auth();
+let currentUser = null;
+let currentTeamId = 'rubi';
+let dbReady = false;
+
+// ===== AUTH =====
+function signInWithGoogle() {
+  document.getElementById('googleSignInBtn').style.display = 'none';
+  document.getElementById('loginLoading').style.display = 'block';
+  document.getElementById('loginError').style.display = 'none';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err => {
+    document.getElementById('googleSignInBtn').style.display = 'inline-flex';
+    document.getElementById('loginLoading').style.display = 'none';
+    document.getElementById('loginError').style.display = 'block';
+    document.getElementById('loginError').textContent = 'שגיאה בהתחברות: ' + err.message;
+  });
+}
+
+function signOutUser() {
+  auth.signOut();
+}
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    if (!ALLOWED_EMAILS.includes(user.email)) {
+      document.getElementById('loginError').style.display = 'block';
+      document.getElementById('loginError').textContent = '❌ אין לך הרשאת גישה. פנה למנהל המערכת.';
+      document.getElementById('googleSignInBtn').style.display = 'inline-flex';
+      document.getElementById('loginLoading').style.display = 'none';
+      auth.signOut();
+      return;
+    }
+    currentUser = user;
+    currentTeamId = EMAIL_TO_TEAM[user.email] || 'rubi';
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('userInfo').innerHTML =
+      '<span style="font-size:12px;color:var(--text2);">' + (user.displayName || user.email) + '</span>' +
+      '<button onclick="signOutUser()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;">התנתק</button>';
+    initFirebaseSync();
+  } else {
+    currentUser = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+  }
+});
+
+// ===== REAL-TIME SYNC =====
+function serializeDate(d) {
+  if (!d) return null;
+  return d instanceof Date ? d.toISOString() : d;
+}
+function deserializeDate(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+function serializeTasks(tasks) {
+  return tasks.map(t => ({
+    ...t,
+    startDate: serializeDate(t.startDate),
+    endDate: serializeDate(t.endDate),
+    comments: (t.comments||[]).map(c => ({...c, time: serializeDate(c.time)}))
+  }));
+}
+function deserializeTasks(data) {
+  if (!data) return null;
+  const arr = Array.isArray(data) ? data : Object.values(data);
+  return arr.map(t => ({
+    ...t,
+    startDate: deserializeDate(t.startDate),
+    endDate: deserializeDate(t.endDate),
+    subtasks: t.subtasks || [],
+    tags: t.tags || [],
+    comments: (t.comments||[]).map(c => ({...c, time: deserializeDate(c.time)}))
+  }));
+}
+
+function saveToDB() {
+  if (!dbReady) return;
+  db.ref('tasks').set(serializeTasks(allTasks));
+  db.ref('meta/nextId').set(nextId);
+}
+let _saveTimer = null;
+function saveTasks() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveToDB, 400);
+}
+
+function initFirebaseSync() {
+  db.ref('tasks').on('value', snap => {
+    const data = snap.val();
+    if (data) {
+      const parsed = deserializeTasks(data);
+      if (parsed && parsed.length > 0) {
+        allTasks = parsed;
+        nextId = allTasks.reduce((m, t) => Math.max(m, t.id || 0), 0) + 1;
+        dbReady = true;
+        generateInitialNotifs();
+        updateNotifBadge();
+        renderView();
+        return;
+      }
+    }
+    // First time — generate default tasks and push to DB
+    allTasks = generateTasks();
+    enrichTasks();
+    dbReady = true;
+    saveToDB();
+    generateInitialNotifs();
+    updateNotifBadge();
+    renderView();
+  });
+  db.ref('meta/nextId').on('value', snap => {
+    const val = snap.val();
+    if (val && val > nextId) nextId = val;
+  });
+}
+
 const TEAM = [
   { id:'rubi', name:'רובי', role:'מייסד', color:'#4a6cf7' },
   { id:'gilad', name:'גלעד', role:'מייסד', color:'#36b37e' },
@@ -1332,43 +1499,41 @@ function generateTasks() {
   return tasks;
 }
 
-let allTasks = generateTasks();
+let allTasks = []; // Populated from Firebase, or generated fresh on first load
 
 // Tag color palette
 const TAG_COLORS = ['#6c5ce7','#00b894','#fd79a8','#fdcb6e','#74b9ff','#e17055','#81ecec','#a29bfe','#55efc4','#fab1a0'];
 const TAG_PRESETS = ['דחוף','חשוב','לקוח','עיצוב','פיתוח','שיווק','תוכן','פיננסי','ישיבה','מעקב'];
 
-// Add sample subtasks/tags/recurrence to some tasks
-allTasks.forEach((t, i) => {
-  // Sample subtasks for ~30% of tasks
-  if (i % 3 === 0) {
-    const subs = [
-      [{text:'מחקר ראשוני',done:true},{text:'הכנת מסמך',done:false},{text:'אישור מנהל',done:false}],
-      [{text:'איסוף מידע',done:true},{text:'ניתוח נתונים',done:true},{text:'הצגת מסקנות',done:false}],
-      [{text:'תכנון',done:true},{text:'ביצוע',done:false},{text:'בדיקה',done:false},{text:'השקה',done:false}],
-    ];
-    t.subtasks = subs[i % subs.length].map((s,j) => ({id:j+1, text:s.text, done:s.done}));
-  }
-  // Sample tags for ~50% of tasks
-  if (i % 2 === 0) {
-    const tagSets = [['דחוף','לקוח'],['עיצוב'],['שיווק','תוכן'],['פיננסי','חשוב'],['פיתוח','מעקב']];
-    t.tags = tagSets[i % tagSets.length];
-  }
-  // Recurring for ~15% of tasks
-  if (i % 7 === 0) {
-    const recs = ['daily','weekly','biweekly','monthly'];
-    t.recurrence = recs[i % recs.length];
-  }
-  // Sample comments for ~25% of tasks
-  if (i % 4 === 0) {
-    const commentSets = [
-      [{author:'rubi',text:'צריך לקדם את זה השבוע, @דנה תוכלי לעזור?',time:new Date(today.getTime()-86400000*2)},{author:'dana',text:'בטח! אתחיל מחר בבוקר',time:new Date(today.getTime()-86400000)}],
-      [{author:'gilad',text:'עדכון: סיימתי את השלב הראשון. @רובי צריך את האישור שלך',time:new Date(today.getTime()-86400000*3)}],
-      [{author:'rubi',text:'בואו נדון בזה בישיבת הצוות הבאה @גלעד @דנה',time:new Date(today.getTime()-86400000*5)},{author:'gilad',text:'מתאים, הוספתי ליומן',time:new Date(today.getTime()-86400000*4)},{author:'dana',text:'👍',time:new Date(today.getTime()-86400000*4)}],
-    ];
-    t.comments = commentSets[i % commentSets.length];
-  }
-});
+// Enrich generated tasks with sample data (only used on first-ever load)
+function enrichTasks() {
+  allTasks.forEach((t, i) => {
+    if (i % 3 === 0) {
+      const subs = [
+        [{text:'מחקר ראשוני',done:true},{text:'הכנת מסמך',done:false},{text:'אישור מנהל',done:false}],
+        [{text:'איסוף מידע',done:true},{text:'ניתוח נתונים',done:true},{text:'הצגת מסקנות',done:false}],
+        [{text:'תכנון',done:true},{text:'ביצוע',done:false},{text:'בדיקה',done:false},{text:'השקה',done:false}],
+      ];
+      t.subtasks = subs[i % subs.length].map((s,j) => ({id:j+1, text:s.text, done:s.done}));
+    }
+    if (i % 2 === 0) {
+      const tagSets = [['דחוף','לקוח'],['עיצוב'],['שיווק','תוכן'],['פיננסי','חשוב'],['פיתוח','מעקב']];
+      t.tags = tagSets[i % tagSets.length];
+    }
+    if (i % 7 === 0) {
+      const recs = ['daily','weekly','biweekly','monthly'];
+      t.recurrence = recs[i % recs.length];
+    }
+    if (i % 4 === 0) {
+      const commentSets = [
+        [{author:'rubi',text:'צריך לקדם את זה השבוע, @דנה תוכלי לעזור?',time:new Date(today.getTime()-86400000*2)},{author:'dana',text:'בטח! אתחיל מחר בבוקר',time:new Date(today.getTime()-86400000)}],
+        [{author:'gilad',text:'עדכון: סיימתי את השלב הראשון. @רובי צריך את האישור שלך',time:new Date(today.getTime()-86400000*3)}],
+        [{author:'rubi',text:'בואו נדון בזה בישיבת הצוות הבאה @גלעד @דנה',time:new Date(today.getTime()-86400000*5)},{author:'gilad',text:'מתאים, הוספתי ליומן',time:new Date(today.getTime()-86400000*4)},{author:'dana',text:'👍',time:new Date(today.getTime()-86400000*4)}],
+      ];
+      t.comments = commentSets[i % commentSets.length];
+    }
+  });
+}
 
 // Notifications system
 let notifications = [];
@@ -1398,7 +1563,7 @@ function generateInitialNotifs() {
   notifications.sort((a,b) => b.time - a.time);
   notifications = notifications.slice(0, 30);
 }
-generateInitialNotifs();
+// generateInitialNotifs called after Firebase loads data
 
 let currentView = 'dashboard';
 let currentSort = { field:'deadline', asc:true };
@@ -1616,7 +1781,7 @@ function bankAssignConfirm() {
   task.inBank = false;
   document.getElementById('bankAssignForm').style.display = 'none';
   logActivity('assign','📤',`<strong>${TEAM.find(m=>m.id===person)?.name||''}</strong> שובץ/ה למשימה: "${task.name}"`);
-  renderBank();
+  saveTasks();renderBank();
   toast('✅ משימה שובצה בהצלחה!');
 }
 
@@ -1634,7 +1799,7 @@ function bankUnassign(taskId) {
   task.status = 'todo';
   task.inBank = true;
   logActivity('unassign','↩️',`משימה הוחזרה לבנק: "${task.name}"`);
-  renderBank();
+  saveTasks();renderBank();
   toast('↩️ משימה הוחזרה לבנק');
 }
 
@@ -1705,7 +1870,7 @@ function sortTaskList(tasks) {
     return (a[f]||'').localeCompare(b[f]||'','he')*d;
   });
 }
-function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);renderView();}}
+function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();}}
 function filterTasks(){renderView();}
 
 // ===== GANTT WITH DRAG =====
@@ -1861,6 +2026,7 @@ function ganttDragEnd(e) {
 
     task.startDate = newStart;
     task.endDate = newEnd;
+    saveTasks();
     toast(`📅 ${task.name} → ${fmtD(newStart)} - ${fmtD(newEnd)}`);
   }
 
@@ -1959,7 +2125,7 @@ function calDrop(e) {
   task.startDate = newDate;
   task.endDate = new Date(newDate);
   task.endDate.setDate(task.endDate.getDate() + duration);
-
+  saveTasks();
   toast(`📅 ${task.name} הועבר ל-${fmtD(newDate)}`);
   calDrag = null;
   renderCalendar();
@@ -2136,7 +2302,7 @@ function saveNewTask(){
     status:document.getElementById('f-status').value,goal:document.getElementById('f-goal').value,
     startDate:document.getElementById('f-start').value?new Date(document.getElementById('f-start').value):null,endDate:document.getElementById('f-end').value?new Date(document.getElementById('f-end').value):null,notes:document.getElementById('f-notes').value,
     subtasks:[],tags:[],recurrence:'none',comments:[],inBank:!document.getElementById('f-assignee').value||!document.getElementById('f-start').value||!document.getElementById('f-end').value});
-  closeModal();renderView();toast('✅ משימה חדשה נוספה');
+  saveTasks();closeModal();renderView();toast('✅ משימה חדשה נוספה');
 }
 
 function openEditTask(id){
@@ -2214,10 +2380,10 @@ function saveEditTask(id){
   // Update bank status based on assignment
   t.inBank = !t.assignee || !t.startDate || !t.endDate;
   if(t.status==='done' && t.recurrence && t.recurrence!=='none') generateRecurringTask(t);
-  closeModal();renderView();toast('✅ משימה עודכנה');
+  saveTasks();closeModal();renderView();toast('✅ משימה עודכנה');
 }
 
-function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);closeModal();renderView();toast('🗑️ משימה נמחקה');}
+function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);saveTasks();closeModal();renderView();toast('🗑️ משימה נמחקה');}
 
 // ===== HELPERS =====
 function fmtD(d){if(!(d instanceof Date))d=new Date(d);return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
@@ -2395,7 +2561,7 @@ function kanbanDrop(e, newStatus) {
   const task = allTasks.find(t => t.id === taskId);
   if (task) {
     task.status = newStatus;
-    renderKanban();
+    saveTasks();renderKanban();
     toast('✅ סטטוס עודכן ל' + getStatusLabel(newStatus));
   }
 }
@@ -2890,7 +3056,7 @@ function addSubtask(taskId) {
   const newId = t.subtasks.length ? Math.max(...t.subtasks.map(s => s.id)) + 1 : 1;
   t.subtasks.push({ id: newId, text, done: false });
   logActivity('edit', '📋', `תת-משימה חדשה נוספה: "${text}" למשימה "${t.name}"`);
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 function toggleSubtask(taskId, subId) {
@@ -2901,14 +3067,14 @@ function toggleSubtask(taskId, subId) {
     sub.done = !sub.done;
     logActivity('edit', sub.done ? '✅' : '⬜', `תת-משימה "${sub.text}" סומנה כ${sub.done ? 'הושלם' : 'לא הושלם'}`);
   }
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 function removeSubtask(taskId, subId) {
   const t = allTasks.find(x => x.id === taskId);
   if (!t || !t.subtasks) return;
   t.subtasks = t.subtasks.filter(s => s.id !== subId);
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 // ===== TAGS =====
@@ -2922,7 +3088,7 @@ function addTagToEdit(taskId) {
   if (t.tags.includes(tag)) { toast('⚠️ תגית כבר קיימת'); return; }
   t.tags.push(tag);
   logActivity('edit', '🏷️', `תגית "${tag}" נוספה למשימה "${t.name}"`);
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 function addPresetTag(taskId, tag) {
@@ -2932,14 +3098,14 @@ function addPresetTag(taskId, tag) {
   if (t.tags.includes(tag)) return;
   t.tags.push(tag);
   logActivity('edit', '🏷️', `תגית "${tag}" נוספה למשימה "${t.name}"`);
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 function removeTagFromEdit(taskId, tag) {
   const t = allTasks.find(x => x.id === taskId);
   if (!t || !t.tags) return;
   t.tags = t.tags.filter(tg => tg !== tag);
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 function getTagColor(tag) {
@@ -2976,6 +3142,7 @@ function generateRecurringTask(task) {
     timeLogged: 0
   };
   allTasks.push(newTask);
+  saveTasks();
   logActivity('create', '🔁', `משימה חוזרת נוצרה: "${newTask.name}" (${getRecurrenceLabel(task.recurrence)})`);
   toast(`🔁 משימה חוזרת נוצרה: ${newTask.name}`);
 }
@@ -3029,7 +3196,7 @@ function addComment(taskId) {
   const t = allTasks.find(x => x.id === taskId);
   if (!t) return;
   if (!t.comments) t.comments = [];
-  t.comments.push({ author: 'rubi', text, time: new Date() });
+  t.comments.push({ author: currentTeamId, text, time: new Date() });
   // Check for mentions and create notifications
   const mentions = text.match(/@(רובי|גלעד|דנה)/g);
   if (mentions) {
@@ -3039,15 +3206,15 @@ function addComment(taskId) {
       if (mentioned) {
         notifications.unshift({
           id: notifications.length + 1, type: 'mention', icon: '💬',
-          title: `רובי הזכיר/ה אותך`, desc: `"${text.substring(0,50)}${text.length>50?'...':''}" - ${t.name}`,
+          title: `${TEAM.find(m=>m.id===currentTeamId)?.name||'משתמש'} הזכיר/ה אותך`, desc: `"${text.substring(0,50)}${text.length>50?'...':''}" - ${t.name}`,
           taskId: t.id, time: new Date(), read: false
         });
       }
     });
     updateNotifBadge();
   }
-  logActivity('edit', '💬', `<strong>רובי</strong> הוסיף/ה תגובה למשימה "${t.name}"`);
-  openEditTask(taskId);
+  logActivity('edit', '💬', `<strong>${TEAM.find(m=>m.id===currentTeamId)?.name||'משתמש'}</strong> הוסיף/ה תגובה למשימה "${t.name}"`);
+  saveTasks();openEditTask(taskId);
   toast('💬 תגובה נוספה');
 }
 
@@ -3055,7 +3222,7 @@ function deleteComment(taskId, idx) {
   const t = allTasks.find(x => x.id === taskId);
   if (!t || !t.comments) return;
   t.comments.splice(idx, 1);
-  openEditTask(taskId);
+  saveTasks();openEditTask(taskId);
 }
 
 function checkMention(textarea, taskId) {
@@ -3440,8 +3607,7 @@ function renderOKR() {
 }
 
 // ===== INIT =====
-updateNotifBadge();
-renderDashboard();
+// App initializes after Firebase auth + data sync (see initFirebaseSync)
 </script>
 </body>
 </html>
