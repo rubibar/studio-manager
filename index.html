@@ -1227,12 +1227,16 @@ function deserializeTasks(data) {
   }));
 }
 
+let _skipNextSync = false; // Flag to prevent listener from overwriting local changes
+
 function saveToDB() {
   if (!dbReady) { console.warn('⚠️ saveToDB called but dbReady is false'); return; }
+  _skipNextSync = true; // Our own write will trigger the listener — skip it
   console.log('💾 Saving', allTasks.length, 'tasks to Firebase...');
-  db.ref('tasks').set(serializeTasks(allTasks))
+  const data = allTasks.length > 0 ? serializeTasks(allTasks) : null;
+  db.ref('tasks').set(data)
     .then(() => console.log('✅ Tasks saved successfully'))
-    .catch(err => { console.error('❌ Firebase save FAILED:', err); toast('❌ שגיאה בשמירה: ' + err.message); });
+    .catch(err => { console.error('❌ Firebase save FAILED:', err); toast('❌ שגיאה בשמירה: ' + err.message); _skipNextSync = false; });
   db.ref('meta/nextId').set(nextId);
 }
 let _saveTimer = null;
@@ -1240,10 +1244,15 @@ function saveTasks() {
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(saveToDB, 400);
 }
+function saveTasksNow() {
+  clearTimeout(_saveTimer);
+  saveToDB();
+}
 
 function initFirebaseSync() {
   console.log('🔄 Starting Firebase sync...');
   db.ref('tasks').on('value', snap => {
+    if (_skipNextSync) { _skipNextSync = false; console.log('⏭️ Skipping own write echo'); return; }
     const data = snap.val();
     console.log('📥 Firebase data received:', data ? 'has data' : 'empty/null');
     if (data) {
@@ -1259,12 +1268,11 @@ function initFirebaseSync() {
         return;
       }
     }
-    // First time — start with empty slate
+    // No data — empty slate
     console.log('🆕 No data in Firebase, starting with 0 tasks');
     allTasks = [];
     nextId = 1;
     dbReady = true;
-    saveToDB();
     generateInitialNotifs();
     updateNotifBadge();
     renderView();
@@ -1929,7 +1937,7 @@ function batchDeleteSelected() {
   if (!confirm(`למחוק ${count} משימות? פעולה זו לא ניתנת לביטול.`)) return;
   allTasks = allTasks.filter(t => !selectedTaskIds.has(t.id));
   selectedTaskIds.clear();
-  saveTasks();renderView();
+  saveTasksNow();renderView();
   toast(`🗑️ ${count} משימות נמחקו`);
 }
 function batchStatusSelected(status) {
@@ -1937,7 +1945,7 @@ function batchStatusSelected(status) {
   if (!count) return;
   allTasks.forEach(t => { if (selectedTaskIds.has(t.id)) t.status = status; });
   selectedTaskIds.clear();
-  saveTasks();renderView();
+  saveTasksNow();renderView();
   toast(`✅ ${count} משימות עודכנו ל${getStatusLabel(status)}`);
 }
 function deleteAllTasks() {
@@ -1946,7 +1954,7 @@ function deleteAllTasks() {
   allTasks = [];
   nextId = 1;
   selectedTaskIds.clear();
-  saveTasks();renderView();
+  saveTasksNow();renderView();
   toast('🗑️ כל המשימות נמחקו — התחלה מאפס');
 }
 
