@@ -1214,8 +1214,11 @@ function deserializeTasks(data) {
 }
 
 function saveToDB() {
-  if (!dbReady) return;
-  db.ref('tasks').set(serializeTasks(allTasks));
+  if (!dbReady) { console.warn('⚠️ saveToDB called but dbReady is false'); return; }
+  console.log('💾 Saving', allTasks.length, 'tasks to Firebase...');
+  db.ref('tasks').set(serializeTasks(allTasks))
+    .then(() => console.log('✅ Tasks saved successfully'))
+    .catch(err => { console.error('❌ Firebase save FAILED:', err); toast('❌ שגיאה בשמירה: ' + err.message); });
   db.ref('meta/nextId').set(nextId);
 }
 let _saveTimer = null;
@@ -1225,11 +1228,14 @@ function saveTasks() {
 }
 
 function initFirebaseSync() {
+  console.log('🔄 Starting Firebase sync...');
   db.ref('tasks').on('value', snap => {
     const data = snap.val();
+    console.log('📥 Firebase data received:', data ? 'has data' : 'empty/null');
     if (data) {
       const parsed = deserializeTasks(data);
       if (parsed && parsed.length > 0) {
+        console.log('✅ Loaded', parsed.length, 'tasks from Firebase');
         allTasks = parsed;
         nextId = allTasks.reduce((m, t) => Math.max(m, t.id || 0), 0) + 1;
         dbReady = true;
@@ -1240,6 +1246,7 @@ function initFirebaseSync() {
       }
     }
     // First time — generate default tasks and push to DB
+    console.log('🆕 No data in Firebase, generating default tasks...');
     allTasks = generateTasks();
     enrichTasks();
     dbReady = true;
