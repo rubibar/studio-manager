@@ -1238,6 +1238,7 @@ function saveToDB() {
     .then(() => console.log('✅ Tasks saved successfully'))
     .catch(err => { console.error('❌ Firebase save FAILED:', err); toast('❌ שגיאה בשמירה: ' + err.message); });
   db.ref('meta/nextId').set(nextId);
+  db.ref('_version').set(APP_VERSION); // Always preserve version marker
 }
 let _saveTimer = null;
 function saveTasks() {
@@ -1249,8 +1250,53 @@ function saveTasksNow() {
   saveToDB();
 }
 
+const APP_VERSION = 'v2-clean';
+
 function initFirebaseSync() {
   console.log('🔄 Starting Firebase sync...');
+  // First check version marker
+  db.ref('_version').once('value', vsnap => {
+    const ver = vsnap.val();
+    if (ver !== APP_VERSION) {
+      // No version marker or old version — wipe everything and start clean
+      console.log('🧹 No version marker found (got:', ver, ') — wiping ghost data...');
+      db.ref().set({ _version: APP_VERSION }).then(() => {
+        console.log('✅ Database wiped and version marker set');
+        allTasks = [];
+        nextId = 1;
+        dbReady = true;
+        _lastSaveTime = Date.now();
+        generateInitialNotifs();
+        updateNotifBadge();
+        renderView();
+        // Now start listening
+        startFirebaseListeners();
+      });
+      return;
+    }
+    // Version marker exists — start listening normally
+    console.log('✅ Version marker OK:', ver);
+    startFirebaseListeners();
+    // Keep watching — if ghost overwrites and marker disappears, wipe again
+    db.ref('_version').on('value', vs => {
+      if (vs.val() !== APP_VERSION) {
+        console.log('🚨 Version marker gone! Ghost detected — wiping...');
+        _lastSaveTime = Date.now();
+        db.ref().set({ _version: APP_VERSION }).then(() => {
+          allTasks = [];
+          nextId = 1;
+          dbReady = true;
+          _lastSaveTime = Date.now();
+          generateInitialNotifs();
+          updateNotifBadge();
+          renderView();
+        });
+      }
+    });
+  });
+}
+
+function startFirebaseListeners() {
   db.ref('tasks').on('value', snap => {
     // Ignore echoes from our own writes (within 2 seconds)
     if (Date.now() - _lastSaveTime < 2000) {
