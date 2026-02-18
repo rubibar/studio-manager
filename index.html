@@ -337,6 +337,33 @@ body {
 }
 .cal-nav h2 { font-size:20px; font-weight:600; }
 .cal-nav-btns { display:flex; gap:8px; }
+.cal-view-modes { display:flex; gap:4px; }
+.cal-view-modes button { font-size:11px; padding:4px 10px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text2); cursor:pointer; transition:all 0.15s; }
+.cal-view-modes button:hover { background:var(--surface2); }
+.cal-view-modes button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+
+/* Day view */
+.day-view-container { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.day-header { padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface2); }
+.day-tasks-list { padding:12px; display:flex; flex-direction:column; gap:8px; }
+.day-task-item { padding:12px 14px; border-radius:var(--radius); border-right:4px solid; background:var(--surface2); cursor:pointer; transition:background 0.15s; }
+.day-task-item:hover { background:rgba(74,108,247,0.06); }
+
+/* Week view */
+.week-cell { display:flex; flex-direction:column; gap:4px; }
+
+/* Year view */
+.year-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.mini-month { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.mini-month-header { background:var(--surface2); padding:8px 12px; font-size:12px; font-weight:600; text-align:center; border-bottom:1px solid var(--border); transition:background 0.15s; }
+.mini-month-header:hover { background:rgba(74,108,247,0.08); }
+.mini-month-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--border); padding:1px; }
+.mini-month-day { background:var(--surface); padding:4px; text-align:center; font-size:10px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; position:relative; transition:background 0.1s; }
+.mini-month-day:hover { background:rgba(74,108,247,0.06); }
+.mini-month-day.other-month { opacity:0.25; }
+.mini-month-day.today { background:rgba(74,108,247,0.15); font-weight:700; }
+.mini-month-day-dot { position:absolute; bottom:2px; width:4px; height:4px; border-radius:50%; }
+.mini-month-day-count { position:absolute; top:0; right:1px; font-size:7px; color:var(--accent); font-weight:700; }
 
 .modal-overlay {
   position:fixed; inset:0; background:rgba(0,0,0,0.35);
@@ -916,6 +943,12 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
           <button class="btn btn-secondary btn-sm" onclick="calNav(0)">היום</button>
           <button class="btn btn-secondary btn-sm" onclick="calNav(1)">←</button>
         </div>
+        <div class="cal-view-modes">
+          <button data-mode="day" onclick="switchCalViewMode('day')">יום</button>
+          <button data-mode="week" onclick="switchCalViewMode('week')">שבוע</button>
+          <button data-mode="month" class="active" onclick="switchCalViewMode('month')">חודש</button>
+          <button data-mode="year" onclick="switchCalViewMode('year')">שנה</button>
+        </div>
         <h2 id="calTitle"></h2>
         <span style="font-size:11px;color:var(--text2);">🖱️ גרור משימות בין ימים</span>
       </div>
@@ -1362,6 +1395,7 @@ let currentView = 'dashboard';
 let currentSort = { field:'deadline', asc:true };
 let activeFilters = { category:'all', assignee:'all', status:'all', priority:'all' };
 let calendarDate = new Date(today);
+let calViewMode = 'month';
 
 // ===== NAVIGATION =====
 function switchView(view, el) {
@@ -1886,13 +1920,37 @@ function ganttDragEnd(e) {
 // ===== CALENDAR WITH DRAG =====
 let calDrag = null;
 
-function renderCalendar() {
-  const year=calendarDate.getFullYear(), month=calendarDate.getMonth();
-  const mNames=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  document.getElementById('calTitle').textContent=`${mNames[month]} ${year}`;
+const CAL_MNAMES=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+const CAL_DNAMES=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 
-  const dNames=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-  let html=dNames.map(d=>`<div class="cal-header">${d}</div>`).join('');
+function getTasksForDate(date) {
+  return allTasks.filter(t=>t.startDate&&t.endDate&&date>=new Date(t.startDate.toDateString())&&date<=new Date(t.endDate.toDateString()));
+}
+
+function renderCalendar() {
+  // Update view mode buttons
+  document.querySelectorAll('.cal-view-modes button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === calViewMode);
+  });
+  switch(calViewMode) {
+    case 'day': renderCalendarDay(); break;
+    case 'week': renderCalendarWeek(); break;
+    case 'year': renderCalendarYear(); break;
+    default: renderCalendarMonth(); break;
+  }
+}
+
+function switchCalViewMode(mode) {
+  calViewMode = mode;
+  renderCalendar();
+}
+
+// ── MONTH VIEW ──
+function renderCalendarMonth() {
+  const year=calendarDate.getFullYear(), month=calendarDate.getMonth();
+  document.getElementById('calTitle').textContent=`${CAL_MNAMES[month]} ${year}`;
+
+  let html=CAL_DNAMES.map(d=>`<div class="cal-header">${d}</div>`).join('');
 
   const first=new Date(year,month,1), last=new Date(year,month+1,0);
   const pad=first.getDay();
@@ -1904,9 +1962,9 @@ function renderCalendar() {
 
   for(let d=1;d<=last.getDate();d++){
     const date=new Date(year,month,d);
-    const iso=date.toISOString().split('T')[0];
+    const iso=getLocalDateISO(date);
     const isToday=date.toDateString()===today.toDateString();
-    const dayTasks=allTasks.filter(t=>t.startDate&&t.endDate&&date>=new Date(t.startDate.toDateString())&&date<=new Date(t.endDate.toDateString()));
+    const dayTasks=getTasksForDate(date);
 
     html+=`<div class="cal-day${isToday?' today':''}" data-date="${iso}"
       onclick="showDayTasks(${year},${month},${d})"
@@ -1929,6 +1987,148 @@ function renderCalendar() {
   const total=pad+last.getDate(), rem=total%7===0?0:7-(total%7);
   for(let i=1;i<=rem;i++) html+=`<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
 
+  document.getElementById('calendarGrid').innerHTML=html;
+}
+
+// ── DAY VIEW ──
+function renderCalendarDay() {
+  const date=calendarDate;
+  const dateStr=`${CAL_DNAMES[date.getDay()]}, ${date.getDate()} ${CAL_MNAMES[date.getMonth()]} ${date.getFullYear()}`;
+  document.getElementById('calTitle').textContent=dateStr;
+
+  const dayTasks=getTasksForDate(date);
+  const iso=getLocalDateISO(date);
+
+  let html=`<div class="day-view-container" data-date="${iso}" ondragover="calDragOver(event)" ondragleave="calDragLeave(event)" ondrop="calDrop(event)">
+    <div class="day-header">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="margin:0;font-size:18px;font-weight:600;">${dateStr}</h3>
+        <span style="font-size:12px;color:var(--text2);">${dayTasks.length} משימות</span>
+      </div>
+    </div>
+    <div class="day-tasks-list">`;
+
+  if(dayTasks.length===0){
+    html+='<div style="padding:40px;text-align:center;color:var(--text2);font-size:14px;">אין משימות ליום זה</div>';
+  } else {
+    dayTasks.forEach(t=>{
+      const cat=CATEGORIES.find(c=>c.id===t.category);
+      const member=TEAM.find(m=>m.id===t.assignee);
+      const pColor={high:'#e74c3c',medium:'#f39c12',low:'#27ae60'}[t.priority]||'var(--text2)';
+      html+=`<div class="day-task-item" style="border-right-color:${pColor};"
+        draggable="true" ondragstart="calDragStart(event,${t.id})" ondragend="calDragEnd(event)"
+        onclick="openEditTask(${t.id})">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <strong style="font-size:13px;">${t.name}</strong>
+          <span class="status-badge status-${t.status}">${getStatusLabel(t.status)}</span>
+        </div>
+        <div style="display:flex;gap:12px;font-size:11px;color:var(--text2);">
+          <span>${cat.emoji} ${cat.name}</span>
+          <span>👤 ${member?member.name:'לא הוקצה'}</span>
+          ${t.endDate?`<span>📅 עד ${fmtD(t.endDate)}</span>`:''}
+        </div>
+        ${(t.subtasks&&t.subtasks.length>0)?`<div style="margin-top:6px;font-size:10px;color:var(--text2);">✅ ${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length} משימות משנה</div>`:''}
+      </div>`;
+    });
+  }
+  html+='</div></div>';
+  document.getElementById('calendarGrid').innerHTML=html;
+}
+
+// ── WEEK VIEW ──
+function renderCalendarWeek() {
+  const base=new Date(calendarDate);
+  const sun=new Date(base);
+  sun.setDate(sun.getDate()-sun.getDay());
+
+  const days=[];
+  for(let i=0;i<7;i++){const d=new Date(sun);d.setDate(d.getDate()+i);days.push(d);}
+
+  const endD=new Date(sun);endD.setDate(endD.getDate()+6);
+  document.getElementById('calTitle').textContent=`${fmtD(sun)} - ${fmtD(endD)}`;
+
+  let html=CAL_DNAMES.map((name,i)=>{
+    const d=days[i];
+    const isToday=d.toDateString()===today.toDateString();
+    return `<div class="cal-header" style="${isToday?'background:rgba(74,108,247,0.15);font-weight:700;':''}">
+      <div>${name}</div>
+      <div style="font-size:13px;font-weight:700;margin-top:2px;">${d.getDate()}</div>
+    </div>`;
+  }).join('');
+
+  // Build day columns
+  days.forEach((d,i)=>{
+    const isToday=d.toDateString()===today.toDateString();
+    const iso=getLocalDateISO(d);
+    const dayTasks=getTasksForDate(d);
+
+    html+=`<div class="cal-day week-cell${isToday?' today':''}" data-date="${iso}"
+      ondragover="calDragOver(event)" ondragleave="calDragLeave(event)" ondrop="calDrop(event)"
+      style="min-height:300px;">`;
+
+    dayTasks.forEach(t=>{
+      const cat=CATEGORIES.find(c=>c.id===t.category);
+      const pColor={high:'#e74c3c',medium:'#f39c12',low:'#27ae60'}[t.priority]||'var(--text2)';
+      html+=`<div class="cal-event" draggable="true" data-task-id="${t.id}"
+        style="background:${cat.color}22;color:${cat.color};border-right:3px solid ${pColor};padding:6px 8px;margin-bottom:4px;font-size:11px;white-space:normal;"
+        ondragstart="calDragStart(event,${t.id})" ondragend="calDragEnd(event)"
+        onclick="openEditTask(${t.id})">
+        <div style="font-weight:600;margin-bottom:2px;">${t.name}</div>
+        <div style="font-size:9px;opacity:0.7;">${cat.emoji} ${getStatusLabel(t.status)}</div>
+      </div>`;
+    });
+    if(dayTasks.length===0) html+=`<div style="padding:12px;text-align:center;font-size:11px;color:var(--text2);opacity:0.5;">—</div>`;
+    html+='</div>';
+  });
+
+  document.getElementById('calendarGrid').innerHTML=html;
+}
+
+// ── YEAR VIEW ──
+function renderCalendarYear() {
+  const year=calendarDate.getFullYear();
+  document.getElementById('calTitle').textContent=String(year);
+
+  const dShort=['א','ב','ג','ד','ה','ו','ש'];
+  let html='<div class="year-grid">';
+
+  for(let month=0;month<12;month++){
+    const first=new Date(year,month,1), last=new Date(year,month+1,0);
+    const pad=first.getDay();
+
+    html+=`<div class="mini-month">
+      <div class="mini-month-header" onclick="calendarDate=new Date(${year},${month},1);switchCalViewMode('month');" style="cursor:pointer;">${CAL_MNAMES[month]}</div>
+      <div class="mini-month-grid">`;
+
+    dShort.forEach(d=>{
+      html+=`<div style="background:var(--surface2);font-size:9px;font-weight:600;padding:2px;text-align:center;color:var(--text2);">${d}</div>`;
+    });
+
+    for(let i=0;i<pad;i++){
+      html+='<div class="mini-month-day other-month"></div>';
+    }
+
+    for(let d=1;d<=last.getDate();d++){
+      const date=new Date(year,month,d);
+      const isToday=date.toDateString()===today.toDateString();
+      const dayTasks=getTasksForDate(date);
+      const hasTask=dayTasks.length>0;
+      const dotColor=hasTask?(CATEGORIES.find(c=>c.id===dayTasks[0].category)?.color||'var(--accent)'):'';
+
+      html+=`<div class="mini-month-day${isToday?' today':''}" style="cursor:pointer;${hasTask?'font-weight:600;':''}"
+        onclick="calendarDate=new Date(${year},${month},${d});switchCalViewMode('day');"
+        title="${dayTasks.length} משימות">${d}
+        ${hasTask?`<div class="mini-month-day-dot" style="background:${dotColor};"></div>`:''}
+        ${dayTasks.length>1?`<div class="mini-month-day-count">${dayTasks.length}</div>`:''}
+      </div>`;
+    }
+
+    const total=pad+last.getDate(), rem=total%7===0?0:7-(total%7);
+    for(let i=0;i<rem;i++) html+='<div class="mini-month-day other-month"></div>';
+
+    html+='</div></div>';
+  }
+  html+='</div>';
   document.getElementById('calendarGrid').innerHTML=html;
 }
 
@@ -1968,7 +2168,7 @@ function calDrop(e) {
   const task = allTasks.find(t => t.id === calDrag);
   if (!task) return;
 
-  const newDate = new Date(dateStr);
+  const newDate = parseLocalDate(dateStr);
   const duration = Math.round((task.endDate - task.startDate) / 86400000);
 
   task.startDate = newDate;
@@ -1980,7 +2180,16 @@ function calDrop(e) {
   renderCalendar();
 }
 
-function calNav(dir){if(dir===0) calendarDate=new Date(today); else calendarDate.setMonth(calendarDate.getMonth()+dir);renderCalendar();}
+function calNav(dir){
+  if(dir===0){calendarDate=new Date(today);}
+  else switch(calViewMode){
+    case 'day': calendarDate.setDate(calendarDate.getDate()+dir); break;
+    case 'week': calendarDate.setDate(calendarDate.getDate()+dir*7); break;
+    case 'month': calendarDate.setMonth(calendarDate.getMonth()+dir); break;
+    case 'year': calendarDate.setFullYear(calendarDate.getFullYear()+dir); break;
+  }
+  renderCalendar();
+}
 
 function showDayTasks(year,month,day){
   const date=new Date(year,month,day);
@@ -2237,7 +2446,19 @@ function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allT
 // ===== HELPERS =====
 function fmtD(d){if(!(d instanceof Date))d=new Date(d);return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
 function fmtDS(d){return `${d.getDate()}/${d.getMonth()+1}`;}
-function fmtISO(d){if(!(d instanceof Date))d=new Date(d);return d.toISOString().split('T')[0];}
+function fmtISO(d){if(!(d instanceof Date))d=new Date(d);return getLocalDateISO(d);}
+// Timezone-safe date utilities
+function getLocalDateISO(date) {
+  if (!(date instanceof Date)) date = new Date(date);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+function parseLocalDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
 function getStatusLabel(s){return {todo:'לביצוע',progress:'בתהליך',review:'בבדיקה',done:'הושלם',blocked:'חסום'}[s]||s;}
 
 function toast(msg) {
