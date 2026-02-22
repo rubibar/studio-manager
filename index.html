@@ -3782,7 +3782,7 @@ function loadAdminSettings() {
 }
 
 // ===== GOOGLE CALENDAR API SYNC =====
-const GCAL_CLIENT_ID = ''; // Will be set by admin
+const GCAL_CLIENT_ID = '906097921484-0evtil5r0q1ol3hf8q54nsj8li4fik55.apps.googleusercontent.com';
 const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar.events';
 let gcalTokenClient = null;
 let gcalAccessToken = null;
@@ -3842,8 +3842,10 @@ function initGCalSync() {
 }
 
 function startGCalAuth() {
+  const clientId = getGCalClientId();
+  if (!clientId) { toast('❌ לא הוזן Client ID'); return; }
   gcalTokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: getGCalClientId(),
+    client_id: clientId,
     scope: GCAL_SCOPES,
     callback: (resp) => {
       if (resp.access_token) {
@@ -3857,8 +3859,7 @@ function startGCalAuth() {
 }
 
 function getGCalClientId() {
-  // Try to get from Firebase settings, or use stored value
-  return localStorage.getItem('gcal_client_id') || prompt('הזן את Google OAuth Client ID שלך (מ-Google Cloud Console):');
+  return GCAL_CLIENT_ID;
 }
 
 async function syncAllToGCal() {
@@ -3887,7 +3888,7 @@ async function syncUserToGCal(userId) {
     };
 
     // Check if event already exists (by searching for unique ID in extendedProperties)
-    const eventId = `studio-task-${t.id}`;
+    const eventId = `studiotask${String(t.id).padStart(8, '0')}`;
 
     try {
       // Try to update existing event first
