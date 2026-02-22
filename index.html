@@ -1255,9 +1255,13 @@ auth.onAuthStateChanged(user => {
     loadAdminSettings();
     // Show admin nav if admin
     if (userIsAdmin) document.getElementById('adminNavItem').style.display = 'block';
-    // Auto-connect to Google Calendar if previously connected
-    if (localStorage.getItem('gcal_connected')) {
-      setTimeout(() => autoConnectGCal(), 2000);
+    // Restore Google Calendar connection from sessionStorage
+    if (gcalAccessToken) {
+      console.log('📅 GCal token restored from sessionStorage');
+      setTimeout(() => updateGCalBadge(), 500);
+    } else if (localStorage.getItem('gcal_connected')) {
+      // Token expired but user was previously connected - show reconnect hint
+      setTimeout(() => toast('📅 חיבור Google Calendar פג. לחץ על ניהול הרשאות כדי להתחבר מחדש'), 3000);
     }
   } else {
     currentUser = null;
@@ -1478,7 +1482,7 @@ function renderDashboard() {
   const _vt = getVisibleTasks();
   const total=_vt.length, done=_vt.filter(t=>t.status==='done').length,
     prog=_vt.filter(t=>t.status==='progress').length,
-    overdue=vTasks.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
+    overdue=_vt.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
 
   document.getElementById('statsGrid').style.display = dashWidgets.stats ? '' : 'none';
   document.getElementById('statsGrid').innerHTML = `
@@ -2484,7 +2488,7 @@ function saveEditTask(id){
   queueGCalSync(id);
 }
 
-function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);saveTasks();closeModal();renderView();toast('🗑️ משימה נמחקה');queueGCalSync(id,'delete');}
+function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);saveTasks();queueGCalSync(id,'delete');closeModal();renderView();toast('🗑️ משימה נמחקה');}
 
 // ===== HELPERS =====
 function fmtD(d){if(!(d instanceof Date))d=new Date(d);return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
@@ -3872,25 +3876,22 @@ function startGCalAuth(silent) {
         if (!silent) toast('✅ מחובר ל-Google Calendar - סנכרון אוטומטי פעיל');
         updateGCalBadge();
         renderGCalSyncSection();
-        // Schedule token refresh before expiry (tokens last ~1hr)
-        setTimeout(() => { if (localStorage.getItem('gcal_connected')) autoConnectGCal(); }, 3300000);
+        // Token expires after ~1hr - clear it and notify
+        setTimeout(() => {
+          if (gcalAccessToken) {
+            gcalAccessToken = null;
+            sessionStorage.removeItem('gcal_token');
+            updateGCalBadge();
+            toast('📅 חיבור Google Calendar פג. לחץ על ניהול הרשאות כדי להתחבר מחדש');
+          }
+        }, 3500000); // ~58 minutes
       }
     },
   });
   gcalTokenClient.requestAccessToken({ prompt: silent ? '' : 'consent' });
 }
 
-function autoConnectGCal() {
-  // Load Google Identity Services if needed, then silently get token
-  if (!window.google?.accounts?.oauth2) {
-    const script = document.createElement('script');
-    script.src = 'https://accounts.google.com/gsi/client';
-    script.onload = () => startGCalAuth(true);
-    document.head.appendChild(script);
-  } else {
-    startGCalAuth(true);
-  }
-}
+// autoConnectGCal removed - token persists via sessionStorage instead
 
 function disconnectGCal() {
   gcalAccessToken = null;
