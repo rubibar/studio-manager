@@ -3792,7 +3792,7 @@ function loadAdminSettings() {
 
 // ===== GOOGLE CALENDAR API SYNC =====
 const GCAL_CLIENT_ID = '906097921484-0evtil5r0q1ol3hf8q54nsj8li4fik55.apps.googleusercontent.com';
-const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar';
 let gcalTokenClient = null;
 let gcalAccessToken = null;
 
@@ -3916,17 +3916,26 @@ async function gcalUpsertEvent(taskObj) {
   };
 
   // Try update first, then create
+  console.log('📅 UPSERT attempt:', eventId, taskObj.name);
   let resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
     method: 'PUT',
     headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...event, id: eventId })
   });
   if (resp.status === 404) {
+    console.log('📅 Event not found, creating new:', eventId);
     resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...event, id: eventId })
     });
+  }
+  if (!resp.ok) {
+    const errBody = await resp.text().catch(() => '');
+    console.error('📅 UPSERT failed:', resp.status, errBody);
+  } else {
+    const data = await resp.json().catch(() => ({}));
+    console.log('📅 UPSERT success, GCal event ID:', data.id);
   }
   return resp.ok;
 }
@@ -3934,12 +3943,22 @@ async function gcalUpsertEvent(taskObj) {
 // Helper: delete a single event from GCal
 async function gcalDeleteEvent(eventId) {
   try {
+    console.log('📅 DELETE attempt:', eventId);
     const resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
     });
-    return resp.ok || resp.status === 404 || resp.status === 410; // 410 = already deleted
-  } catch(e) { return false; }
+    console.log('📅 DELETE response:', resp.status);
+    if (resp.ok || resp.status === 404 || resp.status === 410) return true;
+    // If 401, token may have expired
+    if (resp.status === 401) {
+      console.warn('📅 GCal token expired, clearing');
+      gcalAccessToken = null;
+    }
+    const body = await resp.text().catch(() => '');
+    console.error('📅 DELETE failed:', resp.status, body);
+    return false;
+  } catch(e) { console.error('📅 DELETE error:', e); return false; }
 }
 
 // Helper: get all studio events from GCal
