@@ -341,29 +341,32 @@ body {
 .cal-view-modes button { font-size:11px; padding:4px 10px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text2); cursor:pointer; transition:all 0.15s; }
 .cal-view-modes button:hover { background:var(--surface2); }
 .cal-view-modes button.active { background:var(--accent); color:#fff; border-color:var(--accent); }
-
-/* Day view */
 .day-view-container { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
 .day-header { padding:16px 20px; border-bottom:1px solid var(--border); background:var(--surface2); }
 .day-tasks-list { padding:12px; display:flex; flex-direction:column; gap:8px; }
 .day-task-item { padding:12px 14px; border-radius:var(--radius); border-right:4px solid; background:var(--surface2); cursor:pointer; transition:background 0.15s; }
 .day-task-item:hover { background:rgba(74,108,247,0.06); }
-
-/* Week view */
 .week-cell { display:flex; flex-direction:column; gap:4px; }
-
-/* Year view */
 .year-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
 .mini-month { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-.mini-month-header { background:var(--surface2); padding:8px 12px; font-size:12px; font-weight:600; text-align:center; border-bottom:1px solid var(--border); transition:background 0.15s; }
+.mini-month-header { background:var(--surface2); padding:8px 12px; font-size:12px; font-weight:600; text-align:center; border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; }
 .mini-month-header:hover { background:rgba(74,108,247,0.08); }
 .mini-month-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--border); padding:1px; }
-.mini-month-day { background:var(--surface); padding:4px; text-align:center; font-size:10px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; position:relative; transition:background 0.1s; }
+.mini-month-day { background:var(--surface); padding:4px; text-align:center; font-size:10px; aspect-ratio:1; display:flex; align-items:center; justify-content:center; position:relative; cursor:pointer; transition:background 0.1s; }
 .mini-month-day:hover { background:rgba(74,108,247,0.06); }
 .mini-month-day.other-month { opacity:0.25; }
 .mini-month-day.today { background:rgba(74,108,247,0.15); font-weight:700; }
 .mini-month-day-dot { position:absolute; bottom:2px; width:4px; height:4px; border-radius:50%; }
 .mini-month-day-count { position:absolute; top:0; right:1px; font-size:7px; color:var(--accent); font-weight:700; }
+/* Admin panel */
+.admin-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; }
+.admin-panel h3 { font-size:16px; margin-bottom:12px; }
+.admin-user-row { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-radius:var(--radius); background:var(--surface2); margin-bottom:8px; }
+.admin-badge { background:var(--accent); color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; }
+.role-select { padding:4px 8px; border-radius:6px; border:1px solid var(--border); font-size:12px; font-family:inherit; background:var(--surface); }
+.gcal-sync-btn { display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:var(--radius); border:1px solid #4285f4; background:#4285f422; color:#4285f4; font-size:12px; font-weight:600; cursor:pointer; transition:all 0.15s; font-family:inherit; }
+.gcal-sync-btn:hover { background:#4285f444; }
+.gcal-sync-status { font-size:11px; color:var(--text2); margin-top:4px; }
 
 .modal-overlay {
   position:fixed; inset:0; background:rgba(0,0,0,0.35);
@@ -826,6 +829,11 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <span class="icon">🎯</span> OKR
     </div>
   </div>
+  <div id="adminNavItem" style="display:none;">
+    <div class="nav-item" onclick="switchView('admin',this)">
+      <span class="icon">⚙️</span> ניהול הרשאות
+    </div>
+  </div>
   <div class="team-section">
     <h3>צוות</h3>
     <div class="team-member"><div class="avatar avatar-rubi">ר</div> רובי - מייסד</div>
@@ -1180,6 +1188,12 @@ const EMAIL_TO_TEAM = {
   "dana@replica.works": "dana"
 };
 
+// Admin emails — admins see all tasks, non-admins see only their own
+const ADMIN_EMAILS = ["rubi@replica.works", "gilad@replica.works"];
+let userIsAdmin = false;
+
+function isAdmin() { return userIsAdmin; }
+
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
@@ -1218,11 +1232,17 @@ auth.onAuthStateChanged(user => {
     }
     currentUser = user;
     currentTeamId = EMAIL_TO_TEAM[user.email] || 'rubi';
+    userIsAdmin = ADMIN_EMAILS.includes(user.email);
     document.getElementById('loginScreen').style.display = 'none';
+    const adminBadge = userIsAdmin ? '<span style="background:var(--accent);color:#fff;font-size:9px;padding:2px 6px;border-radius:8px;margin-right:6px;">מנהל</span>' : '';
     document.getElementById('userInfo').innerHTML =
+      adminBadge +
       '<span style="font-size:12px;color:var(--text2);">' + (user.displayName || user.email) + '</span>' +
       '<button onclick="signOutUser()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;">התנתק</button>';
     initFirebaseSync();
+    loadAdminSettings();
+    // Show admin nav if admin
+    if (userIsAdmin) document.getElementById('adminNavItem').style.display = 'block';
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
@@ -1283,7 +1303,7 @@ function saveTasksNow() {
 }
 
 function initFirebaseSync() {
-  console.log('🔄 Starting Firebase sync (v2 paths)...');
+  console.log('🔄 Starting Firebase sync...');
   db.ref('tasks_v2').on('value', snap => {
     // Ignore echoes from our own writes (within 2 seconds)
     if (Date.now() - _lastSaveTime < 2000) {
@@ -1360,23 +1380,22 @@ let allTasks = []; // Populated from Firebase
 const TAG_COLORS = ['#6c5ce7','#00b894','#fd79a8','#fdcb6e','#74b9ff','#e17055','#81ecec','#a29bfe','#55efc4','#fab1a0'];
 const TAG_PRESETS = ['דחוף','חשוב','לקוח','עיצוב','פיתוח','שיווק','תוכן','פיננסי','ישיבה','מעקב'];
 
-
 // Notifications system
 let notifications = [];
 function generateInitialNotifs() {
   const now = today;
   // Overdue notifications
-  allTasks.filter(t => t.endDate && t.endDate < now && t.status !== 'done').forEach(t => {
+  getVisibleTasks().filter(t => t.endDate && t.endDate < now && t.status !== 'done').forEach(t => {
     const daysLate = Math.ceil((now - t.endDate) / 86400000);
     notifications.push({id:notifications.length+1, type:'overdue', icon:'⚠️', title:`משימה באיחור: ${t.name}`, desc:`${daysLate} ימים באיחור - ${TEAM.find(m=>m.id===t.assignee)?.name||''}`, taskId:t.id, time:new Date(now.getTime()-daysLate*86400000), read:false});
   });
   // Upcoming deadlines (3 days)
-  allTasks.filter(t => t.status !== 'done' && t.endDate && t.endDate >= now && t.endDate <= new Date(now.getTime()+3*86400000)).forEach(t => {
+  getVisibleTasks().filter(t => t.status !== 'done' && t.endDate && t.endDate >= now && t.endDate <= new Date(now.getTime()+3*86400000)).forEach(t => {
     const daysLeft = Math.ceil((t.endDate - now) / 86400000);
     notifications.push({id:notifications.length+1, type:'deadline', icon:'⏰', title:`דד-ליין מתקרב: ${t.name}`, desc:`עוד ${daysLeft} ימים`, taskId:t.id, time:new Date(now.getTime()-86400000), read:false});
   });
   // Mention notifications from comments
-  allTasks.forEach(t => {
+  getVisibleTasks().forEach(t => {
     (t.comments||[]).forEach(c => {
       if (c.text.includes('@')) {
         const mentioned = TEAM.filter(m => c.text.includes('@'+m.name));
@@ -1429,6 +1448,7 @@ function renderView() {
     case 'pricing': renderPricing(); break;
     case 'clients': renderClients(); break;
     case 'okr': renderOKR(); break;
+    case 'admin': renderAdmin(); break;
   }
 }
 
@@ -1439,20 +1459,21 @@ function renderDashboard() {
   document.getElementById('widgetToggle').innerHTML = '<span style="font-size:11px;color:var(--text2);line-height:26px;">ווידג\'טים:</span>' +
     Object.entries(widgetNames).map(([k,v]) => `<span class="widget-chip ${dashWidgets[k]?'active':''}" onclick="toggleWidget('${k}')">${v}</span>`).join('');
 
-  const total=allTasks.length, done=allTasks.filter(t=>t.status==='done').length,
-    prog=allTasks.filter(t=>t.status==='progress').length,
-    overdue=allTasks.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
+  const _vt = getVisibleTasks();
+  const total=_vt.length, done=_vt.filter(t=>t.status==='done').length,
+    prog=_vt.filter(t=>t.status==='progress').length,
+    overdue=vTasks.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
 
   document.getElementById('statsGrid').style.display = dashWidgets.stats ? '' : 'none';
   document.getElementById('statsGrid').innerHTML = `
     <div class="stat-card accent"><div class="label">סה"כ משימות</div><div class="value">${total}</div><div class="sub">${CATEGORIES.length} קטגוריות</div></div>
     <div class="stat-card green"><div class="label">הושלמו</div><div class="value">${done}</div><div class="sub">${total?Math.round(done/total*100):0}%</div></div>
-    <div class="stat-card yellow"><div class="label">בתהליך</div><div class="value">${prog}</div><div class="sub">${allTasks.filter(t=>t.status==='review').length} בבדיקה</div></div>
+    <div class="stat-card yellow"><div class="label">בתהליך</div><div class="value">${prog}</div><div class="sub">${_vt.filter(t=>t.status==='review').length} בבדיקה</div></div>
     <div class="stat-card red"><div class="label">באיחור</div><div class="value">${overdue}</div><div class="sub">דורשים טיפול</div></div>`;
 
   let kpi='';
   TEAM.forEach(m=>{
-    const mt=allTasks.filter(t=>t.assignee===m.id), md=mt.filter(t=>t.status==='done').length;
+    const mt=_vt.filter(t=>t.assignee===m.id), md=mt.filter(t=>t.status==='done').length;
     const p=mt.length?Math.round(md/mt.length*100):0;
     kpi+=`<div class="kpi-card"><h4 style="display:flex;align-items:center;gap:6px;">
       <div class="avatar avatar-${m.id}" style="width:22px;height:22px;font-size:10px;">${m.name[0]}</div>${m.name} - ${mt.length} משימות</h4>
@@ -1468,7 +1489,7 @@ function renderDashboard() {
   urgentParent.style.display = dashWidgets.urgent ? '' : 'none';
   catParent.style.display = dashWidgets.categories ? '' : 'none';
 
-  const urgent=allTasks.filter(t=>t.priority==='high'&&t.status!=='done').sort((a,b)=>(a.endDate||new Date(9999,0))-(b.endDate||new Date(9999,0))).slice(0,6);
+  const urgent=_vt.filter(t=>t.priority==='high'&&t.status!=='done').sort((a,b)=>(a.endDate||new Date(9999,0))-(b.endDate||new Date(9999,0))).slice(0,6);
   document.getElementById('urgentTasks').innerHTML = urgent.map(t=>{
     const m=TEAM.find(x=>x.id===t.assignee);
     return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
@@ -1478,7 +1499,7 @@ function renderDashboard() {
   }).join('');
 
   document.getElementById('recentActivity').innerHTML = CATEGORIES.map(c=>{
-    const ct=allTasks.filter(t=>t.category===c.id), cd=ct.filter(t=>t.status==='done').length;
+    const ct=_vt.filter(t=>t.category===c.id), cd=ct.filter(t=>t.status==='done').length;
     const p=ct.length?Math.round(cd/ct.length*100):0;
     return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;">
       <span>${c.emoji}</span><span style="flex:1;">${c.name}</span><span style="color:var(--text2);width:40px;text-align:left;">${p}%</span>
@@ -1491,15 +1512,16 @@ let bankDragTaskId = null;
 
 function renderBank() {
   const search = (document.getElementById('bankSearch')?.value || '').toLowerCase();
-  const bankTasks = allTasks.filter(t => t.inBank);
-  const assignedTasks = allTasks.filter(t => !t.inBank && t.assignee);
+  const _vt = getVisibleTasks();
+  const bankTasks = _vt.filter(t => t.inBank);
+  const assignedTasks = _vt.filter(t => !t.inBank && t.assignee);
   const filtered = bankTasks.filter(t => !search || t.name.toLowerCase().includes(search) || t.goal.toLowerCase().includes(search));
 
   // Stats
   document.getElementById('bankStats').innerHTML = `
     <div class="bank-stat"><div class="num" style="color:var(--accent)">${bankTasks.length}</div><div class="lbl">בבנק</div></div>
     <div class="bank-stat"><div class="num" style="color:var(--green)">${assignedTasks.length}</div><div class="lbl">שובצו</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--yellow)">${allTasks.length}</div><div class="lbl">סה"כ</div></div>
+    <div class="bank-stat"><div class="num" style="color:var(--yellow)">${_vt.length}</div><div class="lbl">סה"כ</div></div>
     <div class="bank-stat"><div class="num" style="color:var(--pink)">${assignedTasks.filter(t=>t.status==='done').length}</div><div class="lbl">הושלמו</div></div>
   `;
 
@@ -1691,7 +1713,7 @@ function renderFilters() {
 function setFilter(type,val) { activeFilters[type]=val; renderTasks(); }
 
 function getFilteredTasks() {
-  let t=[...allTasks];
+  let t = isAdmin() ? [...allTasks] : allTasks.filter(x => x.assignee === currentTeamId);
   const s=document.getElementById('searchBox').value.trim();
   if(s) t=t.filter(x=>x.name.includes(s)||x.goal.includes(s)||x.sub.includes(s)||(x.tags&&x.tags.some(tg=>tg.includes(s))));
   if(activeFilters.category!=='all') t=t.filter(x=>x.category===activeFilters.category);
@@ -1767,7 +1789,7 @@ function renderGantt() {
   ganttStartDate = new Date(today);
   ganttStartDate.setDate(ganttStartDate.getDate() - ganttStartDate.getDay()); // Sunday
 
-  let tasks=allTasks.filter(t=>!t.inBank && t.startDate && t.endDate);
+  let tasks=getVisibleTasks().filter(t=>!t.inBank && t.startDate && t.endDate);
   if(ganttFilterVal!=='all') tasks=tasks.filter(t=>t.assignee===ganttFilterVal);
 
   // Build day headers
@@ -1923,12 +1945,16 @@ let calDrag = null;
 const CAL_MNAMES=['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
 const CAL_DNAMES=['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
 
+function getVisibleTasks() {
+  if (isAdmin()) return allTasks;
+  return allTasks.filter(t => t.assignee === currentTeamId);
+}
+
 function getTasksForDate(date) {
-  return allTasks.filter(t=>t.startDate&&t.endDate&&date>=new Date(t.startDate.toDateString())&&date<=new Date(t.endDate.toDateString()));
+  return getVisibleTasks().filter(t=>t.startDate&&t.endDate&&date>=new Date(t.startDate.toDateString())&&date<=new Date(t.endDate.toDateString()));
 }
 
 function renderCalendar() {
-  // Update view mode buttons
   document.querySelectorAll('.cal-view-modes button').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.mode === calViewMode);
   });
@@ -2027,7 +2053,6 @@ function renderCalendarDay() {
           <span>👤 ${member?member.name:'לא הוקצה'}</span>
           ${t.endDate?`<span>📅 עד ${fmtD(t.endDate)}</span>`:''}
         </div>
-        ${(t.subtasks&&t.subtasks.length>0)?`<div style="margin-top:6px;font-size:10px;color:var(--text2);">✅ ${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length} משימות משנה</div>`:''}
       </div>`;
     });
   }
@@ -2056,7 +2081,6 @@ function renderCalendarWeek() {
     </div>`;
   }).join('');
 
-  // Build day columns
   days.forEach((d,i)=>{
     const isToday=d.toDateString()===today.toDateString();
     const iso=getLocalDateISO(d);
@@ -2097,16 +2121,14 @@ function renderCalendarYear() {
     const pad=first.getDay();
 
     html+=`<div class="mini-month">
-      <div class="mini-month-header" onclick="calendarDate=new Date(${year},${month},1);switchCalViewMode('month');" style="cursor:pointer;">${CAL_MNAMES[month]}</div>
+      <div class="mini-month-header" onclick="calendarDate=new Date(${year},${month},1);switchCalViewMode('month');">${CAL_MNAMES[month]}</div>
       <div class="mini-month-grid">`;
 
     dShort.forEach(d=>{
       html+=`<div style="background:var(--surface2);font-size:9px;font-weight:600;padding:2px;text-align:center;color:var(--text2);">${d}</div>`;
     });
 
-    for(let i=0;i<pad;i++){
-      html+='<div class="mini-month-day other-month"></div>';
-    }
+    for(let i=0;i<pad;i++) html+='<div class="mini-month-day other-month"></div>';
 
     for(let d=1;d<=last.getDate();d++){
       const date=new Date(year,month,d);
@@ -2115,7 +2137,7 @@ function renderCalendarYear() {
       const hasTask=dayTasks.length>0;
       const dotColor=hasTask?(CATEGORIES.find(c=>c.id===dayTasks[0].category)?.color||'var(--accent)'):'';
 
-      html+=`<div class="mini-month-day${isToday?' today':''}" style="cursor:pointer;${hasTask?'font-weight:600;':''}"
+      html+=`<div class="mini-month-day${isToday?' today':''}" style="${hasTask?'font-weight:600;':''}"
         onclick="calendarDate=new Date(${year},${month},${d});switchCalViewMode('day');"
         title="${dayTasks.length} משימות">${d}
         ${hasTask?`<div class="mini-month-day-dot" style="background:${dotColor};"></div>`:''}
@@ -2193,7 +2215,7 @@ function calNav(dir){
 
 function showDayTasks(year,month,day){
   const date=new Date(year,month,day);
-  const dt=allTasks.filter(t=>date>=new Date(t.startDate.toDateString())&&date<=new Date(t.endDate.toDateString()));
+  const dt=getVisibleTasks().filter(t=>t.startDate&&t.endDate&&date>=new Date(t.startDate.toDateString())&&date<=new Date(t.endDate.toDateString()));
   let html=`<h2>📅 ${fmtD(date)}</h2>`;
   if(!dt.length) html+='<p style="color:var(--text2);margin-top:12px;">אין משימות ליום זה</p>';
   else {
@@ -2217,7 +2239,7 @@ function showDayTasks(year,month,day){
 function renderCategories(){
   let html='';
   CATEGORIES.forEach(cat=>{
-    const ct=allTasks.filter(t=>t.category===cat.id), done=ct.filter(t=>t.status==='done').length;
+    const ct=getVisibleTasks().filter(t=>t.category===cat.id), done=ct.filter(t=>t.status==='done').length;
     const pct=ct.length?Math.round(done/ct.length*100):0;
     const subs={};ct.forEach(t=>{if(!subs[t.sub])subs[t.sub]=[];subs[t.sub].push(t);});
     html+=`<div class="category-section">
@@ -2267,7 +2289,7 @@ function addToGCal(taskId) {
 }
 
 function exportAllToGCal() {
-  const pending = allTasks.filter(t => t.status !== 'done');
+  const pending = getVisibleTasks().filter(t => t.status !== 'done');
   if (pending.length > 20) {
     openModal(`<h2>📅 ייצוא לגוגל קלנדר</h2>
       <p style="margin-bottom:14px;color:var(--text2);">יש ${pending.length} משימות פתוחות. ייצוא של יותר מ-20 משימות בבת אחת עלול לפתוח חלונות רבים.</p>
@@ -2283,7 +2305,7 @@ function exportAllToGCal() {
 }
 
 function batchGCal() {
-  const pending = allTasks.filter(t => t.status !== 'done').slice(0, 20);
+  const pending = getVisibleTasks().filter(t => t.status !== 'done').slice(0, 20);
   pending.forEach((t, i) => {
     setTimeout(() => addToGCal(t.id), i * 800);
   });
@@ -2293,7 +2315,7 @@ function batchGCal() {
 function exportICS() {
   let ics = 'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Studio Manager//HE\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\n';
 
-  allTasks.filter(t => t.status !== 'done' && t.startDate && t.endDate).forEach(t => {
+  getVisibleTasks().filter(t => t.status !== 'done' && t.startDate && t.endDate).forEach(t => {
     const cat = CATEGORIES.find(c => c.id === t.category);
     const member = TEAM.find(m => m.id === t.assignee);
     const start = fmtISO(t.startDate).replace(/-/g, '');
@@ -2472,9 +2494,10 @@ function toast(msg) {
 
 // ===== WORKLOAD VIEW =====
 function renderWorkload() {
+  const _vt = getVisibleTasks();
   let cards = '';
   TEAM.forEach(m => {
-    const mt = allTasks.filter(t => t.assignee === m.id);
+    const mt = _vt.filter(t => t.assignee === m.id);
     const done = mt.filter(t => t.status === 'done').length;
     const prog = mt.filter(t => t.status === 'progress').length;
     const todo = mt.filter(t => t.status === 'todo').length;
@@ -2514,7 +2537,7 @@ function renderWorkload() {
     for (let w = 0; w < 13; w++) {
       const ws = new Date(startW); ws.setDate(ws.getDate() + w * 7);
       const we = new Date(ws); we.setDate(we.getDate() + 6);
-      const cnt = allTasks.filter(t => t.assignee === m.id && t.status !== 'done' && t.startDate <= we && t.endDate >= ws).length;
+      const cnt = _vt.filter(t => t.assignee === m.id && t.status !== 'done' && t.startDate <= we && t.endDate >= ws).length;
       const intensity = Math.min(cnt / 5, 1);
       const bg = cnt === 0 ? 'var(--surface2)' : `rgba(${m.color.match(/\w\w/g).map(x=>parseInt(x,16)).join(',')},${0.2 + intensity * 0.7})`;
       hm += `<div style="flex:1;height:24px;background:${bg};border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;" title="${m.name}: ${cnt} משימות פעילות">${cnt||''}</div>`;
@@ -2532,6 +2555,7 @@ function weekNav(dir) {
 }
 
 function renderWeekView() {
+  const _vtW = getVisibleTasks();
   const base = new Date(today);
   base.setDate(base.getDate() + weekOffset * 7);
   // Find Sunday of this week
@@ -2558,7 +2582,7 @@ function renderWeekView() {
     days.forEach(d => {
       const dayStart = new Date(d); dayStart.setHours(0,0,0,0);
       const dayEnd = new Date(d); dayEnd.setHours(23,59,59,999);
-      const tasks = allTasks.filter(t => t.assignee === m.id && t.startDate && t.endDate && t.startDate <= dayEnd && t.endDate >= dayStart && t.status !== 'done');
+      const tasks = _vtW.filter(t => t.assignee === m.id && t.startDate && t.endDate && t.startDate <= dayEnd && t.endDate >= dayStart && t.status !== 'done');
       html += '<div class="week-cell">';
       tasks.forEach(t => {
         const cat = CATEGORIES.find(c => c.id === t.category);
@@ -2596,7 +2620,8 @@ function renderKanban() {
     {id:'blocked', label:'חסום', icon:'🚫', color:'var(--red)'},
     {id:'done', label:'הושלם', icon:'✅', color:'var(--green)'}
   ];
-  const filtered = kanbanFilterVal === 'all' ? allTasks : allTasks.filter(t => t.assignee === kanbanFilterVal);
+  const _vt = getVisibleTasks();
+  const filtered = kanbanFilterVal === 'all' ? _vt : _vt.filter(t => t.assignee === kanbanFilterVal);
 
   let html = '';
   statuses.forEach(s => {
@@ -2641,7 +2666,7 @@ let activeTimer = null;
 let timerInterval = null;
 
 // Add timeLogged to all tasks if missing
-allTasks.forEach(t => { if (!t.timeLogged) t.timeLogged = 0; });
+allTasks.forEach(t => { if (!t.timeLogged) t.timeLogged = 0; });  // Keep allTasks - initializing all
 
 function startTimer(taskId) {
   if (activeTimer) stopTimer();
@@ -2683,18 +2708,19 @@ function setBurndownRange(range, el) {
 }
 
 function renderBurndown() {
+  const _vt = getVisibleTasks();
   const days = burndownRange === 'month' ? 30 : burndownRange === 'quarter' ? 90 : 180;
   const startD = new Date(today); startD.setDate(startD.getDate() - days);
-  const totalTasks = allTasks.length;
+  const totalTasks = _vt.length;
 
   // Calculate ideal and actual burndown
   const points = [];
-  const tasksAtStart = allTasks.filter(t => t.startDate && t.startDate <= startD).length;
-  const remaining = totalTasks - allTasks.filter(t => t.status === 'done').length;
+  const tasksAtStart = _vt.filter(t => t.startDate && t.startDate <= startD).length;
+  const remaining = totalTasks - _vt.filter(t => t.status === 'done').length;
 
   for (let i = 0; i <= days; i++) {
     const d = new Date(startD); d.setDate(d.getDate() + i);
-    const doneByDate = allTasks.filter(t => t.status === 'done' && t.endDate && t.endDate <= d).length;
+    const doneByDate = _vt.filter(t => t.status === 'done' && t.endDate && t.endDate <= d).length;
     const ideal = totalTasks - Math.round((totalTasks / days) * i);
     points.push({ day: i, date: d, actual: totalTasks - doneByDate, ideal: Math.max(0, ideal) });
   }
@@ -2744,8 +2770,8 @@ function renderBurndown() {
   svg += '</svg>';
 
   // Summary stats
-  const doneTotal = allTasks.filter(t => t.status === 'done').length;
-  const doneThisPeriod = allTasks.filter(t => t.status === 'done' && t.endDate >= startD && t.endDate <= today).length;
+  const doneTotal = _vt.filter(t => t.status === 'done').length;
+  const doneThisPeriod = _vt.filter(t => t.status === 'done' && t.endDate >= startD && t.endDate <= today).length;
   const avgPerDay = days > 0 ? (doneThisPeriod / days).toFixed(1) : 0;
   const daysToFinish = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : '∞';
 
@@ -2779,7 +2805,7 @@ function logActivity(type, icon, text) {
 (function initActivityLog() {
   const statusIcons = { done:'✅', progress:'🔄', review:'👀', todo:'📋', blocked:'🚫' };
   // Simulate past activities from task data
-  allTasks.forEach(t => {
+  getVisibleTasks().forEach(t => {
     const m = TEAM.find(x => x.id === t.assignee);
     const cat = CATEGORIES.find(c => c.id === t.category);
     const d = new Date(t.startDate);
@@ -2842,7 +2868,7 @@ function renderReports() {
   else if (reportPeriod === 'month') { periodStart = new Date(now); periodStart.setMonth(periodStart.getMonth() - 1); }
   else { periodStart = new Date(2020, 0, 1); }
 
-  const periodTasks = allTasks.filter(t => t.startDate && t.endDate && t.startDate <= now && t.endDate >= periodStart);
+  const periodTasks = getVisibleTasks().filter(t => t.startDate && t.endDate && t.startDate <= now && t.endDate >= periodStart);
   const donePeriod = periodTasks.filter(t => t.status === 'done').length;
   const totalP = periodTasks.length;
   const pctDone = totalP ? Math.round(donePeriod / totalP * 100) : 0;
@@ -2937,12 +2963,13 @@ function renderReports() {
 
 // ===== VELOCITY =====
 function renderVelocity() {
+  const _vtV = getVisibleTasks();
   // Calculate weekly velocity for past 12 weeks
   const weeks = [];
   for (let w = 11; w >= 0; w--) {
     const wEnd = new Date(today); wEnd.setDate(wEnd.getDate() - w * 7);
     const wStart = new Date(wEnd); wStart.setDate(wStart.getDate() - 6);
-    const done = allTasks.filter(t => t.status === 'done' && t.endDate && t.endDate >= wStart && t.endDate <= wEnd).length;
+    const done = _vtV.filter(t => t.status === 'done' && t.endDate && t.endDate >= wStart && t.endDate <= wEnd).length;
     weeks.push({ start: wStart, end: wEnd, done });
   }
 
@@ -2951,8 +2978,8 @@ function renderVelocity() {
   const lastWeek = weeks[weeks.length - 1].done;
   const prevWeek = weeks[weeks.length - 2].done;
   const trend = lastWeek - prevWeek;
-  const totalDone = allTasks.filter(t => t.status === 'done').length;
-  const remaining = allTasks.length - totalDone;
+  const totalDone = _vtV.filter(t => t.status === 'done').length;
+  const remaining = _vtV.length - totalDone;
   const weeksToFinish = avgVel > 0 ? Math.ceil(remaining / avgVel) : '∞';
 
   // Stats
@@ -2987,7 +3014,7 @@ function renderVelocity() {
   let teamHtml = '';
   TEAM.forEach(m => {
     const mWeeks = weeks.map(w => {
-      return allTasks.filter(t => t.assignee === m.id && t.status === 'done' && t.endDate >= w.start && t.endDate <= w.end).length;
+      return _vtV.filter(t => t.assignee === m.id && t.status === 'done' && t.endDate >= w.start && t.endDate <= w.end).length;
     });
     const mAvg = (mWeeks.reduce((s, v) => s + v, 0) / mWeeks.length).toFixed(1);
     const mMax = Math.max(...mWeeks, 1);
@@ -3415,7 +3442,7 @@ function setTimelinePerson(person, el) {
 
 function renderTimeline() {
   const member = TEAM.find(m => m.id === timelinePerson);
-  const tasks = allTasks.filter(t => t.assignee === timelinePerson && t.endDate)
+  const tasks = getVisibleTasks().filter(t => t.assignee === timelinePerson && t.endDate)
     .sort((a, b) => a.endDate - b.endDate);
 
   let html = '<div class="timeline-line"></div>';
@@ -3483,6 +3510,7 @@ function showConfetti() {
 
 // ===== HOURS & PRICING =====
 function renderPricing() {
+  const _vt = getVisibleTasks();
   const rate = parseFloat(document.getElementById('defaultRate').value) || 250;
   let html = '';
 
@@ -3491,7 +3519,7 @@ function renderPricing() {
     <table class="pricing-table"><thead><tr><th>חבר צוות</th><th>שעות מתועדות</th><th>תעריף/שעה</th><th>סה"כ עלות</th><th>משימות</th><th>ממוצע/משימה</th></tr></thead><tbody>`;
   let totalHrs = 0, totalCost = 0;
   TEAM.forEach(m => {
-    const mt = allTasks.filter(t => t.assignee === m.id);
+    const mt = _vt.filter(t => t.assignee === m.id);
     const hrs = mt.reduce((s, t) => s + (t.timeLogged || 0), 0) / 3600;
     const cost = hrs * rate;
     totalHrs += hrs;
@@ -3500,21 +3528,21 @@ function renderPricing() {
     html += `<tr><td><div style="display:flex;align-items:center;gap:6px;"><div class="avatar avatar-${m.id}" style="width:20px;height:20px;font-size:9px;">${m.name[0]}</div>${m.name}</div></td>
       <td>${hrs.toFixed(1)}ש</td><td>₪${rate}</td><td style="font-weight:600;">₪${cost.toFixed(0)}</td><td>${mt.length}</td><td>${avgPerTask}ש</td></tr>`;
   });
-  html += `<tr style="font-weight:700;border-top:2px solid var(--border);"><td>סה"כ</td><td>${totalHrs.toFixed(1)}ש</td><td>₪${rate}</td><td>₪${totalCost.toFixed(0)}</td><td>${allTasks.length}</td><td>${allTasks.length?(totalHrs/allTasks.length).toFixed(1):'0'}ש</td></tr>`;
+  html += `<tr style="font-weight:700;border-top:2px solid var(--border);"><td>סה"כ</td><td>${totalHrs.toFixed(1)}ש</td><td>₪${rate}</td><td>₪${totalCost.toFixed(0)}</td><td>${_vt.length}</td><td>${_vt.length?(totalHrs/_vt.length).toFixed(1):'0'}ש</td></tr>`;
   html += '</tbody></table></div>';
 
   // Per-category breakdown
   html += `<div class="pricing-card"><h3 style="font-size:14px;margin-bottom:14px;">📁 לפי קטגוריה</h3>
     <table class="pricing-table"><thead><tr><th>קטגוריה</th><th>שעות</th><th>עלות</th></tr></thead><tbody>`;
   CATEGORIES.forEach(c => {
-    const ct = allTasks.filter(t => t.category === c.id);
+    const ct = _vt.filter(t => t.category === c.id);
     const hrs = ct.reduce((s, t) => s + (t.timeLogged || 0), 0) / 3600;
     html += `<tr><td>${c.emoji} ${c.name}</td><td>${hrs.toFixed(1)}ש</td><td>₪${(hrs*rate).toFixed(0)}</td></tr>`;
   });
   html += '</tbody></table></div>';
 
   // Top time-consuming tasks
-  const topTasks = [...allTasks].filter(t => t.timeLogged > 0).sort((a, b) => b.timeLogged - a.timeLogged).slice(0, 10);
+  const topTasks = [..._vt].filter(t => t.timeLogged > 0).sort((a, b) => b.timeLogged - a.timeLogged).slice(0, 10);
   html += `<div class="pricing-card"><h3 style="font-size:14px;margin-bottom:14px;">⏱️ משימות עם הכי הרבה שעות</h3>`;
   if (topTasks.length) {
     html += '<table class="pricing-table"><thead><tr><th>משימה</th><th>שעות</th><th>עלות</th></tr></thead><tbody>';
@@ -3674,6 +3702,213 @@ function renderOKR() {
   });
 
   document.getElementById('okrContainer').innerHTML = html;
+}
+
+
+// ===== ADMIN & PERMISSIONS =====
+function renderAdmin() {
+  if (!isAdmin()) {
+    document.getElementById('view-admin').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text2);">אין לך הרשאת גישה לדף זה</div>';
+    return;
+  }
+
+  // Render user list with role management
+  let html = '';
+  TEAM.forEach(m => {
+    const email = Object.keys(EMAIL_TO_TEAM).find(e => EMAIL_TO_TEAM[e] === m.id);
+    const isAdm = ADMIN_EMAILS.includes(email);
+    const taskCount = allTasks.filter(t => t.assignee === m.id).length;  // Admin always sees all
+    html += `<div class="admin-user-row">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="avatar avatar-${m.id}" style="width:32px;height:32px;font-size:13px;">${m.name[0]}</div>
+        <div>
+          <div style="font-weight:600;font-size:13px;">${m.name} <span style="font-size:11px;color:var(--text2);">(${m.role})</span></div>
+          <div style="font-size:11px;color:var(--text2);">${email} · ${taskCount} משימות</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        ${isAdm ? '<span class="admin-badge">מנהל</span>' : '<span style="font-size:11px;color:var(--text2);">משתמש</span>'}
+        ${m.id !== currentTeamId ? `<select class="role-select" onchange="toggleAdminRole('${email}', this.value)">
+          <option value="admin" ${isAdm?'selected':''}>מנהל</option>
+          <option value="user" ${!isAdm?'selected':''}>משתמש</option>
+        </select>` : '<span style="font-size:10px;color:var(--text2);">(אתה)</span>'}
+      </div>
+    </div>`;
+  });
+  document.getElementById('adminUserList').innerHTML = html;
+
+  // Render GCal sync section
+  renderGCalSyncSection();
+}
+
+function toggleAdminRole(email, role) {
+  const idx = ADMIN_EMAILS.indexOf(email);
+  if (role === 'admin' && idx === -1) {
+    ADMIN_EMAILS.push(email);
+    // Save to Firebase
+    db.ref('settings/admins').set(ADMIN_EMAILS);
+    toast(`✅ ${email} הועלה למנהל`);
+  } else if (role === 'user' && idx !== -1) {
+    ADMIN_EMAILS.splice(idx, 1);
+    db.ref('settings/admins').set(ADMIN_EMAILS);
+    toast(`✅ ${email} הורד ממנהל`);
+  }
+  renderAdmin();
+}
+
+function loadAdminSettings() {
+  db.ref('settings/admins').on('value', snap => {
+    const admins = snap.val();
+    if (admins && Array.isArray(admins)) {
+      ADMIN_EMAILS.length = 0;
+      admins.forEach(e => ADMIN_EMAILS.push(e));
+      userIsAdmin = ADMIN_EMAILS.includes(currentUser?.email);
+      // Show/hide admin nav
+      const adminNav = document.getElementById('adminNavItem');
+      if (adminNav) adminNav.style.display = userIsAdmin ? 'block' : 'none';
+    }
+  });
+}
+
+// ===== GOOGLE CALENDAR API SYNC =====
+const GCAL_CLIENT_ID = ''; // Will be set by admin
+const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar.events';
+let gcalTokenClient = null;
+let gcalAccessToken = null;
+
+function renderGCalSyncSection() {
+  const section = document.getElementById('gcalSyncSection');
+  if (!section) return;
+
+  // Check if Google API is loaded
+  const myTasks = getVisibleTasks().filter(t => t.assignee === currentTeamId && t.startDate && t.endDate && t.status !== 'done');
+
+  let html = `<div style="margin-bottom:12px;">
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px;">📋 ${myTasks.length} משימות פתוחות שלך עם תאריכים</div>`;
+
+  if (!gcalAccessToken) {
+    html += `<button class="gcal-sync-btn" onclick="initGCalSync()">
+      <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      התחבר עם Google Calendar
+    </button>
+    <div class="gcal-sync-status">יש להתחבר כדי לסנכרן משימות</div>`;
+  } else {
+    html += `<div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="gcal-sync-btn" onclick="syncAllToGCal()">🔄 סנכרן ${myTasks.length} משימות</button>
+      <button class="gcal-sync-btn" style="border-color:var(--red);color:var(--red);background:var(--red-bg);" onclick="gcalAccessToken=null;renderGCalSyncSection();">התנתק מ-GCal</button>
+    </div>
+    <div class="gcal-sync-status" id="gcalSyncStatus">✅ מחובר - מוכן לסנכרון</div>`;
+  }
+  html += '</div>';
+
+  // Quick sync per user (admin only)
+  if (isAdmin()) {
+    html += '<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">';
+    html += '<div style="font-size:13px;font-weight:600;margin-bottom:8px;">סנכרון לכל חבר צוות:</div>';
+    TEAM.forEach(m => {
+      const count = allTasks.filter(t => t.assignee === m.id && t.startDate && t.endDate && t.status !== 'done').length;  // Admin section - always all tasks
+      html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;">
+        <span style="font-size:12px;">${m.name} (${count} משימות)</span>
+        <button class="gcal-sync-btn" style="padding:4px 10px;font-size:11px;" onclick="syncUserToGCal('${m.id}')">📅 סנכרן</button>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  section.innerHTML = html;
+}
+
+function initGCalSync() {
+  // Load Google Identity Services
+  if (!window.google?.accounts?.oauth2) {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.onload = () => startGCalAuth();
+    document.head.appendChild(script);
+  } else {
+    startGCalAuth();
+  }
+}
+
+function startGCalAuth() {
+  gcalTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: getGCalClientId(),
+    scope: GCAL_SCOPES,
+    callback: (resp) => {
+      if (resp.access_token) {
+        gcalAccessToken = resp.access_token;
+        toast('✅ מחובר ל-Google Calendar');
+        renderGCalSyncSection();
+      }
+    },
+  });
+  gcalTokenClient.requestAccessToken();
+}
+
+function getGCalClientId() {
+  // Try to get from Firebase settings, or use stored value
+  return localStorage.getItem('gcal_client_id') || prompt('הזן את Google OAuth Client ID שלך (מ-Google Cloud Console):');
+}
+
+async function syncAllToGCal() {
+  await syncUserToGCal(currentTeamId);
+}
+
+async function syncUserToGCal(userId) {
+  if (!gcalAccessToken) { toast('❌ יש להתחבר ל-Google Calendar קודם'); return; }
+
+  const tasks = allTasks.filter(t => t.assignee === userId && t.startDate && t.endDate && t.status !== 'done');
+  const statusEl = document.getElementById('gcalSyncStatus');
+  if (statusEl) statusEl.textContent = `🔄 מסנכרן ${tasks.length} משימות...`;
+
+  let synced = 0, errors = 0;
+
+  for (const t of tasks) {
+    const cat = CATEGORIES.find(c => c.id === t.category);
+    const member = TEAM.find(m => m.id === t.assignee);
+
+    const event = {
+      summary: `${cat?.emoji||''} ${t.name}`,
+      description: `יעד: ${t.goal || ''}\nקטגוריה: ${cat?.name || ''}\nעדיפות: ${{high:'גבוהה',medium:'בינונית',low:'נמוכה'}[t.priority] || ''}\nסטטוס: ${getStatusLabel(t.status)}`,
+      start: { date: getLocalDateISO(t.startDate) },
+      end: { date: getLocalDateISO(new Date(t.endDate.getTime() + 86400000)) },
+      colorId: {high:'11',medium:'5',low:'2'}[t.priority] || '1',
+    };
+
+    // Check if event already exists (by searching for unique ID in extendedProperties)
+    const eventId = `studio-task-${t.id}`;
+
+    try {
+      // Try to update existing event first
+      let resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...event, id: eventId })
+      });
+
+      if (resp.status === 404) {
+        // Create new event with custom ID
+        resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...event, id: eventId })
+        });
+      }
+
+      if (resp.ok) synced++;
+      else errors++;
+    } catch(e) {
+      errors++;
+      console.error('GCal sync error:', e);
+    }
+
+    // Small delay to avoid rate limits
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  const msg = `✅ סונכרנו ${synced} משימות` + (errors > 0 ? ` (${errors} שגיאות)` : '');
+  if (statusEl) statusEl.textContent = msg;
+  toast(msg);
 }
 
 // ===== INIT =====
