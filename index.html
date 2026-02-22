@@ -1301,9 +1301,44 @@ function deserializeTasks(data) {
 }
 
 let _lastSaveTime = 0; // Timestamp of our last write — ignore echoes within 2s
+let _previousTaskSnapshot = []; // Track tasks to detect deletions
 
 function saveToDB() {
   if (!dbReady) { console.warn('⚠️ saveToDB called but dbReady is false'); return; }
+
+  // Detect deleted tasks by comparing with previous snapshot
+  if (gcalAccessToken && _previousTaskSnapshot.length > 0) {
+    const currentIds = new Set(allTasks.map(t => t.id));
+    const deletedTasks = _previousTaskSnapshot.filter(t => !currentIds.has(t.id) && t.gcalEventId);
+    deletedTasks.forEach(t => {
+      console.log('📅🗑️ Auto-detected deleted task with GCal event:', t.gcalEventId, t.name);
+      fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${t.gcalEventId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+      }).then(r => {
+        console.log('📅🗑️ GCal delete response:', r.status);
+        if (r.ok || r.status === 204) toast('📅 נמחק מ-Google Calendar');
+      }).catch(e => console.error('📅🗑️ GCal delete error:', e));
+    });
+
+    // Also detect tasks marked as done
+    allTasks.filter(t => t.gcalEventId && t.status === 'done').forEach(t => {
+      const prev = _previousTaskSnapshot.find(p => p.id === t.id);
+      if (prev && prev.status !== 'done') {
+        console.log('📅✅ Task marked done, removing from GCal:', t.gcalEventId, t.name);
+        fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${t.gcalEventId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+        }).then(r => {
+          if (r.ok || r.status === 204) { t.gcalEventId = null; toast('📅 נמחק מהיומן'); }
+        }).catch(() => {});
+      }
+    });
+  }
+
+  // Update snapshot for next comparison
+  _previousTaskSnapshot = allTasks.map(t => ({ id: t.id, gcalEventId: t.gcalEventId, status: t.status, name: t.name }));
+
   _lastSaveTime = Date.now();
   console.log('💾 Saving', allTasks.length, 'tasks to Firebase...');
   const data = allTasks.length > 0 ? serializeTasks(allTasks) : null;
@@ -1338,6 +1373,9 @@ function initFirebaseSync() {
         console.log('✅ Loaded', parsed.length, 'tasks from Firebase');
         allTasks = parsed;
         nextId = allTasks.reduce((m, t) => Math.max(m, t.id || 0), 0) + 1;
+        // Initialize snapshot for GCal delete detection
+        _previousTaskSnapshot = allTasks.map(t => ({ id: t.id, gcalEventId: t.gcalEventId || null, status: t.status, name: t.name }));
+        console.log('📸 Initialized task snapshot with', _previousTaskSnapshot.length, 'tasks,', _previousTaskSnapshot.filter(t => t.gcalEventId).length, 'have GCal IDs');
         dbReady = true;
         generateInitialNotifs();
         updateNotifBadge();
