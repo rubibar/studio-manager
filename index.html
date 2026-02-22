@@ -1254,6 +1254,10 @@ auth.onAuthStateChanged(user => {
     loadAdminSettings();
     // Show admin nav if admin
     if (userIsAdmin) document.getElementById('adminNavItem').style.display = 'block';
+    // Auto-connect to Google Calendar if previously connected
+    if (localStorage.getItem('gcal_connected')) {
+      setTimeout(() => autoConnectGCal(), 2000);
+    }
   } else {
     currentUser = null;
     document.getElementById('loginScreen').style.display = 'flex';
@@ -3811,7 +3815,7 @@ function renderGCalSyncSection() {
   } else {
     html += `<div style="display:flex;gap:8px;margin-bottom:8px;">
       <button class="gcal-sync-btn" onclick="syncAllToGCal()">🔄 סנכרן ${myTasks.length} משימות</button>
-      <button class="gcal-sync-btn" style="border-color:var(--red);color:var(--red);background:var(--red-bg);" onclick="gcalAccessToken=null;renderGCalSyncSection();">התנתק מ-GCal</button>
+      <button class="gcal-sync-btn" style="border-color:var(--red);color:var(--red);background:var(--red-bg);" onclick="disconnectGCal()">התנתק מ-GCal</button>
     </div>
     <div class="gcal-sync-status" id="gcalSyncStatus">✅ מחובר - מוכן לסנכרון</div>`;
   }
@@ -3846,21 +3850,49 @@ function initGCalSync() {
   }
 }
 
-function startGCalAuth() {
+function startGCalAuth(silent) {
   const clientId = getGCalClientId();
   if (!clientId) { toast('❌ לא הוזן Client ID'); return; }
   gcalTokenClient = google.accounts.oauth2.initTokenClient({
     client_id: clientId,
     scope: GCAL_SCOPES,
+    hint: currentUser?.email || '',
     callback: (resp) => {
+      if (resp.error) {
+        if (!silent) toast('❌ חיבור ל-Google Calendar נכשל');
+        console.error('GCal auth error:', resp);
+        return;
+      }
       if (resp.access_token) {
         gcalAccessToken = resp.access_token;
-        toast('✅ מחובר ל-Google Calendar');
+        localStorage.setItem('gcal_connected', 'true');
+        if (!silent) toast('✅ מחובר ל-Google Calendar - סנכרון אוטומטי פעיל');
         renderGCalSyncSection();
+        // Schedule token refresh before expiry (tokens last ~1hr)
+        setTimeout(() => { if (localStorage.getItem('gcal_connected')) autoConnectGCal(); }, 3300000);
       }
     },
   });
-  gcalTokenClient.requestAccessToken();
+  gcalTokenClient.requestAccessToken({ prompt: silent ? '' : 'consent' });
+}
+
+function autoConnectGCal() {
+  // Load Google Identity Services if needed, then silently get token
+  if (!window.google?.accounts?.oauth2) {
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.onload = () => startGCalAuth(true);
+    document.head.appendChild(script);
+  } else {
+    startGCalAuth(true);
+  }
+}
+
+function disconnectGCal() {
+  gcalAccessToken = null;
+  localStorage.removeItem('gcal_connected');
+  renderGCalSyncSection();
+  toast('🔌 Google Calendar מנותק');
 }
 
 function getGCalClientId() {
@@ -3933,10 +3965,14 @@ let _gcalSyncQueue = new Set();
 let _gcalSyncTimer = null;
 
 function queueGCalSync(taskId) {
-  if (!gcalAccessToken) return; // Not connected to GCal
+  if (!gcalAccessToken) {
+    console.log('📅 GCal sync skipped - not connected. Task:', taskId);
+    return;
+  }
+  console.log('📅 GCal sync queued for task:', taskId);
   _gcalSyncQueue.add(taskId);
   clearTimeout(_gcalSyncTimer);
-  _gcalSyncTimer = setTimeout(processGCalQueue, 1500); // Wait 1.5s after last change
+  _gcalSyncTimer = setTimeout(processGCalQueue, 1500);
 }
 
 async function processGCalQueue() {
@@ -3993,7 +4029,8 @@ async function processGCalQueue() {
     await new Promise(r => setTimeout(r, 100));
   }
 
-  if (synced > 0) console.log(`📅 GCal auto-sync: ${synced} updated${errors > 0 ? `, ${errors} errors` : ''}`);
+  console.log(`📅 GCal auto-sync: ${synced} synced, ${errors} errors (from ${ids.length} queued)`);
+  if (errors > 0) toast(`📅 סנכרון: ${synced} הצליחו, ${errors} נכשלו`);
 }
 
 // ===== INIT =====
