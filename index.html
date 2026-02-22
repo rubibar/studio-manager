@@ -1751,7 +1751,10 @@ function sortTaskList(tasks) {
     return (a[f]||'').localeCompare(b[f]||'','he')*d;
   });
 }
-function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();queueGCalSync(id);}}
+function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();
+  // Remove from GCal when done
+  if(gcalAccessToken&&t.gcalEventId){fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${t.gcalEventId}`,{method:'DELETE',headers:{'Authorization':`Bearer ${gcalAccessToken}`}}).then(r=>{if(r.ok)toast('📅 נמחק מהיומן');}).catch(()=>{});}
+}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();if(s!=='done')queueGCalSync(id);}}
 function filterTasks(){renderView();}
 
 // ===== BATCH OPERATIONS =====
@@ -2493,9 +2496,23 @@ function deleteTask(id){
   // Capture the GCal event ID before removing the task
   const taskToDelete = allTasks.find(t => t.id === id);
   const gcalId = taskToDelete?.gcalEventId || null;
+  console.log('🗑️ deleteTask called, id:', id, 'gcalEventId:', gcalId, 'token:', !!gcalAccessToken);
   allTasks=allTasks.filter(t=>t.id!==id);
   saveTasks();
-  queueGCalSync(id, 'delete', gcalId);
+  // Delete from Google Calendar
+  if (gcalAccessToken && gcalId) {
+    console.log('🗑️ Directly deleting from GCal:', gcalId);
+    fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${gcalId}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+    }).then(r => {
+      console.log('🗑️ GCal delete response:', r.status);
+      if (r.ok) toast('📅 נמחק גם מ-Google Calendar');
+      else console.error('🗑️ GCal delete failed:', r.status);
+    }).catch(e => console.error('🗑️ GCal delete error:', e));
+  } else {
+    console.log('🗑️ No GCal delete:', !gcalAccessToken ? 'no token' : 'no gcalEventId');
+  }
   closeModal();renderView();toast('🗑️ משימה נמחקה');
 }
 
