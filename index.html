@@ -445,6 +445,212 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .kpi-grid { grid-template-columns:repeat(2,1fr); }
 }
 
+/* ===== HAMBURGER MENU BUTTON ===== */
+.hamburger-btn {
+  display:none; background:none; border:none; font-size:24px;
+  cursor:pointer; padding:4px 8px; color:var(--text); z-index:101;
+  line-height:1;
+}
+
+/* ===== TABLET: 768px - 1024px ===== */
+@media (max-width:1024px) {
+  .sidebar {
+    transform:translateX(100%); transition:transform 0.3s ease;
+    box-shadow:-4px 0 20px rgba(0,0,0,0.15);
+  }
+  .sidebar.open { transform:translateX(0); }
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3);
+    z-index:99; backdrop-filter:blur(2px);
+  }
+  .sidebar-overlay.open { display:block; }
+  .main { margin-right:0 !important; }
+  .hamburger-btn { display:block; }
+  .topbar { padding:10px 16px; }
+  .search-box { width:160px; }
+  .content { padding:16px; }
+  .bank-layout { grid-template-columns:1fr; }
+  .bank-sidebar { position:static; max-height:none; }
+  .workload-grid { grid-template-columns:repeat(2,1fr); }
+  .report-grid { grid-template-columns:1fr; }
+  .pricing-grid { grid-template-columns:1fr; }
+  .week-grid { grid-template-columns:200px repeat(5,1fr); }
+  .year-grid { grid-template-columns:repeat(3,1fr); }
+  .velocity-stats { grid-template-columns:repeat(2,1fr); }
+  .gantt-label-col { min-width:140px; }
+}
+
+/* ===== MOBILE: < 768px ===== */
+@media (max-width:768px) {
+  /* Sidebar as overlay drawer */
+  .sidebar { width:280px; }
+  .hamburger-btn { display:block; }
+
+  /* Topbar: stack elements */
+  .topbar {
+    padding:8px 12px; flex-wrap:wrap; gap:8px;
+  }
+  .topbar-right { width:100%; display:flex; align-items:center; gap:8px; }
+  .topbar-left {
+    width:100%; display:flex; align-items:center; gap:8px;
+    flex-wrap:wrap;
+  }
+  .search-box { width:100%; order:10; }
+  .topbar-title { font-size:15px; }
+  .btn { padding:6px 12px; font-size:12px; }
+
+  /* Content area */
+  .content { padding:12px; }
+
+  /* Stats grid */
+  .stats-grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .stat-card { padding:12px; }
+  .stat-card .num { font-size:20px; }
+
+  /* KPI grid */
+  .kpi-grid { grid-template-columns:1fr; }
+
+  /* Calendar */
+  .cal-grid { font-size:10px; }
+  .cal-day { min-height:70px; padding:4px; }
+  .cal-day-num { font-size:11px; }
+  .cal-event { font-size:9px; padding:1px 4px; }
+  .cal-nav { flex-wrap:wrap; gap:8px; }
+  .cal-nav h2 { font-size:16px; }
+  .cal-view-modes { flex-wrap:wrap; }
+  .cal-view-modes button { font-size:10px; padding:3px 8px; }
+  .year-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+  .mini-month-day { font-size:9px; }
+
+  /* Gantt: horizontal scroll */
+  .gantt-container { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .gantt-label-col { min-width:120px; font-size:11px; }
+  .gantt-row-label { font-size:11px; padding:6px 8px; }
+  .gantt-day-header { font-size:9px; min-width:28px; }
+  .gantt-day-cell { min-width:28px; }
+
+  /* Kanban */
+  .kanban-container { flex-direction:column; overflow-x:visible; }
+  .kanban-column { min-width:auto; width:100%; }
+
+  /* Bank */
+  .bank-layout { grid-template-columns:1fr; }
+  .bank-sidebar { position:static; max-height:none; }
+  .bank-stat-row { flex-wrap:wrap; }
+  .bank-stat { min-width:calc(50% - 6px); }
+
+  /* Workload */
+  .workload-grid { grid-template-columns:1fr; }
+  .wl-week-grid { grid-template-columns:repeat(7,1fr); }
+
+  /* Week View */
+  .week-grid {
+    grid-template-columns:80px repeat(5,minmax(100px,1fr));
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+  }
+  .week-header { font-size:10px; padding:6px; }
+  .week-member { font-size:11px; padding:6px; }
+  .week-cell { padding:4px; min-height:60px; }
+  .week-task { font-size:9px; padding:2px 4px; }
+
+  /* Reports */
+  .report-grid { grid-template-columns:1fr; }
+  .report-card { padding:14px; }
+  .report-card .big-num { font-size:24px; }
+  .report-table { font-size:11px; }
+  .report-table th, .report-table td { padding:6px 4px; }
+
+  /* Velocity */
+  .velocity-stats { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .vel-stat .num { font-size:18px; }
+  .velocity-bars { height:150px; }
+
+  /* Pricing */
+  .pricing-grid { grid-template-columns:1fr; }
+  .pricing-table { font-size:11px; }
+
+  /* Modal */
+  .modal { width:calc(100vw - 24px); max-width:560px; padding:20px; max-height:90vh; }
+  .modal h2 { font-size:15px; margin-bottom:14px; }
+  .modal-actions { flex-wrap:wrap; }
+
+  /* Dashboard widgets */
+  .dash-widgets { grid-template-columns:1fr; }
+
+  /* Notifications */
+  .notif-panel { width:100vw; }
+
+  /* Activity Log */
+  .log-entry { flex-wrap:wrap; padding:10px 12px; }
+  .log-time { min-width:auto; width:100%; margin-bottom:4px; }
+
+  /* Timeline */
+  .timeline-container { padding-right:20px; }
+  .timeline-item { margin-right:16px; padding:10px 12px; }
+  .timeline-dot { right:-23px; }
+
+  /* Dependencies */
+  .dep-row { flex-wrap:wrap; gap:6px; font-size:12px; }
+  .dep-add-bar { flex-direction:column; }
+
+  /* Export panel */
+  .export-panel { flex-direction:column; align-items:stretch; }
+
+  /* Burndown */
+  .burndown-svg { height:220px; }
+  .burndown-controls { flex-direction:column; }
+
+  /* Toast */
+  .toast { font-size:12px; padding:8px 16px; max-width:calc(100vw - 32px); }
+
+  /* Admin panel */
+  .admin-user-row { flex-direction:column; gap:8px; align-items:stretch; text-align:center; }
+
+  /* Task table on mobile: horizontal scroll */
+  .task-table-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .task-table { min-width:600px; }
+  .task-table th { padding:8px 10px; font-size:10px; }
+  .task-table td { padding:7px 10px; font-size:12px; }
+
+  /* Client grid */
+  .client-grid { grid-template-columns:1fr; }
+  .client-add-bar { flex-direction:column; }
+
+  /* OKR */
+  .okr-card { padding:14px; }
+
+  /* Hide less important topbar buttons on small screens */
+  .btn-google { display:none; }
+  .topbar .btn-secondary { display:none; }
+}
+
+/* ===== SMALL MOBILE: < 480px ===== */
+@media (max-width:480px) {
+  .stats-grid { grid-template-columns:1fr; }
+  .stat-card { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; }
+
+  .topbar-title { font-size:14px; }
+
+  .cal-day { min-height:55px; }
+  .cal-event { font-size:8px; }
+  .year-grid { grid-template-columns:1fr 1fr; }
+
+  .velocity-stats { grid-template-columns:1fr 1fr; }
+
+  .kanban-card { padding:8px; }
+  .kanban-col-header { padding:8px 10px; font-size:11px; }
+
+  .modal { padding:16px; }
+  .form-group label { font-size:10px; }
+  .form-input { font-size:12px; padding:7px 10px; }
+
+  .bank-stat { min-width:100%; }
+  .bank-stat-row { flex-direction:column; }
+
+  /* Stack the new task button text */
+  .btn-primary { font-size:12px; padding:6px 10px; }
+}
+
 @keyframes fadeIn {
   from { opacity:0; transform:translateY(4px); }
   to { opacity:1; transform:translateY(0); }
@@ -848,8 +1054,10 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 </div>
 
 <div class="main">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
   <div class="topbar">
     <div class="topbar-right">
+      <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">☰</button>
       <span class="topbar-title" id="viewTitle">📊 דשבורד</span>
     </div>
     <div class="topbar-left">
@@ -1481,6 +1689,8 @@ function switchView(view, el) {
   if (el) el.classList.add('active');
   document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   document.getElementById('view-'+view).classList.add('active');
+  // Close sidebar on mobile after selecting a view
+  if (window.innerWidth <= 1024) closeSidebar();
   const titles = {dashboard:'📊 דשבורד',bank:'🏦 בנק משימות',tasks:'📋 משימות',gantt:'📅 תרשים גאנט',calendar:'🗓️ קלנדר',categories:'📁 לפי קטגוריה',workload:'⚖️ עומסים',weekview:'📆 שבוע נוכחי',kanban:'🔲 קנבאן',burndown:'📉 ברנדאון',activitylog:'📝 לוג פעילות',reports:'📊 דוחות',velocity:'🚀 מהירות',dependencies:'🔗 תלויות',timeline:'📌 ציר זמן אישי',pricing:'💰 שעות ותמחור',clients:'🏢 לקוחות',okr:'🎯 OKR'};
   document.getElementById('viewTitle').textContent = titles[view]||'';
   renderView();
@@ -3451,6 +3661,18 @@ document.addEventListener('click', e => {
 });
 
 // ===== NOTIFICATIONS =====
+// ===== MOBILE SIDEBAR TOGGLE =====
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
 function toggleNotifPanel() {
   const panel = document.getElementById('notifPanel');
   const backdrop = document.getElementById('notifBackdrop');
