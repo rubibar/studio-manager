@@ -1246,8 +1246,9 @@ auth.onAuthStateChanged(user => {
     userIsAdmin = ADMIN_EMAILS.includes(user.email);
     document.getElementById('loginScreen').style.display = 'none';
     const adminBadge = userIsAdmin ? '<span style="background:var(--accent);color:#fff;font-size:9px;padding:2px 6px;border-radius:8px;margin-right:6px;">מנהל</span>' : '';
+    const gcalBadge = gcalAccessToken ? '<span id="gcalBadge" title="Google Calendar מחובר" style="font-size:9px;background:#34a853;color:#fff;padding:2px 6px;border-radius:8px;margin-right:4px;">📅 GCal</span>' : '<span id="gcalBadge" style="display:none;"></span>';
     document.getElementById('userInfo').innerHTML =
-      adminBadge +
+      adminBadge + gcalBadge +
       '<span style="font-size:12px;color:var(--text2);">' + (user.displayName || user.email) + '</span>' +
       '<button onclick="signOutUser()" style="background:none;border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;color:var(--text2);font-family:inherit;">התנתק</button>';
     initFirebaseSync();
@@ -3794,7 +3795,7 @@ function loadAdminSettings() {
 const GCAL_CLIENT_ID = '906097921484-0evtil5r0q1ol3hf8q54nsj8li4fik55.apps.googleusercontent.com';
 const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar';
 let gcalTokenClient = null;
-let gcalAccessToken = null;
+let gcalAccessToken = sessionStorage.getItem('gcal_token') || null; // Persist across reloads
 
 function renderGCalSyncSection() {
   const section = document.getElementById('gcalSyncSection');
@@ -3865,8 +3866,11 @@ function startGCalAuth(silent) {
       }
       if (resp.access_token) {
         gcalAccessToken = resp.access_token;
+        sessionStorage.setItem('gcal_token', resp.access_token);
         localStorage.setItem('gcal_connected', 'true');
+        console.log('📅 GCal connected! Token set.');
         if (!silent) toast('✅ מחובר ל-Google Calendar - סנכרון אוטומטי פעיל');
+        updateGCalBadge();
         renderGCalSyncSection();
         // Schedule token refresh before expiry (tokens last ~1hr)
         setTimeout(() => { if (localStorage.getItem('gcal_connected')) autoConnectGCal(); }, 3300000);
@@ -3890,9 +3894,24 @@ function autoConnectGCal() {
 
 function disconnectGCal() {
   gcalAccessToken = null;
+  sessionStorage.removeItem('gcal_token');
   localStorage.removeItem('gcal_connected');
+  updateGCalBadge();
   renderGCalSyncSection();
   toast('🔌 Google Calendar מנותק');
+}
+
+function updateGCalBadge() {
+  const badge = document.getElementById('gcalBadge');
+  if (!badge) return;
+  if (gcalAccessToken) {
+    badge.style.display = '';
+    badge.style.background = '#34a853';
+    badge.textContent = '📅 GCal';
+    badge.title = 'Google Calendar מחובר - סנכרון אוטומטי פעיל';
+  } else {
+    badge.style.display = 'none';
+  }
 }
 
 function getGCalClientId() {
