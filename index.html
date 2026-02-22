@@ -1641,7 +1641,7 @@ function bankAssignConfirm() {
   task.inBank = false;
   document.getElementById('bankAssignForm').style.display = 'none';
   logActivity('assign','📤',`<strong>${TEAM.find(m=>m.id===person)?.name||''}</strong> שובץ/ה למשימה: "${task.name}"`);
-  saveTasks();renderBank();
+  saveTasks();queueGCalSync(taskId);renderBank();
   toast('✅ משימה שובצה בהצלחה!');
 }
 
@@ -1742,7 +1742,7 @@ function sortTaskList(tasks) {
     return (a[f]||'').localeCompare(b[f]||'','he')*d;
   });
 }
-function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();}}
+function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();queueGCalSync(id);}}
 function filterTasks(){renderView();}
 
 // ===== BATCH OPERATIONS =====
@@ -1943,6 +1943,7 @@ function ganttDragEnd(e) {
     task.startDate = newStart;
     task.endDate = newEnd;
     saveTasks();
+    queueGCalSync(task.id);
     toast(`📅 ${task.name} → ${fmtD(newStart)} - ${fmtD(newEnd)}`);
   }
 
@@ -2208,6 +2209,7 @@ function calDrop(e) {
   task.endDate = new Date(newDate);
   task.endDate.setDate(task.endDate.getDate() + duration);
   saveTasks();
+  queueGCalSync(task.id);
   toast(`📅 ${task.name} הועבר ל-${fmtD(newDate)}`);
   calDrag = null;
   renderCalendar();
@@ -2393,7 +2395,9 @@ function saveNewTask(){
     status:document.getElementById('f-status').value,goal:document.getElementById('f-goal').value,
     startDate:document.getElementById('f-start').value?new Date(document.getElementById('f-start').value):null,endDate:document.getElementById('f-end').value?new Date(document.getElementById('f-end').value):null,notes:document.getElementById('f-notes').value,
     subtasks:[],tags:[],recurrence:'none',comments:[],inBank:!document.getElementById('f-assignee').value||!document.getElementById('f-start').value||!document.getElementById('f-end').value});
+  const newTaskId = nextId - 1;
   saveTasks();closeModal();renderView();toast('✅ משימה חדשה נוספה');
+  queueGCalSync(newTaskId);
 }
 
 function openEditTask(id){
@@ -2472,9 +2476,10 @@ function saveEditTask(id){
   t.inBank = !t.assignee || !t.startDate || !t.endDate;
   if(t.status==='done' && t.recurrence && t.recurrence!=='none') generateRecurringTask(t);
   saveTasks();closeModal();renderView();toast('✅ משימה עודכנה');
+  queueGCalSync(id);
 }
 
-function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);saveTasks();closeModal();renderView();toast('🗑️ משימה נמחקה');}
+function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);saveTasks();closeModal();renderView();toast('🗑️ משימה נמחקה');queueGCalSync(id);}
 
 // ===== HELPERS =====
 function fmtD(d){if(!(d instanceof Date))d=new Date(d);return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
@@ -2667,7 +2672,7 @@ function kanbanDrop(e, newStatus) {
   const task = allTasks.find(t => t.id === taskId);
   if (task) {
     task.status = newStatus;
-    saveTasks();renderKanban();
+    saveTasks();queueGCalSync(taskId);renderKanban();
     toast('✅ סטטוס עודכן ל' + getStatusLabel(newStatus));
   }
 }
@@ -3921,6 +3926,74 @@ async function syncUserToGCal(userId) {
   const msg = `✅ סונכרנו ${synced} משימות` + (errors > 0 ? ` (${errors} שגיאות)` : '');
   if (statusEl) statusEl.textContent = msg;
   toast(msg);
+}
+
+// ===== AUTO GCAL SYNC =====
+let _gcalSyncQueue = new Set();
+let _gcalSyncTimer = null;
+
+function queueGCalSync(taskId) {
+  if (!gcalAccessToken) return; // Not connected to GCal
+  _gcalSyncQueue.add(taskId);
+  clearTimeout(_gcalSyncTimer);
+  _gcalSyncTimer = setTimeout(processGCalQueue, 1500); // Wait 1.5s after last change
+}
+
+async function processGCalQueue() {
+  if (!gcalAccessToken || _gcalSyncQueue.size === 0) return;
+  const ids = [..._gcalSyncQueue];
+  _gcalSyncQueue.clear();
+
+  let synced = 0, errors = 0;
+  for (const id of ids) {
+    const t = allTasks.find(x => x.id === id);
+    const eventId = `studiotask${String(id).padStart(8, '0')}`;
+
+    // If task was deleted or marked done, remove from calendar
+    if (!t || t.status === 'done') {
+      try {
+        await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+        });
+        synced++;
+      } catch(e) { /* ignore delete errors */ }
+      continue;
+    }
+
+    // Skip tasks without dates
+    if (!t.startDate || !t.endDate) continue;
+
+    const cat = CATEGORIES.find(c => c.id === t.category);
+    const event = {
+      summary: `${cat?.emoji||''} ${t.name}`,
+      description: `יעד: ${t.goal || ''}\nקטגוריה: ${cat?.name || ''}\nעדיפות: ${{high:'גבוהה',medium:'בינונית',low:'נמוכה'}[t.priority] || ''}\nסטטוס: ${getStatusLabel(t.status)}`,
+      start: { date: getLocalDateISO(t.startDate) },
+      end: { date: getLocalDateISO(new Date(t.endDate.getTime() + 86400000)) },
+      colorId: {high:'11',medium:'5',low:'2'}[t.priority] || '1',
+    };
+
+    try {
+      let resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...event, id: eventId })
+      });
+      if (resp.status === 404) {
+        resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...event, id: eventId })
+        });
+      }
+      if (resp.ok) synced++;
+      else errors++;
+    } catch(e) { errors++; }
+
+    await new Promise(r => setTimeout(r, 100));
+  }
+
+  if (synced > 0) console.log(`📅 GCal auto-sync: ${synced} updated${errors > 0 ? `, ${errors} errors` : ''}`);
 }
 
 // ===== INIT =====
