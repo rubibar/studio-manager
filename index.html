@@ -1090,8 +1090,8 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="stats-grid" id="statsGrid"></div>
       <div class="kpi-grid" id="kpiGrid"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div style="background:red;border:1px solid var(--border);border-radius:12px;padding:18px;">
-          <h3 style="font-size:14px;margin-bottom:14px;color:#fff;">📌 משימות דחופות</h3>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+          <h3 style="font-size:14px;margin-bottom:14px;">📌 משימות דחופות</h3>
           <div id="urgentTasks"></div>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
@@ -1760,10 +1760,10 @@ function renderDashboard() {
   const urgent=_vt.filter(t=>t.priority==='high'&&t.status!=='done').sort((a,b)=>(a.endDate||new Date(9999,0))-(b.endDate||new Date(9999,0))).slice(0,6);
   document.getElementById('urgentTasks').innerHTML = urgent.map(t=>{
     const m=TEAM.find(x=>x.id===t.assignee);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.2);font-size:12px;color:#fff;">
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
       <span class="priority-dot priority-${t.priority}"></span><span style="flex:1;">${t.name}</span>
-      ${m?`<div class="avatar avatar-${t.assignee}" style="width:20px;height:20px;font-size:9px;">${m.name[0]}</div>`:'<span style="font-size:10px;color:rgba(255,255,255,0.7);">🏦</span>'}
-      <span style="color:rgba(255,255,255,0.8);">${t.endDate?fmtD(t.endDate):'בנק'}</span></div>`;
+      ${m?`<div class="avatar avatar-${t.assignee}" style="width:20px;height:20px;font-size:9px;">${m.name[0]}</div>`:'<span style="font-size:10px;color:var(--text2);">🏦</span>'}
+      <span style="color:var(--text2);">${t.endDate?fmtD(t.endDate):'בנק'}</span></div>`;
   }).join('');
 
   document.getElementById('recentActivity').innerHTML = CATEGORIES.map(c=>{
