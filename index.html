@@ -2488,7 +2488,16 @@ function saveEditTask(id){
   queueGCalSync(id);
 }
 
-function deleteTask(id){if(!confirm('למחוק את המשימה?'))return;allTasks=allTasks.filter(t=>t.id!==id);saveTasks();queueGCalSync(id,'delete');closeModal();renderView();toast('🗑️ משימה נמחקה');}
+function deleteTask(id){
+  if(!confirm('למחוק את המשימה?'))return;
+  // Capture the GCal event ID before removing the task
+  const taskToDelete = allTasks.find(t => t.id === id);
+  const gcalId = taskToDelete?.gcalEventId || null;
+  allTasks=allTasks.filter(t=>t.id!==id);
+  saveTasks();
+  queueGCalSync(id, 'delete', gcalId);
+  closeModal();renderView();toast('🗑️ משימה נמחקה');
+}
 
 // ===== HELPERS =====
 function fmtD(d){if(!(d instanceof Date))d=new Date(d);return `${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}`;}
@@ -3923,113 +3932,114 @@ async function syncAllToGCal() {
   await syncUserToGCal(currentTeamId);
 }
 
-// Helper: create or update a single event in GCal
-async function gcalUpsertEvent(taskObj) {
+// Build GCal event object from a task
+function buildGCalEvent(taskObj) {
   const cat = CATEGORIES.find(c => c.id === taskObj.category);
-  const eventId = `studiotask${String(taskObj.id).padStart(8, '0')}`;
-  const event = {
+  return {
     summary: `${cat?.emoji||''} ${taskObj.name}`,
-    description: `יעד: ${taskObj.goal || ''}\nקטגוריה: ${cat?.name || ''}\nעדיפות: ${{high:'גבוהה',medium:'בינונית',low:'נמוכה'}[taskObj.priority] || ''}\nסטטוס: ${getStatusLabel(taskObj.status)}`,
+    description: `[Studio Manager #${taskObj.id}]\nיעד: ${taskObj.goal || ''}\nקטגוריה: ${cat?.name || ''}\nעדיפות: ${{high:'גבוהה',medium:'בינונית',low:'נמוכה'}[taskObj.priority] || ''}\nסטטוס: ${getStatusLabel(taskObj.status)}`,
     start: { date: getLocalDateISO(taskObj.startDate) },
     end: { date: getLocalDateISO(new Date(taskObj.endDate.getTime() + 86400000)) },
     colorId: {high:'11',medium:'5',low:'2'}[taskObj.priority] || '1',
   };
-
-  // Try update first, then create
-  console.log('📅 UPSERT attempt:', eventId, taskObj.name);
-  let resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
-    method: 'PUT',
-    headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...event, id: eventId })
-  });
-  if (resp.status === 404) {
-    console.log('📅 Event not found, creating new:', eventId);
-    resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...event, id: eventId })
-    });
-  }
-  if (!resp.ok) {
-    const errBody = await resp.text().catch(() => '');
-    console.error('📅 UPSERT failed:', resp.status, errBody);
-  } else {
-    const data = await resp.json().catch(() => ({}));
-    console.log('📅 UPSERT success, GCal event ID:', data.id);
-  }
-  return resp.ok;
 }
 
-// Helper: delete a single event from GCal
-async function gcalDeleteEvent(eventId) {
+// Create or update a single event — stores Google's real event ID on the task
+async function gcalUpsertEvent(taskObj) {
+  const event = buildGCalEvent(taskObj);
+  const headers = { 'Authorization': `Bearer ${gcalAccessToken}`, 'Content-Type': 'application/json' };
+
   try {
-    console.log('📅 DELETE attempt:', eventId);
-    const resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+    let resp;
+    // If we already have a GCal event ID, update it
+    if (taskObj.gcalEventId) {
+      console.log('📅 UPDATE existing event:', taskObj.gcalEventId, taskObj.name);
+      resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${taskObj.gcalEventId}`, {
+        method: 'PATCH', headers, body: JSON.stringify(event)
+      });
+      if (resp.ok) {
+        console.log('📅 UPDATE success');
+        return true;
+      }
+      // If 404, event was deleted from GCal — create a new one
+      if (resp.status !== 404) {
+        console.error('📅 UPDATE failed:', resp.status, await resp.text().catch(()=>''));
+        return false;
+      }
+      console.log('📅 Event gone from GCal, will create new');
+    }
+
+    // Create new event
+    console.log('📅 CREATE new event for:', taskObj.name);
+    resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      method: 'POST', headers, body: JSON.stringify(event)
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      // Store Google's real event ID on the task
+      taskObj.gcalEventId = data.id;
+      console.log('📅 CREATE success, Google event ID:', data.id);
+      saveTasks(); // Persist the gcalEventId to Firebase
+      return true;
+    } else {
+      console.error('📅 CREATE failed:', resp.status, await resp.text().catch(()=>''));
+      return false;
+    }
+  } catch(e) {
+    console.error('📅 UPSERT error:', e);
+    return false;
+  }
+}
+
+// Delete a single event from GCal using Google's real event ID
+async function gcalDeleteEvent(gcalEventId) {
+  if (!gcalEventId) { console.log('📅 No GCal event ID, skip delete'); return true; }
+  try {
+    console.log('📅 DELETE event:', gcalEventId);
+    const resp = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${gcalEventId}`, {
       method: 'DELETE',
       headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
     });
     console.log('📅 DELETE response:', resp.status);
     if (resp.ok || resp.status === 404 || resp.status === 410) return true;
-    // If 401, token may have expired
     if (resp.status === 401) {
-      console.warn('📅 GCal token expired, clearing');
+      console.warn('📅 GCal token expired');
       gcalAccessToken = null;
+      sessionStorage.removeItem('gcal_token');
+      updateGCalBadge();
+      toast('📅 חיבור Google Calendar פג. התחבר מחדש דרך ניהול הרשאות');
     }
-    const body = await resp.text().catch(() => '');
-    console.error('📅 DELETE failed:', resp.status, body);
     return false;
   } catch(e) { console.error('📅 DELETE error:', e); return false; }
 }
 
-// Helper: get all studio events from GCal
-async function gcalListStudioEvents() {
-  const events = [];
-  let pageToken = '';
-  try {
-    do {
-      const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?maxResults=500&q=studiotask${pageToken ? '&pageToken=' + pageToken : ''}`;
-      const resp = await fetch(url, { headers: { 'Authorization': `Bearer ${gcalAccessToken}` } });
-      if (!resp.ok) break;
-      const data = await resp.json();
-      // Filter only our events by ID pattern
-      (data.items || []).forEach(ev => {
-        if (ev.id && ev.id.startsWith('studiotask')) events.push(ev.id);
-      });
-      pageToken = data.nextPageToken || '';
-    } while (pageToken);
-  } catch(e) { console.error('GCal list error:', e); }
-  return events;
-}
-
-// Full sync: push all active tasks + delete removed ones
+// Full sync: push all active tasks + clean up old events
 async function syncUserToGCal(userId) {
   if (!gcalAccessToken) { toast('❌ יש להתחבר ל-Google Calendar קודם'); return; }
 
   const activeTasks = allTasks.filter(t => t.assignee === userId && t.startDate && t.endDate && t.status !== 'done');
-  const activeEventIds = new Set(activeTasks.map(t => `studiotask${String(t.id).padStart(8, '0')}`));
-
   const statusEl = document.getElementById('gcalSyncStatus');
-  if (statusEl) statusEl.textContent = `🔄 מסנכרן...`;
+  if (statusEl) statusEl.textContent = `🔄 מסנכרן ${activeTasks.length} משימות...`;
 
   let synced = 0, deleted = 0, errors = 0;
 
   // Step 1: Upsert all active tasks
   for (const t of activeTasks) {
-    try {
-      if (await gcalUpsertEvent(t)) synced++;
-      else errors++;
-    } catch(e) { errors++; }
+    if (await gcalUpsertEvent(t)) synced++;
+    else errors++;
     await new Promise(r => setTimeout(r, 100));
   }
 
-  // Step 2: Find and delete events in GCal that no longer exist in our tasks
-  if (statusEl) statusEl.textContent = `🔄 מנקה אירועים ישנים...`;
-  const gcalEvents = await gcalListStudioEvents();
-  for (const evId of gcalEvents) {
-    if (!activeEventIds.has(evId)) {
-      if (await gcalDeleteEvent(evId)) deleted++;
-      await new Promise(r => setTimeout(r, 50));
+  // Step 2: Find tasks with gcalEventId that are done or deleted — clean them up
+  const doneTasks = allTasks.filter(t => t.gcalEventId && (t.status === 'done' || t.assignee !== userId));
+  for (const t of doneTasks) {
+    if (await gcalDeleteEvent(t.gcalEventId)) {
+      deleted++;
+      t.gcalEventId = null;
+      saveTasks();
     }
+    await new Promise(r => setTimeout(r, 50));
   }
 
   const msg = `✅ סונכרנו ${synced} משימות` +
@@ -4040,21 +4050,22 @@ async function syncUserToGCal(userId) {
 }
 
 // ===== AUTO GCAL SYNC =====
-let _gcalSyncQueue = new Map(); // taskId -> 'upsert' | 'delete'
+let _gcalSyncQueue = new Map(); // taskId -> { action: 'upsert'|'delete', gcalEventId?: string }
 let _gcalSyncTimer = null;
 
-function queueGCalSync(taskId, action) {
+function queueGCalSync(taskId, action, gcalEventId) {
   if (!gcalAccessToken) {
     console.log('📅 GCal sync skipped - not connected. Task:', taskId);
     return;
   }
-  // Auto-detect action: if task doesn't exist or is done, it's a delete
+  // Auto-detect action
   if (!action) {
     const t = allTasks.find(x => x.id === taskId);
     action = (!t || t.status === 'done' || !t.startDate || !t.endDate) ? 'delete' : 'upsert';
+    if (!gcalEventId && t) gcalEventId = t.gcalEventId;
   }
-  console.log(`📅 GCal queued: ${action} task ${taskId}`);
-  _gcalSyncQueue.set(taskId, action);
+  console.log(`📅 GCal queued: ${action} task ${taskId} (eventId: ${gcalEventId || 'none'})`);
+  _gcalSyncQueue.set(taskId, { action, gcalEventId });
   clearTimeout(_gcalSyncTimer);
   _gcalSyncTimer = setTimeout(processGCalQueue, 1500);
 }
@@ -4065,30 +4076,26 @@ async function processGCalQueue() {
   _gcalSyncQueue.clear();
 
   let synced = 0, deleted = 0, errors = 0;
-  for (const [id, action] of entries) {
-    const eventId = `studiotask${String(id).padStart(8, '0')}`;
+  for (const [id, { action, gcalEventId }] of entries) {
 
     if (action === 'delete') {
-      if (await gcalDeleteEvent(eventId)) deleted++;
-      else errors++;
+      if (gcalEventId) {
+        if (await gcalDeleteEvent(gcalEventId)) deleted++;
+        else errors++;
+      } else {
+        console.log('📅 No gcalEventId for task', id, '- nothing to delete from GCal');
+      }
     } else {
       const t = allTasks.find(x => x.id === id);
-      if (!t || !t.startDate || !t.endDate) {
-        // Task gone or incomplete - delete from cal
-        if (await gcalDeleteEvent(eventId)) deleted++;
-        continue;
-      }
-      try {
-        if (await gcalUpsertEvent(t)) synced++;
-        else errors++;
-      } catch(e) { errors++; }
+      if (!t || !t.startDate || !t.endDate) continue;
+      if (await gcalUpsertEvent(t)) synced++;
+      else errors++;
     }
     await new Promise(r => setTimeout(r, 100));
   }
 
   console.log(`📅 GCal auto-sync: ${synced} synced, ${deleted} deleted, ${errors} errors`);
-  if (synced > 0 || deleted > 0) toast(`📅 ${synced > 0 ? synced + ' סונכרנו' : ''}${deleted > 0 ? (synced > 0 ? ', ' : '') + deleted + ' נמחקו' : ''}`);
-  if (errors > 0 && synced === 0 && deleted === 0) console.warn('📅 GCal sync had errors - token may have expired');
+  if (synced > 0 || deleted > 0) toast(`📅 ${synced > 0 ? synced + ' סונכרנו' : ''}${deleted > 0 ? (synced > 0 ? ', ' : '') + deleted + ' נמחקו מהיומן' : ''}`);
 }
 
 // ===== INIT =====
