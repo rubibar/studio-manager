@@ -137,30 +137,30 @@ body {
 .content { padding:20px 24px; }
 
 .global-stats-bar {
-  display:flex; gap:10px; margin-bottom:16px;
+  display:inline-flex; align-items:center; gap:4px; margin-right:12px;
 }
-.stat-chip {
-  display:flex; align-items:center; gap:8px;
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius); padding:8px 14px;
-  box-shadow:var(--shadow-sm); position:relative; cursor:pointer;
-  transition: box-shadow 0.15s, transform 0.15s;
-  flex:1; min-width:0;
+.stat-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 8px; border-radius:20px; font-size:11px;
+  cursor:pointer; position:relative; transition:background 0.15s;
+  white-space:nowrap; border:1px solid transparent;
 }
-.stat-chip:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
-.stat-chip .stat-icon { font-size:16px; }
-.stat-chip .stat-val { font-size:18px; font-weight:700; }
-.stat-chip .stat-lbl { font-size:11px; color:var(--text2); }
-.stat-chip.accent .stat-val { color:var(--accent); }
-.stat-chip.green .stat-val { color:var(--green); }
-.stat-chip.yellow .stat-val { color:var(--yellow); }
-.stat-chip.red .stat-val { color:var(--red); }
+.stat-pill:hover { border-color:var(--border); }
+.stat-pill .stat-val { font-weight:700; }
+.stat-pill.accent { background:rgba(74,108,247,0.08); }
+.stat-pill.accent .stat-val { color:var(--accent); }
+.stat-pill.green { background:var(--green-bg); }
+.stat-pill.green .stat-val { color:var(--green); }
+.stat-pill.yellow { background:var(--yellow-bg); }
+.stat-pill.yellow .stat-val { color:var(--yellow); }
+.stat-pill.red { background:var(--red-bg); }
+.stat-pill.red .stat-val { color:var(--red); }
 .stat-dropdown {
-  position:absolute; top:100%; right:0; left:0; z-index:50;
+  position:absolute; top:calc(100% + 4px); right:0; z-index:200;
   background:var(--surface); border:1px solid var(--border);
-  border-radius:0 0 var(--radius) var(--radius);
-  box-shadow:var(--shadow-md); max-height:260px; overflow-y:auto;
-  animation:fadeIn 0.15s ease; min-width:280px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-md); max-height:300px; overflow-y:auto;
+  animation:fadeIn 0.15s ease; width:320px;
 }
 .stat-dropdown-item {
   display:flex; align-items:center; gap:8px;
@@ -459,8 +459,7 @@ textarea.form-input { resize:vertical; min-height:60px; }
 ::-webkit-scrollbar-thumb:hover { background:#b0b5bf; }
 
 @media (max-width:1200px) {
-  .global-stats-bar { flex-wrap:wrap; }
-  .stat-chip { flex:1 1 calc(50% - 10px); }
+  .global-stats-bar { gap:3px; }
   .kpi-grid { grid-template-columns:repeat(2,1fr); }
 }
 
@@ -522,9 +521,8 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .content { padding:12px; }
 
   /* Stats bar */
-  .global-stats-bar { flex-wrap:wrap; gap:8px; }
-  .stat-chip { flex:1 1 calc(50% - 8px); padding:6px 10px; }
-  .stat-chip .stat-val { font-size:15px; }
+  .global-stats-bar { gap:2px; }
+  .stat-pill { font-size:10px; padding:2px 6px; }
 
   /* KPI grid */
   .kpi-grid { grid-template-columns:1fr; }
@@ -645,10 +643,7 @@ textarea.form-input { resize:vertical; min-height:60px; }
 
 /* ===== SMALL MOBILE: < 480px ===== */
 @media (max-width:480px) {
-  .global-stats-bar { gap:6px; }
-  .stat-chip { flex:1 1 calc(50% - 6px); padding:5px 8px; }
-  .stat-chip .stat-val { font-size:14px; }
-  .stat-chip .stat-lbl { font-size:10px; }
+  .global-stats-bar { display:none; }
 
   .topbar-title { font-size:14px; }
 
@@ -1080,6 +1075,7 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
     <div class="topbar-right">
       <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()">☰</button>
       <span class="topbar-title" id="viewTitle">📊 דשבורד</span>
+      <div class="global-stats-bar" id="globalStatsBar"></div>
     </div>
     <div class="topbar-left">
       <input class="search-box" placeholder="חיפוש משימות..." id="searchBox" oninput="filterTasks()">
@@ -1105,7 +1101,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
   </div>
 
   <div class="content">
-    <div class="global-stats-bar" id="globalStatsBar"></div>
     <!-- DASHBOARD -->
     <div class="tab-content active" id="view-dashboard">
       <div class="widget-toggle" id="widgetToggle"></div>
@@ -1724,14 +1719,14 @@ function renderGlobalStats() {
     review=_vt.filter(t=>t.status==='review').length,
     overdue=_vt.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
   document.getElementById('globalStatsBar').innerHTML = `
-    <div class="stat-chip accent" onclick="event.stopPropagation();toggleStatDropdown('total',this)">
-      <span class="stat-val">${total}</span><span class="stat-lbl">סה"כ</span></div>
-    <div class="stat-chip green" onclick="event.stopPropagation();toggleStatDropdown('done',this)">
-      <span class="stat-val">${done}</span><span class="stat-lbl">הושלמו (${total?Math.round(done/total*100):0}%)</span></div>
-    <div class="stat-chip yellow" onclick="event.stopPropagation();toggleStatDropdown('progress',this)">
-      <span class="stat-val">${prog+review}</span><span class="stat-lbl">בתהליך${review?' (+'+review+' בבדיקה)':''}</span></div>
-    <div class="stat-chip red" onclick="event.stopPropagation();toggleStatDropdown('overdue',this)">
-      <span class="stat-val">${overdue}</span><span class="stat-lbl">באיחור</span></div>`;
+    <div class="stat-pill accent" onclick="event.stopPropagation();toggleStatDropdown('total',this)">
+      <span class="stat-val">${total}</span> סה"כ</div>
+    <div class="stat-pill green" onclick="event.stopPropagation();toggleStatDropdown('done',this)">
+      <span class="stat-val">${done}</span> ✅</div>
+    <div class="stat-pill yellow" onclick="event.stopPropagation();toggleStatDropdown('progress',this)">
+      <span class="stat-val">${prog+review}</span> 🔄</div>
+    ${overdue ? `<div class="stat-pill red" onclick="event.stopPropagation();toggleStatDropdown('overdue',this)">
+      <span class="stat-val">${overdue}</span> ⚠️</div>` : ''}`;
 }
 
 function renderView() {
