@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 <title>Studio Manager - ניהול סטודיו אנימציה</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
@@ -74,8 +75,8 @@ body {
 }
 .nav-item:hover { background:var(--surface2); color:var(--text); }
 .nav-item.active {
-  background:rgba(74,108,247,0.08); color:var(--accent);
-  border-right-color:var(--accent);
+  background:#0055ff; color:#172b4d;
+  border-right-color:transparent;
   font-weight:600;
 }
 .nav-item .icon { font-size:16px; width:22px; text-align:center; }
@@ -469,14 +470,7 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .topbar { padding:10px 16px; }
   .search-box { width:160px; }
   .content { padding:16px; }
-  .bank-layout { grid-template-columns:1fr; }
-  .bank-sidebar { position:static; max-height:none; }
-  .workload-grid { grid-template-columns:repeat(2,1fr); }
-  .report-grid { grid-template-columns:1fr; }
-  .pricing-grid { grid-template-columns:1fr; }
-  .week-grid { grid-template-columns:200px repeat(5,1fr); }
   .year-grid { grid-template-columns:repeat(3,1fr); }
-  .velocity-stats { grid-template-columns:repeat(2,1fr); }
   .gantt-label-col { min-width:140px; }
 }
 
@@ -533,42 +527,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .kanban-container { flex-direction:column; overflow-x:visible; }
   .kanban-column { min-width:auto; width:100%; }
 
-  /* Bank */
-  .bank-layout { grid-template-columns:1fr; }
-  .bank-sidebar { position:static; max-height:none; }
-  .bank-stat-row { flex-wrap:wrap; }
-  .bank-stat { min-width:calc(50% - 6px); }
-
-  /* Workload */
-  .workload-grid { grid-template-columns:1fr; }
-  .wl-week-grid { grid-template-columns:repeat(7,1fr); }
-
-  /* Week View */
-  .week-grid {
-    grid-template-columns:80px repeat(5,minmax(100px,1fr));
-    overflow-x:auto; -webkit-overflow-scrolling:touch;
-  }
-  .week-header { font-size:10px; padding:6px; }
-  .week-member { font-size:11px; padding:6px; }
-  .week-cell { padding:4px; min-height:60px; }
-  .week-task { font-size:9px; padding:2px 4px; }
-
-  /* Reports */
-  .report-grid { grid-template-columns:1fr; }
-  .report-card { padding:14px; }
-  .report-card .big-num { font-size:24px; }
-  .report-table { font-size:11px; }
-  .report-table th, .report-table td { padding:6px 4px; }
-
-  /* Velocity */
-  .velocity-stats { grid-template-columns:repeat(2,1fr); gap:8px; }
-  .vel-stat .num { font-size:18px; }
-  .velocity-bars { height:150px; }
-
-  /* Pricing */
-  .pricing-grid { grid-template-columns:1fr; }
-  .pricing-table { font-size:11px; }
-
   /* Modal */
   .modal { width:calc(100vw - 24px); max-width:560px; padding:20px; max-height:90vh; }
   .modal h2 { font-size:15px; margin-bottom:14px; }
@@ -576,13 +534,13 @@ textarea.form-input { resize:vertical; min-height:60px; }
 
   /* Dashboard widgets */
   .dash-widgets { grid-template-columns:1fr; }
+  .dashboard-split { grid-template-columns:1fr; height:auto; }
+  .dashboard-canvas { height:200px; }
+  .dashboard-metrics .stats-grid { grid-template-columns:1fr 1fr; }
+  #dashMergedWidgets { grid-template-columns:1fr !important; }
 
   /* Notifications */
   .notif-panel { width:100vw; }
-
-  /* Activity Log */
-  .log-entry { flex-wrap:wrap; padding:10px 12px; }
-  .log-time { min-width:auto; width:100%; margin-bottom:4px; }
 
   /* Timeline */
   .timeline-container { padding-right:20px; }
@@ -591,14 +549,8 @@ textarea.form-input { resize:vertical; min-height:60px; }
 
   /* Dependencies */
   .dep-row { flex-wrap:wrap; gap:6px; font-size:12px; }
-  .dep-add-bar { flex-direction:column; }
-
   /* Export panel */
   .export-panel { flex-direction:column; align-items:stretch; }
-
-  /* Burndown */
-  .burndown-svg { height:220px; }
-  .burndown-controls { flex-direction:column; }
 
   /* Toast */
   .toast { font-size:12px; padding:8px 16px; max-width:calc(100vw - 32px); }
@@ -611,13 +563,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .task-table { min-width:600px; }
   .task-table th { padding:8px 10px; font-size:10px; }
   .task-table td { padding:7px 10px; font-size:12px; }
-
-  /* Client grid */
-  .client-grid { grid-template-columns:1fr; }
-  .client-add-bar { flex-direction:column; }
-
-  /* OKR */
-  .okr-card { padding:14px; }
 
   /* Hide less important topbar buttons on small screens */
   .btn-google { display:none; }
@@ -673,31 +618,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
 .toast.hide { opacity:0; transform:translateX(-50%) translateY(10px); }
 
 /* Export panel */
-/* Task Bank */
-.bank-layout { display:grid; grid-template-columns:1fr 320px; gap:16px; }
-.bank-main { }
-.bank-sidebar { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; position:sticky; top:80px; max-height:calc(100vh - 100px); overflow-y:auto; box-shadow:var(--shadow-sm); }
-.bank-sidebar h3 { font-size:14px; margin-bottom:12px; }
-.bank-cards { display:flex; flex-direction:column; gap:8px; }
-.bank-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px 14px; cursor:grab; transition:all 0.15s; box-shadow:var(--shadow-sm); }
-.bank-card:hover { border-color:var(--accent); background:rgba(74,108,247,0.03); }
-.bank-card.dragging { opacity:0.4; }
-.bank-card-title { font-size:13px; font-weight:500; margin-bottom:4px; }
-.bank-card-meta { display:flex; gap:8px; font-size:11px; color:var(--text2); flex-wrap:wrap; align-items:center; }
-.bank-cat-group { margin-bottom:20px; }
-.bank-cat-header { display:flex; align-items:center; gap:8px; padding:8px 0; font-size:14px; font-weight:600; border-bottom:1px solid var(--border); margin-bottom:10px; cursor:pointer; }
-.bank-cat-header:hover { color:var(--accent); }
-.bank-count { background:var(--surface3); padding:1px 8px; border-radius:10px; font-size:11px; color:var(--text2); font-weight:400; }
-.bank-assign-zone { min-height:60px; border:2px dashed var(--border); border-radius:10px; display:flex; align-items:center; justify-content:center; color:var(--text2); font-size:12px; padding:12px; transition:all 0.2s; margin-bottom:8px; }
-.bank-assign-zone.drag-over { border-color:var(--accent); background:rgba(74,108,247,0.06); color:var(--accent); }
-.bank-assign-panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:14px; margin-bottom:12px; }
-.bank-assign-panel h4 { font-size:13px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
-.bank-search { width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-family:'Heebo',sans-serif; font-size:13px; outline:none; margin-bottom:12px; }
-.bank-search:focus { border-color:var(--accent); }
-.bank-stat-row { display:flex; gap:12px; margin-bottom:16px; }
-.bank-stat { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
-.bank-stat .num { font-size:22px; font-weight:700; }
-.bank-stat .lbl { font-size:10px; color:var(--text2); margin-top:2px; }
 
 .export-panel {
   background:var(--surface); border:1px solid var(--border);
@@ -707,26 +627,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
 }
 .export-panel .label { font-size:12px; color:var(--text2); }
 
-/* WORKLOAD */
-.workload-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:20px; }
-.workload-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow-sm); }
-.workload-card h3 { font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-.wl-bar-row { display:flex; align-items:center; gap:8px; margin-bottom:6px; font-size:11px; }
-.wl-bar-row .wl-label { width:50px; color:var(--text2); text-align:left; }
-.wl-bar-row .wl-track { flex:1; height:18px; background:var(--surface3); border-radius:4px; overflow:hidden; position:relative; }
-.wl-bar-row .wl-fill { height:100%; border-radius:4px; transition:width 0.4s; display:flex; align-items:center; justify-content:center; font-size:9px; color:#fff; font-weight:600; }
-.wl-bar-row .wl-fill.overload { background:var(--red)!important; }
-.wl-week-grid { display:grid; grid-template-columns:repeat(13,1fr); gap:3px; margin-top:12px; }
-.wl-week-cell { text-align:center; font-size:9px; padding:3px; border-radius:4px; }
-
-/* WEEK VIEW */
-.week-grid { display:grid; grid-template-columns:260px repeat(5,1fr); gap:1px; background:var(--border); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
-.week-header { background:var(--surface2); padding:10px; text-align:center; font-size:12px; font-weight:600; color:var(--text2); }
-.week-header.today-h { background:var(--accent); color:#fff; font-weight:700; }
-.week-member { background:var(--surface2); padding:10px; display:flex; align-items:center; gap:8px; font-size:13px; font-weight:500; }
-.week-cell { background:var(--surface); padding:6px; min-height:80px; }
-.week-task { padding:4px 6px; border-radius:4px; font-size:10px; margin-bottom:3px; cursor:pointer; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.week-task:hover { opacity:0.8; }
 
 /* TIME TRACKER */
 .timer-widget { display:inline-flex; align-items:center; gap:6px; background:var(--surface3); border-radius:8px; padding:4px 10px; font-size:12px; font-family:'Courier New',monospace; }
@@ -747,61 +647,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
 .kanban-card .kc-meta { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text2); }
 .kanban-col-body.drag-over, .kanban-column.drag-over { background:rgba(74,108,247,0.05); }
 
-/* Burndown Chart */
-.burndown-canvas { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); }
-.burndown-svg { width:100%; height:320px; }
-.burndown-legend { display:flex; gap:20px; margin-top:12px; justify-content:center; }
-.burndown-legend span { font-size:12px; display:flex; align-items:center; gap:6px; }
-.burndown-legend span::before { content:''; width:12px; height:3px; border-radius:2px; }
-.burndown-controls { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
-
-/* Activity Log */
-.activity-log { max-height:70vh; overflow-y:auto; }
-.log-entry { display:flex; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); font-size:13px; align-items:flex-start; }
-.log-entry:hover { background:rgba(74,108,247,0.03); }
-.log-time { color:var(--text2); font-size:11px; min-width:120px; white-space:nowrap; }
-.log-icon { font-size:16px; min-width:24px; text-align:center; }
-.log-text { flex:1; line-height:1.5; }
-.log-text strong { color:var(--accent); }
-.log-filter-bar { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
-
-/* Reports */
-.report-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-.report-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow-sm); }
-.report-card h3 { font-size:14px; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
-.report-card .big-num { font-size:32px; font-weight:700; }
-.report-table { width:100%; border-collapse:collapse; font-size:12px; }
-.report-table th { text-align:right; padding:8px 6px; border-bottom:2px solid var(--border); color:var(--text2); font-weight:500; }
-.report-table td { padding:8px 6px; border-bottom:1px solid var(--border); }
-.report-bar { height:6px; border-radius:3px; background:var(--surface3); overflow:hidden; }
-.report-bar-fill { height:100%; border-radius:3px; transition:width 0.3s; }
-.report-period { display:flex; gap:8px; margin-bottom:16px; }
-
-/* Velocity */
-.velocity-chart { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); }
-.velocity-bars { display:flex; align-items:flex-end; gap:6px; height:200px; padding:0 4px; }
-.vel-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; height:100%; justify-content:flex-end; }
-.vel-bar { width:100%; border-radius:6px 6px 0 0; min-height:4px; transition:height 0.4s; position:relative; }
-.vel-bar:hover { filter:brightness(1.2); }
-.vel-label { font-size:9px; color:var(--text2); text-align:center; white-space:nowrap; }
-.vel-val { font-size:10px; font-weight:600; }
-.velocity-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
-.vel-stat { background:var(--surface); border:1px solid var(--border); padding:12px; border-radius:var(--radius); text-align:center; box-shadow:var(--shadow-sm); }
-.vel-stat .num { font-size:24px; font-weight:700; }
-.vel-stat .lbl { font-size:11px; color:var(--text2); }
-
-/* Dependencies */
-.dep-graph { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; overflow-x:auto; box-shadow:var(--shadow-sm); }
-.dep-list { display:flex; flex-direction:column; gap:8px; }
-.dep-row { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--surface); border-radius:6px; border:1px solid var(--border); font-size:13px; transition:background 0.15s; }
-.dep-row:hover { background:rgba(74,108,247,0.03); }
-.dep-arrow { color:var(--accent); font-size:18px; min-width:30px; text-align:center; }
-.dep-task { padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--surface); cursor:pointer; }
-.dep-task:hover { border-color:var(--accent); }
-.dep-task.blocked { border-color:var(--red); background:var(--red-bg); }
-.dep-task.done { border-color:var(--green); opacity:0.7; }
-.dep-add-bar { display:flex; gap:8px; margin-bottom:16px; align-items:center; flex-wrap:wrap; }
-.dep-chain { display:flex; flex-direction:column; gap:2px; }
 .dep-chain-label { font-size:10px; color:var(--text2); padding:2px 8px; }
 
 /* Subtasks */
@@ -907,6 +752,43 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 
 /* Custom Dashboard Widgets */
 .dash-widgets { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+
+/* Dashboard Split Layout */
+.dashboard-split {
+  display:grid;
+  grid-template-columns:1fr 340px;
+  gap:16px;
+  height:calc(100vh - 120px);
+}
+.dashboard-canvas {
+  background:#bc5b5b;
+  border-radius:var(--radius);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.dashboard-canvas-label {
+  font-size:96px;
+  font-weight:400;
+  color:#000;
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.dashboard-metrics {
+  overflow-y:auto;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.dashboard-metrics .stats-grid {
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:0;
+}
+.dashboard-metrics .kpi-grid {
+  grid-template-columns:1fr;
+  margin-bottom:0;
+}
 .dash-widget { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; min-height:120px; position:relative; box-shadow:var(--shadow-sm); }
 .dash-widget-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .dash-widget-title { font-size:13px; font-weight:600; }
@@ -923,32 +805,8 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 .checkmark-anim { display:inline-block; animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
 @keyframes popIn { 0%{transform:scale(0);} 100%{transform:scale(1);} }
 
-/* Hours vs Pricing */
-.pricing-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.pricing-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow-sm); }
-.pricing-table { width:100%; border-collapse:collapse; font-size:12px; }
-.pricing-table th { text-align:right; padding:8px 6px; border-bottom:2px solid var(--border); color:var(--text2); font-weight:500; }
-.pricing-table td { padding:8px 6px; border-bottom:1px solid var(--border); }
+/* pricing-input - still used in admin/dashboard */
 .pricing-input { width:70px; padding:4px 6px; background:var(--surface2); border:1px solid var(--border); border-radius:4px; color:var(--text); font-size:12px; text-align:center; font-family:'Heebo'; }
-.profit-positive { color:var(--green); font-weight:600; }
-.profit-negative { color:var(--red); font-weight:600; }
-
-/* Client Dashboard */
-.client-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
-.client-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; transition:border-color 0.15s; cursor:pointer; box-shadow:var(--shadow-sm); }
-.client-card:hover { border-color:var(--accent); }
-.client-status { display:inline-flex; padding:3px 8px; border-radius:6px; font-size:10px; font-weight:500; }
-.client-add-bar { display:flex; gap:8px; margin-bottom:16px; }
-
-/* OKR Tracker */
-.okr-container { display:flex; flex-direction:column; gap:16px; }
-.okr-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow-sm); }
-.okr-objective { font-size:15px; font-weight:600; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
-.kr-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border); }
-.kr-item:last-child { border-bottom:none; }
-.kr-progress { flex:1; }
-.kr-value { font-size:20px; font-weight:700; min-width:50px; text-align:center; }
-.okr-add-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
 </style>
 
 <!-- Firebase SDKs (compat version for simple use) -->
@@ -983,9 +841,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
     <div class="nav-item active" onclick="switchView('dashboard',this)">
       <span class="icon">📊</span> דשבורד
     </div>
-    <div class="nav-item" onclick="switchView('bank',this)">
-      <span class="icon">🏦</span> בנק משימות
-    </div>
     <div class="nav-item" onclick="switchView('tasks',this)">
       <span class="icon">📋</span> משימות
     </div>
@@ -995,44 +850,11 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
     <div class="nav-item" onclick="switchView('calendar',this)">
       <span class="icon">🗓️</span> קלנדר
     </div>
-    <div class="nav-item" onclick="switchView('categories',this)">
-      <span class="icon">📁</span> לפי קטגוריה
-    </div>
-    <div class="nav-item" onclick="switchView('workload',this)">
-      <span class="icon">⚖️</span> עומסים
-    </div>
-    <div class="nav-item" onclick="switchView('weekview',this)">
-      <span class="icon">📆</span> שבוע נוכחי
-    </div>
     <div class="nav-item" onclick="switchView('kanban',this)">
       <span class="icon">🔲</span> קנבאן
     </div>
-    <div class="nav-item" onclick="switchView('burndown',this)">
-      <span class="icon">📉</span> ברנדאון
-    </div>
-    <div class="nav-item" onclick="switchView('activitylog',this)">
-      <span class="icon">📝</span> לוג פעילות
-    </div>
-    <div class="nav-item" onclick="switchView('reports',this)">
-      <span class="icon">📊</span> דוחות
-    </div>
-    <div class="nav-item" onclick="switchView('velocity',this)">
-      <span class="icon">🚀</span> מהירות
-    </div>
-    <div class="nav-item" onclick="switchView('dependencies',this)">
-      <span class="icon">🔗</span> תלויות
-    </div>
     <div class="nav-item" onclick="switchView('timeline',this)">
       <span class="icon">📌</span> ציר זמן אישי
-    </div>
-    <div class="nav-item" onclick="switchView('pricing',this)">
-      <span class="icon">💰</span> שעות ותמחור
-    </div>
-    <div class="nav-item" onclick="switchView('clients',this)">
-      <span class="icon">🏢</span> לקוחות
-    </div>
-    <div class="nav-item" onclick="switchView('okr',this)">
-      <span class="icon">🎯</span> OKR
     </div>
   </div>
   <div id="adminNavItem" style="display:none;">
@@ -1086,17 +908,31 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
   <div class="content">
     <!-- DASHBOARD -->
     <div class="tab-content active" id="view-dashboard">
-      <div class="widget-toggle" id="widgetToggle"></div>
-      <div class="stats-grid" id="statsGrid"></div>
-      <div class="kpi-grid" id="kpiGrid"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-          <h3 style="font-size:14px;margin-bottom:14px;">📌 משימות דחופות</h3>
-          <div id="urgentTasks"></div>
+      <div class="dashboard-split">
+        <div class="dashboard-canvas">
+          <span class="dashboard-canvas-label">Task Canvas</span>
         </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-          <h3 style="font-size:14px;margin-bottom:14px;">📊 התקדמות לפי קטגוריה</h3>
-          <div id="recentActivity"></div>
+        <div class="dashboard-metrics">
+          <div class="widget-toggle" id="widgetToggle"></div>
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="kpi-grid" id="kpiGrid"></div>
+          <div id="dashboardPanels">
+            <div id="urgentPanel" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;">
+              <h3 style="font-size:14px;margin-bottom:14px;">📌 משימות דחופות</h3>
+              <div id="urgentTasks"></div>
+            </div>
+            <div id="catPanel" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;">
+              <h3 style="font-size:14px;margin-bottom:14px;">📊 התקדמות לפי קטגוריה</h3>
+              <div id="recentActivity"></div>
+            </div>
+          </div>
+          <!-- Merged widgets from removed views -->
+          <div id="dashMergedWidgets" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
+            <div id="velocityWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
+            <div id="workloadWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
+            <div id="financialWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
+            <div id="activityWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1171,32 +1007,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
-    <!-- CATEGORIES -->
-    <div class="tab-content" id="view-categories">
-      <div id="categoriesContainer"></div>
-    </div>
-
-    <!-- WORKLOAD -->
-    <div class="tab-content" id="view-workload">
-      <div class="workload-grid" id="workloadCards"></div>
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-        <h3 style="font-size:14px;margin-bottom:14px;">📊 עומס שבועי - 13 שבועות</h3>
-        <div id="workloadHeatmap"></div>
-      </div>
-    </div>
-
-    <!-- WEEK VIEW -->
-    <div class="tab-content" id="view-weekview">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-        <div style="display:flex;gap:8px;">
-          <button class="btn btn-secondary btn-sm" onclick="weekNav(-1)">→ שבוע קודם</button>
-          <button class="btn btn-secondary btn-sm" onclick="weekNav(0)">שבוע נוכחי</button>
-          <button class="btn btn-secondary btn-sm" onclick="weekNav(1)">שבוע הבא ←</button>
-        </div>
-        <h2 id="weekTitle" style="font-size:18px;"></h2>
-      </div>
-      <div id="weekGrid"></div>
-    </div>
 
     <!-- KANBAN -->
     <div class="tab-content" id="view-kanban">
@@ -1210,75 +1020,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="kanban-container" id="kanbanContainer"></div>
     </div>
 
-    <!-- BURNDOWN -->
-    <div class="tab-content" id="view-burndown">
-      <div class="burndown-controls">
-        <span style="font-size:12px;color:var(--text2);line-height:32px;">תקופה:</span>
-        <div class="filter-chip active" onclick="setBurndownRange('month',this)">חודש</div>
-        <div class="filter-chip" onclick="setBurndownRange('quarter',this)">רבעון</div>
-        <div class="filter-chip" onclick="setBurndownRange('all',this)">הכל</div>
-      </div>
-      <div class="burndown-canvas" id="burndownChart"></div>
-    </div>
-
-    <!-- ACTIVITY LOG -->
-    <div class="tab-content" id="view-activitylog">
-      <div class="log-filter-bar">
-        <span style="font-size:12px;color:var(--text2);">סוג:</span>
-        <div class="filter-chip active" onclick="logFilter('all',this)">הכל</div>
-        <div class="filter-chip" onclick="logFilter('status',this)">שינוי סטטוס</div>
-        <div class="filter-chip" onclick="logFilter('create',this)">יצירה</div>
-        <div class="filter-chip" onclick="logFilter('edit',this)">עריכה</div>
-        <div class="filter-chip" onclick="logFilter('time',this)">זמן</div>
-      </div>
-      <div class="activity-log" id="activityLog"></div>
-    </div>
-
-    <!-- REPORTS -->
-    <div class="tab-content" id="view-reports">
-      <div class="report-period">
-        <span style="font-size:12px;color:var(--text2);line-height:32px;">תקופה:</span>
-        <div class="filter-chip active" onclick="setReportPeriod('week',this)">שבועי</div>
-        <div class="filter-chip" onclick="setReportPeriod('month',this)">חודשי</div>
-        <div class="filter-chip" onclick="setReportPeriod('all',this)">כללי</div>
-      </div>
-      <div class="report-grid" id="reportGrid"></div>
-    </div>
-
-    <!-- VELOCITY -->
-    <div class="tab-content" id="view-velocity">
-      <div class="velocity-stats" id="velocityStats"></div>
-      <div class="velocity-chart">
-        <h3 style="font-size:14px;margin-bottom:14px;">🚀 משימות שהושלמו לפי שבוע</h3>
-        <div class="velocity-bars" id="velocityBars"></div>
-        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;color:var(--text2);padding:0 4px;" id="velocityLabels"></div>
-      </div>
-      <div style="margin-top:16px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
-        <h3 style="font-size:14px;margin-bottom:14px;">👥 מהירות לפי חבר צוות</h3>
-        <div id="velocityTeam"></div>
-      </div>
-    </div>
-
-    <!-- DEPENDENCIES -->
-    <div class="tab-content" id="view-dependencies">
-      <div class="dep-add-bar">
-        <span style="font-size:12px;color:var(--text2);">הוסף תלות:</span>
-        <select class="form-input" id="depFrom" style="width:200px;padding:6px 10px;font-size:12px;"></select>
-        <span style="font-size:16px;">→ חוסם את →</span>
-        <select class="form-input" id="depTo" style="width:200px;padding:6px 10px;font-size:12px;"></select>
-        <button class="btn btn-primary btn-sm" onclick="addDependency()">➕ הוסף</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-        <div class="dep-graph">
-          <h3 style="font-size:14px;margin-bottom:14px;">🔗 רשימת תלויות</h3>
-          <div class="dep-list" id="depList"></div>
-        </div>
-        <div class="dep-graph">
-          <h3 style="font-size:14px;margin-bottom:14px;">⚠️ משימות חסומות</h3>
-          <div id="depBlocked"></div>
-        </div>
-      </div>
-    </div>
 
     <!-- PERSONAL TIMELINE -->
     <div class="tab-content" id="view-timeline">
@@ -1291,79 +1032,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="timeline-container" id="timelineContainer"></div>
     </div>
 
-    <!-- HOURS & PRICING -->
-    <div class="tab-content" id="view-pricing">
-      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;">
-        <span style="font-size:12px;color:var(--text2);">תעריף שעתי ברירת מחדל: ₪</span>
-        <input class="pricing-input" id="defaultRate" value="250" onchange="renderPricing()">
-      </div>
-      <div class="pricing-grid" id="pricingGrid"></div>
-    </div>
-
-    <!-- CLIENT DASHBOARD -->
-    <div class="tab-content" id="view-clients">
-      <div class="client-add-bar">
-        <input class="form-input" id="newClientName" placeholder="שם לקוח חדש..." style="width:200px;padding:8px 12px;">
-        <input class="form-input" id="newClientProject" placeholder="פרויקט..." style="width:200px;padding:8px 12px;">
-        <button class="btn btn-primary btn-sm" onclick="addClient()">➕ הוסף לקוח</button>
-      </div>
-      <div class="client-grid" id="clientGrid"></div>
-    </div>
-
-    <!-- OKR TRACKER -->
-    <div class="tab-content" id="view-okr">
-      <div class="okr-add-bar">
-        <input class="form-input" id="newOkrObj" placeholder="יעד חדש (Objective)..." style="flex:1;padding:8px 12px;">
-        <select class="form-input" id="newOkrOwner" style="width:120px;padding:8px;">
-          <option value="rubi">רובי</option><option value="gilad">גלעד</option><option value="dana">דנה</option>
-        </select>
-        <button class="btn btn-primary btn-sm" onclick="addOKR()">➕ הוסף יעד</button>
-      </div>
-      <div class="okr-container" id="okrContainer"></div>
-    </div>
-
-    <!-- TASK BANK -->
-    <div class="tab-content" id="view-bank">
-      <div class="bank-stat-row" id="bankStats"></div>
-      <input class="bank-search" id="bankSearch" placeholder="🔍 חפש משימות בבנק..." oninput="renderBank()">
-      <div class="bank-layout">
-        <div class="bank-main" id="bankMain"></div>
-        <div class="bank-sidebar">
-          <h3>📤 שיבוץ משימה</h3>
-          <p style="font-size:11px;color:var(--text2);margin-bottom:12px;">גרור משימה לכאן או לחץ על ⚡ כדי לשבץ</p>
-          <div class="bank-assign-zone" id="bankDropZone"
-            ondragover="event.preventDefault();this.classList.add('drag-over')"
-            ondragleave="this.classList.remove('drag-over')"
-            ondrop="bankDrop(event)">
-            גרור משימה לכאן לשיבוץ
-          </div>
-          <div id="bankAssignForm" style="display:none;">
-            <div class="bank-assign-panel">
-              <h4>📋 <span id="bankAssignTaskName"></span></h4>
-              <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:4px;">אחראי:</label>
-              <select class="form-input" id="bankAssignPerson" style="width:100%;padding:8px;margin-bottom:10px;">
-                <option value="">-- בחר אחראי --</option>
-                <option value="rubi">רובי</option>
-                <option value="gilad">גלעד</option>
-                <option value="dana">דנה</option>
-              </select>
-              <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:4px;">תאריך התחלה:</label>
-              <input type="date" class="form-input" id="bankAssignStart" style="width:100%;padding:8px;margin-bottom:10px;">
-              <label style="font-size:11px;color:var(--text2);display:block;margin-bottom:4px;">תאריך סיום:</label>
-              <input type="date" class="form-input" id="bankAssignEnd" style="width:100%;padding:8px;margin-bottom:10px;">
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-primary btn-sm" onclick="bankAssignConfirm()" style="flex:1;">✅ שבץ</button>
-                <button class="btn btn-secondary btn-sm" onclick="bankAssignCancel()">ביטול</button>
-              </div>
-            </div>
-          </div>
-          <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
-            <h3 style="font-size:13px;margin-bottom:8px;">📌 משימות משובצות</h3>
-            <div id="bankAssignedList" style="font-size:12px;color:var(--text2);"></div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <div class="tab-content" id="view-admin">
       <div class="admin-panel" style="background:var(--surface);border-radius:12px;padding:20px;margin-bottom:16px;">
@@ -1691,7 +1359,7 @@ function switchView(view, el) {
   document.getElementById('view-'+view).classList.add('active');
   // Close sidebar on mobile after selecting a view
   if (window.innerWidth <= 1024) closeSidebar();
-  const titles = {dashboard:'📊 דשבורד',bank:'🏦 בנק משימות',tasks:'📋 משימות',gantt:'📅 תרשים גאנט',calendar:'🗓️ קלנדר',categories:'📁 לפי קטגוריה',workload:'⚖️ עומסים',weekview:'📆 שבוע נוכחי',kanban:'🔲 קנבאן',burndown:'📉 ברנדאון',activitylog:'📝 לוג פעילות',reports:'📊 דוחות',velocity:'🚀 מהירות',dependencies:'🔗 תלויות',timeline:'📌 ציר זמן אישי',pricing:'💰 שעות ותמחור',clients:'🏢 לקוחות',okr:'🎯 OKR'};
+  const titles = {dashboard:'📊 דשבורד',tasks:'📋 משימות',gantt:'📅 תרשים גאנט',calendar:'🗓️ קלנדר',kanban:'🔲 קנבאן',timeline:'📌 ציר זמן אישי',admin:'⚙️ ניהול'};
   document.getElementById('viewTitle').textContent = titles[view]||'';
   renderView();
 }
@@ -1699,23 +1367,11 @@ function switchView(view, el) {
 function renderView() {
   switch(currentView) {
     case 'dashboard': renderDashboard(); break;
-    case 'bank': renderBank(); break;
     case 'tasks': renderTasks(); break;
     case 'gantt': renderGantt(); break;
     case 'calendar': renderCalendar(); break;
-    case 'categories': renderCategories(); break;
-    case 'workload': renderWorkload(); break;
-    case 'weekview': renderWeekView(); break;
     case 'kanban': renderKanban(); break;
-    case 'burndown': renderBurndown(); break;
-    case 'activitylog': renderActivityLog(); break;
-    case 'reports': renderReports(); break;
-    case 'velocity': renderVelocity(); break;
-    case 'dependencies': renderDependencies(); break;
     case 'timeline': renderTimeline(); break;
-    case 'pricing': renderPricing(); break;
-    case 'clients': renderClients(); break;
-    case 'okr': renderOKR(); break;
     case 'admin': renderAdmin(); break;
   }
 }
@@ -1723,7 +1379,7 @@ function renderView() {
 // ===== DASHBOARD =====
 function renderDashboard() {
   // Widget toggle controls
-  const widgetNames = {stats:'📈 סטטיסטיקות',kpi:'👥 KPI צוות',urgent:'📌 דחופות',categories:'📊 קטגוריות'};
+  const widgetNames = {stats:'📈 סטטיסטיקות',kpi:'👥 KPI צוות',urgent:'📌 דחופות',categories:'📊 קטגוריות',merged:'📦 סיכומים'};
   document.getElementById('widgetToggle').innerHTML = '<span style="font-size:11px;color:var(--text2);line-height:26px;">ווידג\'טים:</span>' +
     Object.entries(widgetNames).map(([k,v]) => `<span class="widget-chip ${dashWidgets[k]?'active':''}" onclick="toggleWidget('${k}')">${v}</span>`).join('');
 
@@ -1751,9 +1407,9 @@ function renderDashboard() {
   document.getElementById('kpiGrid').style.display = dashWidgets.kpi ? '' : 'none';
   document.getElementById('kpiGrid').innerHTML = kpi;
 
-  const urgentParent = document.getElementById('urgentTasks').parentElement;
-  const catParent = document.getElementById('recentActivity').parentElement;
-  urgentParent.parentElement.style.display = (dashWidgets.urgent || dashWidgets.categories) ? '' : 'none';
+  const urgentParent = document.getElementById('urgentPanel');
+  const catParent = document.getElementById('catPanel');
+  document.getElementById('dashboardPanels').style.display = (dashWidgets.urgent || dashWidgets.categories) ? '' : 'none';
   urgentParent.style.display = dashWidgets.urgent ? '' : 'none';
   catParent.style.display = dashWidgets.categories ? '' : 'none';
 
@@ -1773,152 +1429,112 @@ function renderDashboard() {
       <span>${c.emoji}</span><span style="flex:1;">${c.name}</span><span style="color:var(--text2);width:40px;text-align:left;">${p}%</span>
       <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${p}%;background:${c.color};"></div></div></div>`;
   }).join('');
-}
 
-// ===== TASK BANK =====
-let bankDragTaskId = null;
+  // ===== MERGED WIDGETS =====
+  document.getElementById('dashMergedWidgets').style.display = dashWidgets.merged ? 'grid' : 'none';
 
-function renderBank() {
-  const search = (document.getElementById('bankSearch')?.value || '').toLowerCase();
-  const _vt = getVisibleTasks();
-  const bankTasks = _vt.filter(t => t.inBank);
-  const assignedTasks = _vt.filter(t => !t.inBank && t.assignee);
-  const filtered = bankTasks.filter(t => !search || t.name.toLowerCase().includes(search) || t.goal.toLowerCase().includes(search));
+  // Velocity Widget
+  const weeks = [];
+  for (let w = 11; w >= 0; w--) {
+    const wEnd = new Date(today); wEnd.setDate(wEnd.getDate() - w * 7);
+    const wStart = new Date(wEnd); wStart.setDate(wStart.getDate() - 6);
+    const wd = _vt.filter(t => t.status === 'done' && t.endDate && t.endDate >= wStart && t.endDate <= wEnd).length;
+    weeks.push(wd);
+  }
+  const avgVel = (weeks.reduce((s,v) => s+v, 0) / weeks.length).toFixed(1);
+  const lastW = weeks[weeks.length-1], prevW = weeks[weeks.length-2];
+  const trend = lastW - prevW;
+  const remaining = total - done;
+  const weeksToFinish = avgVel > 0 ? Math.ceil(remaining / avgVel) : '∞';
+  const maxW = Math.max(...weeks, 1);
+  document.getElementById('velocityWidget').innerHTML = `
+    <h3 style="font-size:14px;margin-bottom:12px;">🚀 מהירות</h3>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;">
+      <div style="text-align:center;background:var(--surface2);padding:8px;border-radius:8px;"><div style="font-size:10px;color:var(--text2);">ממוצע שבועי</div><div style="font-size:20px;font-weight:700;">${avgVel}</div></div>
+      <div style="text-align:center;background:var(--surface2);padding:8px;border-radius:8px;"><div style="font-size:10px;color:var(--text2);">שבוע אחרון</div><div style="font-size:20px;font-weight:700;color:var(--green);">${lastW}</div></div>
+      <div style="text-align:center;background:var(--surface2);padding:8px;border-radius:8px;"><div style="font-size:10px;color:var(--text2);">מגמה</div><div style="font-size:20px;font-weight:700;color:${trend>=0?'var(--green)':'var(--red)'};">${trend>=0?'↑':'↓'}${Math.abs(trend)}</div></div>
+      <div style="text-align:center;background:var(--surface2);padding:8px;border-radius:8px;"><div style="font-size:10px;color:var(--text2);">שבועות לסיום</div><div style="font-size:20px;font-weight:700;color:var(--yellow);">${weeksToFinish}</div></div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:2px;height:40px;">
+      ${weeks.map((v,i) => `<div style="flex:1;background:${i===weeks.length-1?'var(--accent)':'var(--accent2)'};opacity:${i===weeks.length-1?1:0.5};height:${Math.max(v/maxW*100,4)}%;border-radius:2px 2px 0 0;" title="${v} משימות"></div>`).join('')}
+    </div>`;
 
-  // Stats
-  document.getElementById('bankStats').innerHTML = `
-    <div class="bank-stat"><div class="num" style="color:var(--accent)">${bankTasks.length}</div><div class="lbl">בבנק</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--green)">${assignedTasks.length}</div><div class="lbl">שובצו</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--yellow)">${_vt.length}</div><div class="lbl">סה"כ</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--pink)">${assignedTasks.filter(t=>t.status==='done').length}</div><div class="lbl">הושלמו</div></div>
-  `;
-
-  // Group by category
-  const groups = {};
-  filtered.forEach(t => {
-    if (!groups[t.category]) groups[t.category] = [];
-    groups[t.category].push(t);
+  // Workload Widget
+  let wlHtml = '<h3 style="font-size:14px;margin-bottom:12px;">⚖️ עומס צוות</h3>';
+  TEAM.forEach(m => {
+    const mt = _vt.filter(t => t.assignee === m.id);
+    const md = mt.filter(t => t.status === 'done').length;
+    const mOverdue = mt.filter(t => t.endDate && t.endDate < today && t.status !== 'done').length;
+    const mPct = mt.length ? Math.round(md / mt.length * 100) : 0;
+    wlHtml += `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:12px;">
+      <div class="avatar avatar-${m.id}" style="width:22px;height:22px;font-size:10px;">${m.name[0]}</div>
+      <span style="flex:1;">${m.name}</span>
+      <span style="color:var(--text2);font-size:11px;">${mt.length} משימות</span>
+      ${mOverdue > 0 ? `<span style="color:var(--red);font-size:10px;">⚠️${mOverdue}</span>` : ''}
+      <div class="progress-bar" style="width:60px;"><div class="progress-fill" style="width:${mPct}%;background:${m.color};"></div></div>
+      <span style="font-size:11px;color:var(--text2);">${mPct}%</span>
+    </div>`;
   });
+  const blockedCount = _vt.filter(t => t.status !== 'done' && typeof isBlocked === 'function' && isBlocked(t.id)).length;
+  if (blockedCount > 0) wlHtml += `<div style="margin-top:8px;padding:6px 10px;background:var(--red-bg);border-radius:6px;font-size:11px;color:var(--red);">🔗 ${blockedCount} משימות חסומות ע"י תלויות</div>`;
+  document.getElementById('workloadWidget').innerHTML = wlHtml;
 
-  const catMap = {};
-  CATEGORIES.forEach(c => catMap[c.id] = c);
+  // Financial Widget
+  const totalHrs = _vt.reduce((s,t) => s + (t.timeLogged||0), 0) / 3600;
+  const rate = 250;
+  const totalCost = totalHrs * rate;
+  let finHtml = '<h3 style="font-size:14px;margin-bottom:12px;">💰 שעות ועלויות</h3>';
+  finHtml += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+    <div style="text-align:center;background:var(--surface2);padding:8px;border-radius:8px;"><div style="font-size:10px;color:var(--text2);">שעות מתועדות</div><div style="font-size:20px;font-weight:700;">${totalHrs.toFixed(1)}</div></div>
+    <div style="text-align:center;background:var(--surface2);padding:8px;border-radius:8px;"><div style="font-size:10px;color:var(--text2);">עלות כוללת</div><div style="font-size:20px;font-weight:700;color:var(--accent);">₪${totalCost.toFixed(0)}</div></div>
+  </div>`;
+  TEAM.forEach(m => {
+    const mHrs = _vt.filter(t => t.assignee === m.id).reduce((s,t) => s + (t.timeLogged||0), 0) / 3600;
+    finHtml += `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:11px;">
+      <div class="avatar avatar-${m.id}" style="width:18px;height:18px;font-size:9px;">${m.name[0]}</div>
+      <span style="flex:1;">${m.name}</span>
+      <span style="color:var(--text2);">${mHrs.toFixed(1)}ש</span>
+      <span style="font-weight:600;">₪${(mHrs*rate).toFixed(0)}</span>
+    </div>`;
+  });
+  // Client summary
+  if (typeof clients !== 'undefined' && clients.length) {
+    const activeClients = clients.filter(c => c.status === 'active').length;
+    const totalBudget = clients.reduce((s,c) => s + c.budget, 0);
+    finHtml += `<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text2);">🏢 ${clients.length} לקוחות (${activeClients} פעילים) · תקציב: ₪${totalBudget.toLocaleString()}</div>`;
+  }
+  document.getElementById('financialWidget').innerHTML = finHtml;
 
-  let html = '';
-  for (const catId in groups) {
-    const cat = catMap[catId];
-    if (!cat) continue;
-    html += `<div class="bank-cat-group">
-      <div class="bank-cat-header">
-        <span>${cat.emoji}</span> ${cat.name}
-        <span class="bank-count">${groups[catId].length}</span>
-      </div>
-      <div class="bank-cards">`;
-    groups[catId].forEach(t => {
-      const prioColors = {high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'};
-      const prioLabels = {high:'גבוהה',medium:'בינונית',low:'נמוכה'};
-      html += `<div class="bank-card" draggable="true"
-        ondragstart="bankDragStart(event,${t.id})"
-        ondragend="bankDragEnd(event)">
-        <div class="bank-card-title">${t.name}</div>
-        <div class="bank-card-meta">
-          <span style="color:${prioColors[t.priority]||'var(--text2)'}">● ${prioLabels[t.priority]||t.priority}</span>
-          <span>${t.sub}</span>
-          <span>🎯 ${t.goal}</span>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:8px;">
-          <button class="btn btn-primary btn-sm" style="font-size:10px;padding:3px 8px;" onclick="bankQuickAssign(${t.id})">⚡ שבץ</button>
-          <button class="btn btn-secondary btn-sm" style="font-size:10px;padding:3px 8px;" onclick="openEditModal(${t.id})">✏️</button>
-        </div>
+  // Activity Widget
+  let actHtml = '<h3 style="font-size:14px;margin-bottom:12px;">📝 פעילות אחרונה</h3>';
+  const recentLogs = (typeof activityLogData !== 'undefined' ? activityLogData : []).slice(0, 6);
+  if (recentLogs.length) {
+    recentLogs.forEach(a => {
+      const timeStr = a.time ? `${String(a.time.getHours()).padStart(2,'0')}:${String(a.time.getMinutes()).padStart(2,'0')}` : '';
+      actHtml += `<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:11px;border-bottom:1px solid var(--surface2);">
+        <span>${a.icon}</span><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.text}</span>
+        <span style="color:var(--text2);font-size:10px;white-space:nowrap;">${timeStr}</span>
       </div>`;
     });
-    html += `</div></div>`;
+  } else {
+    actHtml += '<div style="text-align:center;padding:16px;color:var(--text2);font-size:12px;">אין פעילות עדיין</div>';
   }
-
-  if (!html) html = '<div style="text-align:center;color:var(--text2);padding:40px;">🎉 כל המשימות שובצו! הבנק ריק.</div>';
-  document.getElementById('bankMain').innerHTML = html;
-
-  // Assigned list in sidebar
-  const assignedHtml = assignedTasks.length ? assignedTasks.slice(0,15).map(t => {
-    const member = TEAM.find(m => m.id === t.assignee);
-    return `<div style="padding:6px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
-      <div>
-        <div style="font-size:12px;">${t.name}</div>
-        <div style="font-size:10px;color:var(--text2);">${member?.name||''} | ${t.startDate?fmtD(t.startDate):''}</div>
-      </div>
-      <button class="btn btn-secondary btn-sm" style="font-size:9px;padding:2px 6px;" onclick="bankUnassign(${t.id})" title="החזר לבנק">↩️</button>
-    </div>`;
-  }).join('') + (assignedTasks.length>15?`<div style="text-align:center;padding:6px;font-size:11px;color:var(--text2);">...ועוד ${assignedTasks.length-15}</div>`:'')
-  : '<div style="color:var(--text2);font-size:11px;">אין משימות משובצות עדיין</div>';
-  document.getElementById('bankAssignedList').innerHTML = assignedHtml;
-}
-
-function bankDragStart(e, taskId) {
-  bankDragTaskId = taskId;
-  e.target.classList.add('dragging');
-  e.dataTransfer.effectAllowed = 'move';
-}
-
-function bankDragEnd(e) {
-  e.target.classList.remove('dragging');
-}
-
-function bankDrop(e) {
-  e.preventDefault();
-  document.getElementById('bankDropZone').classList.remove('drag-over');
-  if (bankDragTaskId) {
-    bankQuickAssign(bankDragTaskId);
-    bankDragTaskId = null;
+  // OKR summary
+  if (typeof okrs !== 'undefined' && okrs.length) {
+    actHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">🎯 OKR</div>';
+    okrs.forEach(o => {
+      const avgP = o.keyResults.length ? Math.round(o.keyResults.reduce((s,kr) => s + Math.min(kr.target > 0 ? (kr.current/kr.target*100) : 0, 100), 0) / o.keyResults.length) : 0;
+      const pColor = avgP >= 70 ? 'var(--green)' : avgP >= 40 ? 'var(--yellow)' : 'var(--red)';
+      actHtml += `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:11px;">
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${o.objective}</span>
+        <span style="font-weight:600;color:${pColor};">${avgP}%</span>
+      </div>`;
+    });
+    actHtml += '</div>';
   }
+  document.getElementById('activityWidget').innerHTML = actHtml;
 }
 
-function bankQuickAssign(taskId) {
-  const task = allTasks.find(t => t.id === taskId);
-  if (!task) return;
-  document.getElementById('bankAssignTaskName').textContent = task.name;
-  document.getElementById('bankAssignPerson').value = task.assignee || '';
-  document.getElementById('bankAssignStart').value = '';
-  document.getElementById('bankAssignEnd').value = '';
-  document.getElementById('bankAssignForm').style.display = 'block';
-  document.getElementById('bankAssignForm').dataset.taskId = taskId;
-}
-
-function bankAssignConfirm() {
-  const taskId = parseInt(document.getElementById('bankAssignForm').dataset.taskId);
-  const task = allTasks.find(t => t.id === taskId);
-  if (!task) return;
-  const person = document.getElementById('bankAssignPerson').value;
-  const startVal = document.getElementById('bankAssignStart').value;
-  const endVal = document.getElementById('bankAssignEnd').value;
-  if (!person) { toast('⚠️ יש לבחור אחראי'); return; }
-  if (!startVal || !endVal) { toast('⚠️ יש לבחור תאריכי התחלה וסיום'); return; }
-  task.assignee = person;
-  task.startDate = new Date(startVal);
-  task.endDate = new Date(endVal);
-  task.status = 'todo';
-  task.inBank = false;
-  document.getElementById('bankAssignForm').style.display = 'none';
-  logActivity('assign','📤',`<strong>${TEAM.find(m=>m.id===person)?.name||''}</strong> שובץ/ה למשימה: "${task.name}"`);
-  saveTasks();queueGCalSync(taskId);renderBank();
-  toast('✅ משימה שובצה בהצלחה!');
-}
-
-function bankAssignCancel() {
-  document.getElementById('bankAssignForm').style.display = 'none';
-  bankDragTaskId = null;
-}
-
-function bankUnassign(taskId) {
-  const task = allTasks.find(t => t.id === taskId);
-  if (!task) return;
-  task.assignee = '';
-  task.startDate = null;
-  task.endDate = null;
-  task.status = 'todo';
-  task.inBank = true;
-  logActivity('unassign','↩️',`משימה הוחזרה לבנק: "${task.name}"`);
-  saveTasks();renderBank();
-  toast('↩️ משימה הוחזרה לבנק');
-}
 
 // ===== TASKS TABLE =====
 let selectedTaskIds = new Set();
@@ -2508,40 +2124,6 @@ function showDayTasks(year,month,day){
   openModal(html);
 }
 
-// ===== CATEGORIES =====
-function renderCategories(){
-  let html='';
-  CATEGORIES.forEach(cat=>{
-    const ct=getVisibleTasks().filter(t=>t.category===cat.id), done=ct.filter(t=>t.status==='done').length;
-    const pct=ct.length?Math.round(done/ct.length*100):0;
-    const subs={};ct.forEach(t=>{if(!subs[t.sub])subs[t.sub]=[];subs[t.sub].push(t);});
-    html+=`<div class="category-section">
-      <div class="category-header" style="border-right:4px solid ${cat.color};" onclick="this.parentElement.querySelector('.category-tasks').classList.toggle('collapsed')">
-        <span style="font-size:20px;">${cat.emoji}</span><h3>${cat.name}</h3>
-        <div class="progress-bar" style="width:100px;"><div class="progress-fill" style="width:${pct}%;background:${cat.color};"></div></div>
-        <span style="font-size:12px;color:var(--text2);">${pct}%</span><span class="category-count">${ct.length} משימות</span></div>
-      <div class="category-tasks">`;
-    for(const sn in subs){
-      html+=`<div style="padding:8px 16px;background:var(--surface2);font-size:12px;font-weight:600;color:var(--text2);border-bottom:1px solid var(--border);">${sn}</div>`;
-      subs[sn].forEach(t=>{
-        const m=TEAM.find(x=>x.id===t.assignee);
-        html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid rgba(51,51,70,0.3);font-size:13px;cursor:pointer;" onclick="openEditTask(${t.id})">
-          <span class="priority-dot priority-${t.priority}"></span><span style="flex:1;">${t.name}</span>
-          ${m?`<div class="avatar avatar-${t.assignee}" style="width:22px;height:22px;font-size:10px;">${m.name[0]}</div>`:'<span style="font-size:10px;color:var(--text2);">🏦</span>'}
-          <select onchange="event.stopPropagation();updateStatus(${t.id},this.value)" style="background:transparent;border:none;color:inherit;font-family:'Heebo';font-size:11px;cursor:pointer;outline:none;">
-            <option value="todo" ${t.status==='todo'?'selected':''}>📝 לביצוע</option>
-            <option value="progress" ${t.status==='progress'?'selected':''}>🔄 בתהליך</option>
-            <option value="review" ${t.status==='review'?'selected':''}>👀 בבדיקה</option>
-            <option value="done" ${t.status==='done'?'selected':''}>✅ הושלם</option>
-            <option value="blocked" ${t.status==='blocked'?'selected':''}>🚫 חסום</option>
-          </select>
-          <span style="color:var(--text2);font-size:11px;min-width:75px;text-align:left;">${t.endDate?fmtD(t.endDate):'🏦 בנק'}</span></div>`;
-      });
-    }
-    html+='</div></div>';
-  });
-  document.getElementById('categoriesContainer').innerHTML=html;
-}
 
 // ===== GOOGLE CALENDAR =====
 function addToGCal(taskId) {
@@ -2792,113 +2374,6 @@ function toast(msg) {
 }
 
 // ===== WORKLOAD VIEW =====
-function renderWorkload() {
-  const _vt = getVisibleTasks();
-  let cards = '';
-  TEAM.forEach(m => {
-    const mt = _vt.filter(t => t.assignee === m.id);
-    const done = mt.filter(t => t.status === 'done').length;
-    const prog = mt.filter(t => t.status === 'progress').length;
-    const todo = mt.filter(t => t.status === 'todo').length;
-    const review = mt.filter(t => t.status === 'review').length;
-    const blocked = mt.filter(t => t.status === 'blocked').length;
-    const overdue = mt.filter(t => t.endDate && t.endDate < today && t.status !== 'done').length;
-    const pct = mt.length ? Math.round(done / mt.length * 100) : 0;
-    const totalHrs = mt.reduce((s, t) => s + (t.timeLogged || 0), 0);
-    cards += `<div class="workload-card">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-        <div class="avatar avatar-${m.id}" style="width:40px;height:40px;font-size:16px;">${m.name[0]}</div>
-        <div><div style="font-weight:600;font-size:15px;">${m.name}</div><div style="font-size:11px;color:var(--text2);">${m.role} • ${mt.length} משימות</div></div>
-      </div>
-      <div class="progress-bar" style="margin-bottom:10px;"><div class="progress-fill" style="width:${pct}%;background:${m.color};"></div></div>
-      <div style="font-size:11px;color:var(--text2);margin-bottom:12px;">${pct}% הושלם • ${totalHrs > 0 ? (totalHrs / 60).toFixed(1) + ' שעות מתועדות' : 'ללא תיעוד זמן'}</div>
-      <div class="wl-bar-row"><span>לביצוע</span><div class="wl-fill" style="width:${mt.length ? todo/mt.length*100 : 0}%;background:var(--blue);"></div><span>${todo}</span></div>
-      <div class="wl-bar-row"><span>בתהליך</span><div class="wl-fill" style="width:${mt.length ? prog/mt.length*100 : 0}%;background:var(--yellow);"></div><span>${prog}</span></div>
-      <div class="wl-bar-row"><span>בבדיקה</span><div class="wl-fill" style="width:${mt.length ? review/mt.length*100 : 0}%;background:var(--purple);"></div><span>${review}</span></div>
-      <div class="wl-bar-row"><span>הושלם</span><div class="wl-fill" style="width:${mt.length ? done/mt.length*100 : 0}%;background:var(--green);"></div><span>${done}</span></div>
-      <div class="wl-bar-row"><span>חסום</span><div class="wl-fill" style="width:${mt.length ? blocked/mt.length*100 : 0}%;background:var(--red);"></div><span>${blocked}</span></div>
-      ${overdue > 0 ? `<div style="margin-top:8px;padding:6px 10px;background:var(--red-bg);border-radius:6px;font-size:12px;color:var(--red);">⚠️ ${overdue} משימות באיחור</div>` : ''}
-    </div>`;
-  });
-  document.getElementById('workloadCards').innerHTML = cards;
-
-  // Heatmap - 13 weeks
-  const startW = new Date(today); startW.setDate(startW.getDate() - startW.getDay());
-  let hm = '<div style="display:flex;gap:2px;margin-bottom:6px;padding-right:70px;">';
-  for (let w = 0; w < 13; w++) {
-    const wd = new Date(startW); wd.setDate(wd.getDate() + w * 7);
-    hm += `<div style="flex:1;text-align:center;font-size:9px;color:var(--text2);">${wd.getDate()}/${wd.getMonth()+1}</div>`;
-  }
-  hm += '</div>';
-  TEAM.forEach(m => {
-    hm += `<div style="display:flex;align-items:center;gap:2px;margin-bottom:2px;">
-      <div style="width:70px;font-size:11px;color:var(--text2);text-align:left;">${m.name}</div>`;
-    for (let w = 0; w < 13; w++) {
-      const ws = new Date(startW); ws.setDate(ws.getDate() + w * 7);
-      const we = new Date(ws); we.setDate(we.getDate() + 6);
-      const cnt = _vt.filter(t => t.assignee === m.id && t.status !== 'done' && t.startDate <= we && t.endDate >= ws).length;
-      const intensity = Math.min(cnt / 5, 1);
-      const bg = cnt === 0 ? 'var(--surface2)' : `rgba(${m.color.match(/\w\w/g).map(x=>parseInt(x,16)).join(',')},${0.2 + intensity * 0.7})`;
-      hm += `<div style="flex:1;height:24px;background:${bg};border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;" title="${m.name}: ${cnt} משימות פעילות">${cnt||''}</div>`;
-    }
-    hm += '</div>';
-  });
-  document.getElementById('workloadHeatmap').innerHTML = hm;
-}
-
-// ===== WEEK VIEW =====
-let weekOffset = 0;
-function weekNav(dir) {
-  if (dir === 0) weekOffset = 0; else weekOffset += dir;
-  renderWeekView();
-}
-
-function renderWeekView() {
-  const _vtW = getVisibleTasks();
-  const base = new Date(today);
-  base.setDate(base.getDate() + weekOffset * 7);
-  // Find Sunday of this week
-  const sun = new Date(base);
-  sun.setDate(sun.getDate() - sun.getDay());
-  const days = [];
-  const dayNames = ['ראשון','שני','שלישי','רביעי','חמישי'];
-  for (let i = 0; i < 5; i++) {
-    const d = new Date(sun); d.setDate(d.getDate() + i);
-    days.push(d);
-  }
-  const endD = new Date(sun); endD.setDate(endD.getDate() + 4);
-  document.getElementById('weekTitle').textContent = `${fmtDS(sun)} - ${fmtDS(endD)}`;
-
-  let html = '<div class="week-grid"><div class="week-header"><div class="week-member"></div>';
-  days.forEach((d, i) => {
-    const isToday = d.toDateString() === today.toDateString();
-    html += `<div class="week-cell" style="${isToday ? 'background:rgba(108,92,231,0.15);border-radius:8px;' : ''}"><div style="font-weight:600;font-size:13px;">${dayNames[i]}</div><div style="font-size:11px;color:var(--text2);">${fmtDS(d)}</div></div>`;
-  });
-  html += '</div>';
-
-  TEAM.forEach(m => {
-    html += `<div class="week-header"><div class="week-member"><div class="avatar avatar-${m.id}" style="width:28px;height:28px;font-size:11px;">${m.name[0]}</div><span style="font-size:12px;">${m.name}</span></div>`;
-    days.forEach(d => {
-      const dayStart = new Date(d); dayStart.setHours(0,0,0,0);
-      const dayEnd = new Date(d); dayEnd.setHours(23,59,59,999);
-      const tasks = _vtW.filter(t => t.assignee === m.id && t.startDate && t.endDate && t.startDate <= dayEnd && t.endDate >= dayStart && t.status !== 'done');
-      html += '<div class="week-cell">';
-      tasks.forEach(t => {
-        const cat = CATEGORIES.find(c => c.id === t.category);
-        const pColor = {high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'}[t.priority];
-        html += `<div class="week-task" onclick="openEditTask(${t.id})" style="border-right:3px solid ${pColor};cursor:pointer;" title="${t.name}">
-          <div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cat?cat.emoji:''} ${t.name}</div>
-          <div style="font-size:9px;color:var(--text2);margin-top:2px;">${getStatusLabel(t.status)}${t.timeLogged ? ' • '+(t.timeLogged/60).toFixed(1)+'ש' : ''}</div>
-        </div>`;
-      });
-      if (tasks.length === 0) html += '<div style="font-size:10px;color:var(--text2);text-align:center;padding:8px;">—</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-  html += '</div>';
-  document.getElementById('weekGrid').innerHTML = html;
-}
 
 // ===== KANBAN =====
 let kanbanFilterVal = 'all';
@@ -2998,94 +2473,6 @@ function stopTimer() {
   renderView();
 }
 
-// ===== BURNDOWN CHART =====
-let burndownRange = 'month';
-function setBurndownRange(range, el) {
-  burndownRange = range;
-  if (el) { el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
-  renderBurndown();
-}
-
-function renderBurndown() {
-  const _vt = getVisibleTasks();
-  const days = burndownRange === 'month' ? 30 : burndownRange === 'quarter' ? 90 : 180;
-  const startD = new Date(today); startD.setDate(startD.getDate() - days);
-  const totalTasks = _vt.length;
-
-  // Calculate ideal and actual burndown
-  const points = [];
-  const tasksAtStart = _vt.filter(t => t.startDate && t.startDate <= startD).length;
-  const remaining = totalTasks - _vt.filter(t => t.status === 'done').length;
-
-  for (let i = 0; i <= days; i++) {
-    const d = new Date(startD); d.setDate(d.getDate() + i);
-    const doneByDate = _vt.filter(t => t.status === 'done' && t.endDate && t.endDate <= d).length;
-    const ideal = totalTasks - Math.round((totalTasks / days) * i);
-    points.push({ day: i, date: d, actual: totalTasks - doneByDate, ideal: Math.max(0, ideal) });
-  }
-
-  const W = 800, H = 280, padL = 50, padR = 20, padT = 20, padB = 40;
-  const chartW = W - padL - padR, chartH = H - padT - padB;
-  const maxY = totalTasks;
-  const scaleX = i => padL + (i / days) * chartW;
-  const scaleY = v => padT + (1 - v / maxY) * chartH;
-
-  // Grid lines
-  let svg = `<svg viewBox="0 0 ${W} ${H}" class="burndown-svg">`;
-  for (let g = 0; g <= 4; g++) {
-    const y = scaleY((maxY / 4) * g);
-    const val = Math.round((maxY / 4) * g);
-    svg += `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="var(--border)" stroke-width="0.5"/>`;
-    svg += `<text x="${padL-8}" y="${y+4}" fill="var(--text2)" font-size="10" text-anchor="end" font-family="Heebo">${val}</text>`;
-  }
-
-  // X-axis labels
-  const labelStep = Math.max(1, Math.floor(days / 6));
-  for (let i = 0; i <= days; i += labelStep) {
-    const d = points[i].date;
-    svg += `<text x="${scaleX(i)}" y="${H-5}" fill="var(--text2)" font-size="9" text-anchor="middle" font-family="Heebo">${d.getDate()}/${d.getMonth()+1}</text>`;
-  }
-
-  // Ideal line
-  svg += `<polyline fill="none" stroke="var(--text2)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5" points="`;
-  points.forEach(p => { svg += `${scaleX(p.day)},${scaleY(p.ideal)} `; });
-  svg += `"/>`;
-
-  // Actual line with gradient fill
-  svg += `<defs><linearGradient id="burnFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="var(--accent)" stop-opacity="0.3"/><stop offset="100%" stop-color="var(--accent)" stop-opacity="0.02"/></linearGradient></defs>`;
-  svg += `<polygon fill="url(#burnFill)" points="${scaleX(0)},${scaleY(0)} `;
-  points.forEach(p => { svg += `${scaleX(p.day)},${scaleY(p.actual)} `; });
-  svg += `${scaleX(days)},${scaleY(0)}"/>`;
-
-  svg += `<polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="`;
-  points.forEach(p => { svg += `${scaleX(p.day)},${scaleY(p.actual)} `; });
-  svg += `"/>`;
-
-  // Today marker
-  const todayIdx = days;
-  svg += `<circle cx="${scaleX(todayIdx)}" cy="${scaleY(points[todayIdx].actual)}" r="5" fill="var(--accent)" stroke="var(--bg)" stroke-width="2"/>`;
-  svg += `<text x="${scaleX(todayIdx)}" y="${scaleY(points[todayIdx].actual)-12}" fill="var(--accent)" font-size="11" text-anchor="middle" font-family="Heebo" font-weight="600">${points[todayIdx].actual} נותרו</text>`;
-
-  svg += '</svg>';
-
-  // Summary stats
-  const doneTotal = _vt.filter(t => t.status === 'done').length;
-  const doneThisPeriod = _vt.filter(t => t.status === 'done' && t.endDate >= startD && t.endDate <= today).length;
-  const avgPerDay = days > 0 ? (doneThisPeriod / days).toFixed(1) : 0;
-  const daysToFinish = avgPerDay > 0 ? Math.ceil(remaining / avgPerDay) : '∞';
-
-  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;">
-    <div style="background:var(--surface2);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text2);">סה"כ משימות</div><div style="font-size:24px;font-weight:700;">${totalTasks}</div></div>
-    <div style="background:var(--surface2);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text2);">הושלמו בתקופה</div><div style="font-size:24px;font-weight:700;color:var(--green);">${doneThisPeriod}</div></div>
-    <div style="background:var(--surface2);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text2);">ממוצע ליום</div><div style="font-size:24px;font-weight:700;color:var(--blue);">${avgPerDay}</div></div>
-    <div style="background:var(--surface2);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:11px;color:var(--text2);">ימים לסיום (צפי)</div><div style="font-size:24px;font-weight:700;color:var(--yellow);">${daysToFinish}</div></div>
-  </div>`;
-  html += svg;
-  html += `<div class="burndown-legend"><span style="color:var(--accent);">● קו בפועל</span><span style="color:var(--text2);">● קו אידיאלי</span></div>`;
-
-  document.getElementById('burndownChart').innerHTML = html;
-}
-
 // ===== ACTIVITY LOG =====
 let activityLogData = [];
 let logFilterVal = 'all';
@@ -3126,210 +2513,7 @@ function logActivity(type, icon, text) {
   activityLogData = activityLogData.slice(0, 100);
 })();
 
-function logFilter(val, el) {
-  logFilterVal = val;
-  if (el) { el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
-  renderActivityLog();
-}
 
-function renderActivityLog() {
-  const filtered = logFilterVal === 'all' ? activityLogData : activityLogData.filter(a => a.type === logFilterVal);
-  if (filtered.length === 0) {
-    document.getElementById('activityLog').innerHTML = '<div style="text-align:center;padding:40px;color:var(--text2);">אין פעילות מסוג זה</div>';
-    return;
-  }
-  let html = '';
-  let lastDate = '';
-  filtered.forEach(a => {
-    const dateStr = fmtD(a.time);
-    if (dateStr !== lastDate) {
-      lastDate = dateStr;
-      html += `<div style="padding:8px 16px;font-size:11px;color:var(--text2);background:var(--surface2);font-weight:600;">${dateStr}</div>`;
-    }
-    const timeStr = `${String(a.time.getHours()).padStart(2,'0')}:${String(a.time.getMinutes()).padStart(2,'0')}`;
-    html += `<div class="log-entry"><span class="log-time">${timeStr}</span><span class="log-icon">${a.icon}</span><span class="log-text">${a.text}</span></div>`;
-  });
-  document.getElementById('activityLog').innerHTML = html;
-}
-
-// ===== REPORTS =====
-let reportPeriod = 'week';
-function setReportPeriod(period, el) {
-  reportPeriod = period;
-  if (el) { el.parentElement.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
-  renderReports();
-}
-
-function renderReports() {
-  const now = today;
-  let periodStart;
-  if (reportPeriod === 'week') { periodStart = new Date(now); periodStart.setDate(periodStart.getDate() - 7); }
-  else if (reportPeriod === 'month') { periodStart = new Date(now); periodStart.setMonth(periodStart.getMonth() - 1); }
-  else { periodStart = new Date(2020, 0, 1); }
-
-  const periodTasks = getVisibleTasks().filter(t => t.startDate && t.endDate && t.startDate <= now && t.endDate >= periodStart);
-  const donePeriod = periodTasks.filter(t => t.status === 'done').length;
-  const totalP = periodTasks.length;
-  const pctDone = totalP ? Math.round(donePeriod / totalP * 100) : 0;
-  const overdue = periodTasks.filter(t => t.endDate && t.endDate < now && t.status !== 'done').length;
-
-  // Team breakdown
-  let teamRows = '';
-  TEAM.forEach(m => {
-    const mt = periodTasks.filter(t => t.assignee === m.id);
-    const md = mt.filter(t => t.status === 'done').length;
-    const mp = mt.filter(t => t.status === 'progress').length;
-    const mpct = mt.length ? Math.round(md / mt.length * 100) : 0;
-    const hrs = mt.reduce((s, t) => s + (t.timeLogged || 0), 0);
-    teamRows += `<tr>
-      <td><div style="display:flex;align-items:center;gap:6px;"><div class="avatar avatar-${m.id}" style="width:20px;height:20px;font-size:9px;">${m.name[0]}</div>${m.name}</div></td>
-      <td>${mt.length}</td><td>${md}</td><td>${mp}</td>
-      <td><div class="report-bar"><div class="report-bar-fill" style="width:${mpct}%;background:${m.color};"></div></div></td>
-      <td>${hrs > 0 ? (hrs/3600).toFixed(1) + 'ש' : '-'}</td>
-    </tr>`;
-  });
-
-  // Category breakdown
-  let catRows = '';
-  CATEGORIES.forEach(c => {
-    const ct = periodTasks.filter(t => t.category === c.id);
-    const cd = ct.filter(t => t.status === 'done').length;
-    const cpct = ct.length ? Math.round(cd / ct.length * 100) : 0;
-    if (ct.length > 0) {
-      catRows += `<tr><td>${c.emoji} ${c.name}</td><td>${ct.length}</td><td>${cd}</td>
-        <td><div class="report-bar"><div class="report-bar-fill" style="width:${cpct}%;background:${c.color};"></div></div></td>
-        <td>${cpct}%</td></tr>`;
-    }
-  });
-
-  // Priority breakdown
-  const highT = periodTasks.filter(t => t.priority === 'high');
-  const medT = periodTasks.filter(t => t.priority === 'medium');
-  const lowT = periodTasks.filter(t => t.priority === 'low');
-
-  const periodLabel = reportPeriod === 'week' ? 'שבועי' : reportPeriod === 'month' ? 'חודשי' : 'כללי';
-
-  let html = `
-  <div class="report-card" style="grid-column:1/-1;">
-    <h3>📊 סיכום ${periodLabel}</h3>
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;">
-      <div style="text-align:center;"><div style="font-size:11px;color:var(--text2);">סה"כ משימות</div><div class="big-num">${totalP}</div></div>
-      <div style="text-align:center;"><div style="font-size:11px;color:var(--text2);">הושלמו</div><div class="big-num" style="color:var(--green);">${donePeriod}</div></div>
-      <div style="text-align:center;"><div style="font-size:11px;color:var(--text2);">אחוז השלמה</div><div class="big-num" style="color:var(--accent);">${pctDone}%</div></div>
-      <div style="text-align:center;"><div style="font-size:11px;color:var(--text2);">באיחור</div><div class="big-num" style="color:var(--red);">${overdue}</div></div>
-      <div style="text-align:center;"><div style="font-size:11px;color:var(--text2);">ס"ה שעות</div><div class="big-num" style="color:var(--blue);">${(periodTasks.reduce((s,t)=>s+(t.timeLogged||0),0)/3600).toFixed(1)}</div></div>
-    </div>
-  </div>
-
-  <div class="report-card">
-    <h3>👥 ביצועי צוות</h3>
-    <table class="report-table">
-      <thead><tr><th>חבר צוות</th><th>משימות</th><th>הושלמו</th><th>בתהליך</th><th>התקדמות</th><th>שעות</th></tr></thead>
-      <tbody>${teamRows}</tbody>
-    </table>
-  </div>
-
-  <div class="report-card">
-    <h3>📁 לפי קטגוריה</h3>
-    <table class="report-table">
-      <thead><tr><th>קטגוריה</th><th>משימות</th><th>הושלמו</th><th>התקדמות</th><th>%</th></tr></thead>
-      <tbody>${catRows}</tbody>
-    </table>
-  </div>
-
-  <div class="report-card">
-    <h3>🎯 לפי עדיפות</h3>
-    <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px;">
-      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>🔴 גבוהה</span><span>${highT.filter(t=>t.status==='done').length}/${highT.length}</span></div><div class="report-bar" style="height:10px;"><div class="report-bar-fill" style="width:${highT.length?highT.filter(t=>t.status==='done').length/highT.length*100:0}%;background:var(--red);"></div></div></div>
-      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>🟡 בינונית</span><span>${medT.filter(t=>t.status==='done').length}/${medT.length}</span></div><div class="report-bar" style="height:10px;"><div class="report-bar-fill" style="width:${medT.length?medT.filter(t=>t.status==='done').length/medT.length*100:0}%;background:var(--yellow);"></div></div></div>
-      <div><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>🟢 נמוכה</span><span>${lowT.filter(t=>t.status==='done').length}/${lowT.length}</span></div><div class="report-bar" style="height:10px;"><div class="report-bar-fill" style="width:${lowT.length?lowT.filter(t=>t.status==='done').length/lowT.length*100:0}%;background:var(--green);"></div></div></div>
-    </div>
-  </div>
-
-  <div class="report-card">
-    <h3>⚠️ משימות באיחור</h3>
-    ${overdue > 0 ? periodTasks.filter(t => t.endDate < now && t.status !== 'done').sort((a,b) => a.endDate - b.endDate).slice(0,8).map(t => {
-      const m = TEAM.find(x => x.id === t.assignee);
-      const daysLate = Math.ceil((now - t.endDate) / 86400000);
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px;">
-        <div style="display:flex;align-items:center;gap:8px;"><div class="avatar avatar-${t.assignee}" style="width:20px;height:20px;font-size:9px;">${m?m.name[0]:''}</div><span>${t.name}</span></div>
-        <span style="color:var(--red);font-size:11px;">${daysLate} ימים באיחור</span></div>`;
-    }).join('') : '<div style="text-align:center;padding:20px;color:var(--green);font-size:13px;">✅ אין משימות באיחור!</div>'}
-  </div>`;
-
-  document.getElementById('reportGrid').innerHTML = html;
-}
-
-// ===== VELOCITY =====
-function renderVelocity() {
-  const _vtV = getVisibleTasks();
-  // Calculate weekly velocity for past 12 weeks
-  const weeks = [];
-  for (let w = 11; w >= 0; w--) {
-    const wEnd = new Date(today); wEnd.setDate(wEnd.getDate() - w * 7);
-    const wStart = new Date(wEnd); wStart.setDate(wStart.getDate() - 6);
-    const done = _vtV.filter(t => t.status === 'done' && t.endDate && t.endDate >= wStart && t.endDate <= wEnd).length;
-    weeks.push({ start: wStart, end: wEnd, done });
-  }
-
-  const maxDone = Math.max(...weeks.map(w => w.done), 1);
-  const avgVel = weeks.length ? (weeks.reduce((s, w) => s + w.done, 0) / weeks.length).toFixed(1) : 0;
-  const lastWeek = weeks[weeks.length - 1].done;
-  const prevWeek = weeks[weeks.length - 2].done;
-  const trend = lastWeek - prevWeek;
-  const totalDone = _vtV.filter(t => t.status === 'done').length;
-  const remaining = _vtV.length - totalDone;
-  const weeksToFinish = avgVel > 0 ? Math.ceil(remaining / avgVel) : '∞';
-
-  // Stats
-  document.getElementById('velocityStats').innerHTML = `
-    <div class="vel-stat"><div class="num">${avgVel}</div><div class="lbl">ממוצע שבועי</div></div>
-    <div class="vel-stat"><div class="num" style="color:var(--green);">${lastWeek}</div><div class="lbl">שבוע אחרון</div></div>
-    <div class="vel-stat"><div class="num" style="color:${trend >= 0 ? 'var(--green)' : 'var(--red)'};">${trend >= 0 ? '↑' : '↓'}${Math.abs(trend)}</div><div class="lbl">מגמה</div></div>
-    <div class="vel-stat"><div class="num" style="color:var(--yellow);">${weeksToFinish}</div><div class="lbl">שבועות לסיום (צפי)</div></div>`;
-
-  // Bar chart
-  let bars = '';
-  let labels = '';
-  weeks.forEach((w, i) => {
-    const h = maxDone > 0 ? (w.done / maxDone * 100) : 0;
-    const isLast = i === weeks.length - 1;
-    const color = isLast ? 'var(--accent)' : 'var(--accent2)';
-    bars += `<div class="vel-bar-wrap">
-      <div class="vel-val" style="color:${color};">${w.done}</div>
-      <div class="vel-bar" style="height:${Math.max(h, 3)}%;background:${color};opacity:${isLast ? 1 : 0.6};"></div>
-    </div>`;
-  });
-  document.getElementById('velocityBars').innerHTML = bars;
-
-  // Labels
-  let lblHtml = '';
-  weeks.forEach(w => {
-    lblHtml += `<span>${w.start.getDate()}/${w.start.getMonth()+1}</span>`;
-  });
-  document.getElementById('velocityLabels').innerHTML = lblHtml;
-
-  // Team velocity
-  let teamHtml = '';
-  TEAM.forEach(m => {
-    const mWeeks = weeks.map(w => {
-      return _vtV.filter(t => t.assignee === m.id && t.status === 'done' && t.endDate >= w.start && t.endDate <= w.end).length;
-    });
-    const mAvg = (mWeeks.reduce((s, v) => s + v, 0) / mWeeks.length).toFixed(1);
-    const mMax = Math.max(...mWeeks, 1);
-    teamHtml += `<div style="margin-bottom:16px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div class="avatar avatar-${m.id}" style="width:24px;height:24px;font-size:10px;">${m.name[0]}</div>
-        <span style="font-size:13px;font-weight:500;">${m.name}</span>
-        <span style="font-size:11px;color:var(--text2);">ממוצע: ${mAvg} / שבוע</span>
-      </div>
-      <div style="display:flex;align-items:flex-end;gap:3px;height:40px;">
-        ${mWeeks.map((v, i) => `<div style="flex:1;background:${m.color};opacity:${0.3 + (v/mMax)*0.7};height:${Math.max(v/mMax*100, 5)}%;border-radius:3px 3px 0 0;" title="שבוע ${i+1}: ${v} משימות"></div>`).join('')}
-      </div>
-    </div>`;
-  });
-  document.getElementById('velocityTeam').innerHTML = teamHtml;
-}
 
 // ===== DEPENDENCIES =====
 let taskDependencies = [];
@@ -3348,37 +2532,6 @@ let taskDependencies = [];
   }
 })();
 
-function addDependency() {
-  const fromId = parseInt(document.getElementById('depFrom').value);
-  const toId = parseInt(document.getElementById('depTo').value);
-  if (!fromId || !toId || fromId === toId) { toast('⚠️ בחר שתי משימות שונות'); return; }
-  if (taskDependencies.find(d => d.from === fromId && d.to === toId)) { toast('⚠️ תלות כבר קיימת'); return; }
-  // Check circular
-  if (hasCircular(fromId, toId)) { toast('⚠️ תלות מעגלית!'); return; }
-  taskDependencies.push({ from: fromId, to: toId });
-  logActivity('edit', '🔗', `נוספה תלות חדשה`);
-  renderDependencies();
-  toast('✅ תלות נוספה');
-}
-
-function hasCircular(from, to) {
-  const visited = new Set();
-  function dfs(node) {
-    if (node === from) return true;
-    if (visited.has(node)) return false;
-    visited.add(node);
-    const deps = taskDependencies.filter(d => d.from === node);
-    return deps.some(d => dfs(d.to));
-  }
-  return dfs(to);
-}
-
-function removeDependency(from, to) {
-  taskDependencies = taskDependencies.filter(d => !(d.from === from && d.to === to));
-  renderDependencies();
-  toast('🗑️ תלות הוסרה');
-}
-
 function getBlockingTasks(taskId) {
   return taskDependencies.filter(d => d.to === taskId).map(d => allTasks.find(t => t.id === d.from)).filter(Boolean);
 }
@@ -3386,59 +2539,6 @@ function getBlockingTasks(taskId) {
 function isBlocked(taskId) {
   const blockers = getBlockingTasks(taskId);
   return blockers.some(b => b.status !== 'done');
-}
-
-function renderDependencies() {
-  // Populate dropdowns
-  const opts = allTasks.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-  document.getElementById('depFrom').innerHTML = '<option value="">בחר משימה חוסמת...</option>' + opts;
-  document.getElementById('depTo').innerHTML = '<option value="">בחר משימה חסומה...</option>' + opts;
-
-  // Dependency list
-  let listHtml = '';
-  if (taskDependencies.length === 0) {
-    listHtml = '<div style="text-align:center;padding:30px;color:var(--text2);">אין תלויות מוגדרות</div>';
-  } else {
-    taskDependencies.forEach(d => {
-      const fromT = allTasks.find(t => t.id === d.from);
-      const toT = allTasks.find(t => t.id === d.to);
-      if (!fromT || !toT) return;
-      const fromDone = fromT.status === 'done';
-      const toBlocked = isBlocked(toT.id);
-      listHtml += `<div class="dep-row">
-        <div class="dep-task ${fromDone ? 'done' : ''}" onclick="openEditTask(${fromT.id})" title="${fromT.name}">
-          <span style="font-size:12px;">${fromDone ? '✅' : '🔄'} ${fromT.name.substring(0, 25)}${fromT.name.length > 25 ? '...' : ''}</span>
-        </div>
-        <div class="dep-arrow">→</div>
-        <div class="dep-task ${toBlocked ? 'blocked' : ''}" onclick="openEditTask(${toT.id})" title="${toT.name}">
-          <span style="font-size:12px;">${toBlocked ? '🚫' : '📋'} ${toT.name.substring(0, 25)}${toT.name.length > 25 ? '...' : ''}</span>
-        </div>
-        <button onclick="removeDependency(${d.from},${d.to})" style="background:none;border:none;cursor:pointer;font-size:14px;color:var(--red);margin-right:auto;" title="הסר תלות">✕</button>
-      </div>`;
-    });
-  }
-  document.getElementById('depList').innerHTML = listHtml;
-
-  // Blocked tasks panel
-  const blockedTasks = allTasks.filter(t => t.status !== 'done' && isBlocked(t.id));
-  let blockedHtml = '';
-  if (blockedTasks.length === 0) {
-    blockedHtml = '<div style="text-align:center;padding:30px;color:var(--green);">✅ אין משימות חסומות!</div>';
-  } else {
-    blockedTasks.forEach(t => {
-      const blockers = getBlockingTasks(t.id).filter(b => b.status !== 'done');
-      const m = TEAM.find(x => x.id === t.assignee);
-      blockedHtml += `<div style="padding:12px;background:var(--red-bg);border:1px solid rgba(225,112,85,0.2);border-radius:8px;margin-bottom:8px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="font-size:14px;">🚫</span>
-          <span style="font-weight:500;font-size:13px;cursor:pointer;" onclick="openEditTask(${t.id})">${t.name}</span>
-          <div class="avatar avatar-${t.assignee}" style="width:18px;height:18px;font-size:8px;margin-right:auto;">${m?m.name[0]:''}</div>
-        </div>
-        <div style="font-size:11px;color:var(--text2);">חסום ע"י: ${blockers.map(b => '<span style="color:var(--red);">'+b.name+'</span>').join(', ')}</div>
-      </div>`;
-    });
-  }
-  document.getElementById('depBlocked').innerHTML = blockedHtml;
 }
 
 // ===== SUBTASKS =====
@@ -3734,7 +2834,7 @@ function toggleTheme() {
 }
 
 // ===== CUSTOMIZABLE DASHBOARD =====
-let dashWidgets = {stats:true, kpi:true, urgent:true, categories:true};
+let dashWidgets = {stats:true, kpi:true, urgent:true, categories:true, merged:true};
 function toggleWidget(key) {
   dashWidgets[key] = !dashWidgets[key];
   renderDashboard();
@@ -3819,54 +2919,6 @@ function showConfetti() {
   setTimeout(() => container.remove(), 3000);
 }
 
-// ===== HOURS & PRICING =====
-function renderPricing() {
-  const _vt = getVisibleTasks();
-  const rate = parseFloat(document.getElementById('defaultRate').value) || 250;
-  let html = '';
-
-  // Per-member breakdown
-  html += `<div class="pricing-card" style="grid-column:1/-1;"><h3 style="font-size:14px;margin-bottom:14px;">💰 סיכום שעות ותמחור</h3>
-    <table class="pricing-table"><thead><tr><th>חבר צוות</th><th>שעות מתועדות</th><th>תעריף/שעה</th><th>סה"כ עלות</th><th>משימות</th><th>ממוצע/משימה</th></tr></thead><tbody>`;
-  let totalHrs = 0, totalCost = 0;
-  TEAM.forEach(m => {
-    const mt = _vt.filter(t => t.assignee === m.id);
-    const hrs = mt.reduce((s, t) => s + (t.timeLogged || 0), 0) / 3600;
-    const cost = hrs * rate;
-    totalHrs += hrs;
-    totalCost += cost;
-    const avgPerTask = mt.length ? (hrs / mt.length).toFixed(1) : 0;
-    html += `<tr><td><div style="display:flex;align-items:center;gap:6px;"><div class="avatar avatar-${m.id}" style="width:20px;height:20px;font-size:9px;">${m.name[0]}</div>${m.name}</div></td>
-      <td>${hrs.toFixed(1)}ש</td><td>₪${rate}</td><td style="font-weight:600;">₪${cost.toFixed(0)}</td><td>${mt.length}</td><td>${avgPerTask}ש</td></tr>`;
-  });
-  html += `<tr style="font-weight:700;border-top:2px solid var(--border);"><td>סה"כ</td><td>${totalHrs.toFixed(1)}ש</td><td>₪${rate}</td><td>₪${totalCost.toFixed(0)}</td><td>${_vt.length}</td><td>${_vt.length?(totalHrs/_vt.length).toFixed(1):'0'}ש</td></tr>`;
-  html += '</tbody></table></div>';
-
-  // Per-category breakdown
-  html += `<div class="pricing-card"><h3 style="font-size:14px;margin-bottom:14px;">📁 לפי קטגוריה</h3>
-    <table class="pricing-table"><thead><tr><th>קטגוריה</th><th>שעות</th><th>עלות</th></tr></thead><tbody>`;
-  CATEGORIES.forEach(c => {
-    const ct = _vt.filter(t => t.category === c.id);
-    const hrs = ct.reduce((s, t) => s + (t.timeLogged || 0), 0) / 3600;
-    html += `<tr><td>${c.emoji} ${c.name}</td><td>${hrs.toFixed(1)}ש</td><td>₪${(hrs*rate).toFixed(0)}</td></tr>`;
-  });
-  html += '</tbody></table></div>';
-
-  // Top time-consuming tasks
-  const topTasks = [..._vt].filter(t => t.timeLogged > 0).sort((a, b) => b.timeLogged - a.timeLogged).slice(0, 10);
-  html += `<div class="pricing-card"><h3 style="font-size:14px;margin-bottom:14px;">⏱️ משימות עם הכי הרבה שעות</h3>`;
-  if (topTasks.length) {
-    html += '<table class="pricing-table"><thead><tr><th>משימה</th><th>שעות</th><th>עלות</th></tr></thead><tbody>';
-    topTasks.forEach(t => {
-      const hrs = t.timeLogged / 3600;
-      html += `<tr><td style="cursor:pointer;" onclick="openEditTask(${t.id})">${t.name}</td><td>${hrs.toFixed(1)}ש</td><td>₪${(hrs*rate).toFixed(0)}</td></tr>`;
-    });
-    html += '</tbody></table>';
-  } else { html += '<div style="text-align:center;padding:20px;color:var(--text2);">אין שעות מתועדות עדיין</div>'; }
-  html += '</div>';
-
-  document.getElementById('pricingGrid').innerHTML = html;
-}
 
 // ===== CLIENT DASHBOARD =====
 let clients = [
@@ -3876,54 +2928,6 @@ let clients = [
   {id:4, name:'עמותת חינוך', project:'סרטון הסברה', status:'proposal', budget:12000, tasks:[]},
 ];
 
-function addClient() {
-  const name = document.getElementById('newClientName').value.trim();
-  const project = document.getElementById('newClientProject').value.trim();
-  if (!name) { toast('⚠️ הזן שם לקוח'); return; }
-  clients.push({id: clients.length+1, name, project: project||'פרויקט חדש', status:'proposal', budget:0, tasks:[]});
-  document.getElementById('newClientName').value = '';
-  document.getElementById('newClientProject').value = '';
-  renderClients();
-  toast('✅ לקוח נוסף');
-}
-
-function cycleClientStatus(id) {
-  const c = clients.find(x => x.id === id);
-  if (!c) return;
-  const order = ['proposal','active','completed','on-hold'];
-  c.status = order[(order.indexOf(c.status)+1) % order.length];
-  renderClients();
-}
-
-function renderClients() {
-  const statusLabels = {proposal:'הצעה',active:'פעיל',completed:'הושלם','on-hold':'בהמתנה'};
-  const statusColors = {proposal:'var(--yellow)',active:'var(--green)',completed:'var(--blue)','on-hold':'var(--text2)'};
-
-  // Summary stats
-  const active = clients.filter(c => c.status === 'active').length;
-  const totalBudget = clients.reduce((s,c) => s + c.budget, 0);
-
-  let html = `<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
-    <div style="background:var(--surface);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border);"><div style="font-size:11px;color:var(--text2);">סה"כ לקוחות</div><div style="font-size:24px;font-weight:700;">${clients.length}</div></div>
-    <div style="background:var(--surface);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border);"><div style="font-size:11px;color:var(--text2);">פעילים</div><div style="font-size:24px;font-weight:700;color:var(--green);">${active}</div></div>
-    <div style="background:var(--surface);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border);"><div style="font-size:11px;color:var(--text2);">הצעות</div><div style="font-size:24px;font-weight:700;color:var(--yellow);">${clients.filter(c=>c.status==='proposal').length}</div></div>
-    <div style="background:var(--surface);padding:12px;border-radius:8px;text-align:center;border:1px solid var(--border);"><div style="font-size:11px;color:var(--text2);">תקציב כולל</div><div style="font-size:24px;font-weight:700;color:var(--accent);">₪${totalBudget.toLocaleString()}</div></div>
-  </div>`;
-
-  clients.forEach(c => {
-    html += `<div class="client-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div><div style="font-weight:600;font-size:15px;">${c.name}</div><div style="font-size:12px;color:var(--text2);">${c.project}</div></div>
-        <span class="client-status" style="background:${statusColors[c.status]}22;color:${statusColors[c.status]};cursor:pointer;" onclick="cycleClientStatus(${c.id})" title="לחץ לשינוי סטטוס">${statusLabels[c.status]}</span>
-      </div>
-      <div style="display:flex;gap:12px;font-size:12px;color:var(--text2);">
-        <span>💰 תקציב: <input class="pricing-input" value="${c.budget}" onchange="clients.find(x=>x.id===${c.id}).budget=parseInt(this.value)||0;renderClients();" style="width:80px;"></span>
-      </div>
-    </div>`;
-  });
-
-  document.getElementById('clientGrid').innerHTML = html;
-}
 
 // ===== OKR TRACKER =====
 let okrs = [
@@ -3943,77 +2947,6 @@ let okrs = [
     {id:3,text:'הגעה ל-50 צפיות ביוטיוב לסרטון',current:30,target:50}
   ]}
 ];
-
-function addOKR() {
-  const obj = document.getElementById('newOkrObj').value.trim();
-  const owner = document.getElementById('newOkrOwner').value;
-  if (!obj) { toast('⚠️ הזן יעד'); return; }
-  okrs.push({id:okrs.length+1, objective:obj, owner, keyResults:[]});
-  document.getElementById('newOkrObj').value = '';
-  renderOKR();
-  toast('✅ יעד נוסף');
-}
-
-function addKR(okrId) {
-  const input = document.getElementById('kr-input-'+okrId);
-  const text = input.value.trim();
-  if (!text) return;
-  const okr = okrs.find(o => o.id === okrId);
-  if (!okr) return;
-  okr.keyResults.push({id:okr.keyResults.length+1, text, current:0, target:100});
-  input.value = '';
-  renderOKR();
-}
-
-function updateKR(okrId, krId, val) {
-  const okr = okrs.find(o => o.id === okrId);
-  if (!okr) return;
-  const kr = okr.keyResults.find(k => k.id === krId);
-  if (kr) { kr.current = parseFloat(val) || 0; renderOKR(); }
-}
-
-function renderOKR() {
-  let html = '';
-  okrs.forEach(o => {
-    const m = TEAM.find(x => x.id === o.owner);
-    const avgProgress = o.keyResults.length ?
-      Math.round(o.keyResults.reduce((s,kr) => {
-        const p = kr.target > kr.current ? (kr.current/kr.target*100) : (kr.target === 0 && kr.current === 0 ? 100 : kr.current <= kr.target ? 100 : Math.max(0, 100-(kr.current-kr.target)/(kr.target||1)*100));
-        return s + Math.min(p, 100);
-      }, 0) / o.keyResults.length) : 0;
-    const pColor = avgProgress >= 70 ? 'var(--green)' : avgProgress >= 40 ? 'var(--yellow)' : 'var(--red)';
-
-    html += `<div class="okr-card">
-      <div class="okr-objective">
-        <div class="avatar avatar-${o.owner}" style="width:28px;height:28px;font-size:11px;">${m?m.name[0]:''}</div>
-        <span style="flex:1;">${o.objective}</span>
-        <span style="font-size:20px;font-weight:700;color:${pColor};">${avgProgress}%</span>
-      </div>
-      <div class="progress-bar" style="margin-bottom:14px;height:6px;"><div class="progress-fill" style="width:${avgProgress}%;background:${pColor};"></div></div>`;
-
-    o.keyResults.forEach(kr => {
-      const p = kr.target > 0 ? Math.min(Math.round(kr.current / kr.target * 100), 100) : (kr.current === 0 ? 100 : 0);
-      const kColor = p >= 70 ? 'var(--green)' : p >= 40 ? 'var(--yellow)' : 'var(--red)';
-      html += `<div class="kr-item">
-        <div class="kr-progress" style="flex:1;">
-          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span>${kr.text}</span><span style="color:${kColor};">${p}%</span></div>
-          <div class="progress-bar" style="height:4px;"><div class="progress-fill" style="width:${p}%;background:${kColor};"></div></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:4px;font-size:11px;min-width:100px;">
-          <input class="pricing-input" value="${kr.current}" onchange="updateKR(${o.id},${kr.id},this.value)" style="width:50px;">
-          <span style="color:var(--text2);">/ ${kr.target}</span>
-        </div>
-      </div>`;
-    });
-
-    html += `<div style="margin-top:10px;display:flex;gap:6px;">
-      <input class="form-input" id="kr-input-${o.id}" placeholder="הוסף תוצאה מפתח..." style="flex:1;padding:6px 10px;font-size:12px;" onkeydown="if(event.key==='Enter')addKR(${o.id})">
-      <button class="btn btn-secondary btn-sm" onclick="addKR(${o.id})">+</button>
-    </div></div>`;
-  });
-
-  document.getElementById('okrContainer').innerHTML = html;
-}
 
 
 // ===== ADMIN & PERMISSIONS =====
