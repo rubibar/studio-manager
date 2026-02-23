@@ -143,8 +143,10 @@ body {
 .stat-card {
   background:var(--surface); border:1px solid var(--border);
   border-radius:var(--radius); padding:16px 18px;
-  box-shadow:var(--shadow-sm);
+  box-shadow:var(--shadow-sm); position:relative; cursor:pointer;
+  transition: box-shadow 0.15s, transform 0.15s;
 }
+.stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
 .stat-card .label { font-size:11px; color:var(--text2); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
 .stat-card .value { font-size:26px; font-weight:700; }
 .stat-card .sub { font-size:11px; color:var(--text2); margin-top:3px; }
@@ -152,6 +154,21 @@ body {
 .stat-card.green .value { color:var(--green); }
 .stat-card.yellow .value { color:var(--yellow); }
 .stat-card.red .value { color:var(--red); }
+.stat-dropdown {
+  position:absolute; top:100%; right:0; left:0; z-index:50;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:0 0 var(--radius) var(--radius);
+  box-shadow:var(--shadow-md); max-height:260px; overflow-y:auto;
+  animation:fadeIn 0.15s ease;
+}
+.stat-dropdown-item {
+  display:flex; align-items:center; gap:8px;
+  padding:7px 12px; font-size:12px;
+  border-bottom:1px solid var(--border);
+  cursor:pointer; transition:background 0.1s;
+}
+.stat-dropdown-item:hover { background:var(--surface2); }
+.stat-dropdown-item:last-child { border-bottom:none; }
 
 .filters-bar {
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
@@ -1734,10 +1751,10 @@ function renderDashboard() {
 
   document.getElementById('statsGrid').style.display = dashWidgets.stats ? '' : 'none';
   document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card accent"><div class="label">סה"כ משימות</div><div class="value">${total}</div><div class="sub">${CATEGORIES.length} קטגוריות</div></div>
-    <div class="stat-card green"><div class="label">הושלמו</div><div class="value">${done}</div><div class="sub">${total?Math.round(done/total*100):0}%</div></div>
-    <div class="stat-card yellow"><div class="label">בתהליך</div><div class="value">${prog}</div><div class="sub">${_vt.filter(t=>t.status==='review').length} בבדיקה</div></div>
-    <div class="stat-card red"><div class="label">באיחור</div><div class="value">${overdue}</div><div class="sub">דורשים טיפול</div></div>`;
+    <div class="stat-card accent" onclick="event.stopPropagation();toggleStatDropdown('total',this)"><div class="label">סה"כ משימות</div><div class="value">${total}</div><div class="sub">${CATEGORIES.length} קטגוריות</div></div>
+    <div class="stat-card green" onclick="event.stopPropagation();toggleStatDropdown('done',this)"><div class="label">הושלמו</div><div class="value">${done}</div><div class="sub">${total?Math.round(done/total*100):0}%</div></div>
+    <div class="stat-card yellow" onclick="event.stopPropagation();toggleStatDropdown('progress',this)"><div class="label">בתהליך</div><div class="value">${prog}</div><div class="sub">${_vt.filter(t=>t.status==='review').length} בבדיקה</div></div>
+    <div class="stat-card red" onclick="event.stopPropagation();toggleStatDropdown('overdue',this)"><div class="label">באיחור</div><div class="value">${overdue}</div><div class="sub">דורשים טיפול</div></div>`;
 
   let kpi='';
   TEAM.forEach(m=>{
@@ -1985,6 +2002,43 @@ function navigateToCategory(catId) {
   const navEl = document.querySelector('.nav-item[onclick*="tasks"]');
   switchView('tasks', navEl);
 }
+
+let openStatDropdown = null;
+function toggleStatDropdown(type, cardEl) {
+  // Close if already open
+  const existing = cardEl.querySelector('.stat-dropdown');
+  if (existing) { existing.remove(); openStatDropdown = null; return; }
+  // Close any other open dropdown
+  document.querySelectorAll('.stat-dropdown').forEach(d => d.remove());
+  const _vt = getVisibleTasks();
+  let tasks = [];
+  if (type === 'total') tasks = _vt;
+  else if (type === 'done') tasks = _vt.filter(t => t.status === 'done');
+  else if (type === 'progress') tasks = _vt.filter(t => t.status === 'progress' || t.status === 'review');
+  else if (type === 'overdue') tasks = _vt.filter(t => t.endDate && t.endDate < today && t.status !== 'done');
+  if (!tasks.length) { return; }
+  const dd = document.createElement('div');
+  dd.className = 'stat-dropdown';
+  dd.innerHTML = tasks.slice(0, 20).map(t => {
+    const c = CATEGORIES.find(x => x.id === t.category);
+    const m = TEAM.find(x => x.id === t.assignee);
+    const od = t.endDate && t.endDate < today && t.status !== 'done';
+    return `<div class="stat-dropdown-item" onclick="event.stopPropagation();openEditTask(${t.id})">
+      <span class="priority-dot priority-${t.priority}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.name}</span>
+      ${c ? `<span style="font-size:10px;">${c.emoji}</span>` : ''}
+      ${m ? `<div class="avatar avatar-${m.id}" style="width:18px;height:18px;font-size:8px;">${m.name[0]}</div>` : ''}
+      <span style="color:${od ? 'var(--red)' : 'var(--text2)'};font-size:10px;min-width:55px;text-align:left;">${t.endDate ? fmtD(t.endDate) : '—'}</span>
+    </div>`;
+  }).join('') + (tasks.length > 20 ? `<div style="padding:6px 12px;font-size:11px;color:var(--text2);text-align:center;">+${tasks.length - 20} נוספות...</div>` : '');
+  dd.onclick = function(e) { e.stopPropagation(); };
+  cardEl.appendChild(dd);
+  openStatDropdown = dd;
+}
+document.addEventListener('click', function() {
+  document.querySelectorAll('.stat-dropdown').forEach(d => d.remove());
+  openStatDropdown = null;
+});
 
 function getFilteredTasks() {
   let t = isAdmin() ? [...allTasks] : allTasks.filter(x => x.assignee === currentTeamId);
