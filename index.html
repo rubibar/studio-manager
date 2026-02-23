@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
 <title>Studio Manager - ניהול סטודיו אנימציה</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800&display=swap');
@@ -75,8 +74,8 @@ body {
 }
 .nav-item:hover { background:var(--surface2); color:var(--text); }
 .nav-item.active {
-  background:#0055ff; color:#172b4d;
-  border-right-color:transparent;
+  background:rgba(74,108,247,0.08); color:var(--accent);
+  border-right-color:var(--accent);
   font-weight:600;
 }
 .nav-item .icon { font-size:16px; width:22px; text-align:center; }
@@ -527,6 +526,9 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .kanban-container { flex-direction:column; overflow-x:visible; }
   .kanban-column { min-width:auto; width:100%; }
 
+  /* Merged widgets */
+  #dashMergedWidgets { grid-template-columns:1fr !important; }
+
   /* Modal */
   .modal { width:calc(100vw - 24px); max-width:560px; padding:20px; max-height:90vh; }
   .modal h2 { font-size:15px; margin-bottom:14px; }
@@ -534,10 +536,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
 
   /* Dashboard widgets */
   .dash-widgets { grid-template-columns:1fr; }
-  .dashboard-split { grid-template-columns:1fr; height:auto; }
-  .dashboard-canvas { height:200px; }
-  .dashboard-metrics .stats-grid { grid-template-columns:1fr 1fr; }
-  #dashMergedWidgets { grid-template-columns:1fr !important; }
 
   /* Notifications */
   .notif-panel { width:100vw; }
@@ -547,8 +545,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .timeline-item { margin-right:16px; padding:10px 12px; }
   .timeline-dot { right:-23px; }
 
-  /* Dependencies */
-  .dep-row { flex-wrap:wrap; gap:6px; font-size:12px; }
   /* Export panel */
   .export-panel { flex-direction:column; align-items:stretch; }
 
@@ -580,17 +576,12 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .cal-event { font-size:8px; }
   .year-grid { grid-template-columns:1fr 1fr; }
 
-  .velocity-stats { grid-template-columns:1fr 1fr; }
-
   .kanban-card { padding:8px; }
   .kanban-col-header { padding:8px 10px; font-size:11px; }
 
   .modal { padding:16px; }
   .form-group label { font-size:10px; }
   .form-input { font-size:12px; padding:7px 10px; }
-
-  .bank-stat { min-width:100%; }
-  .bank-stat-row { flex-direction:column; }
 
   /* Stack the new task button text */
   .btn-primary { font-size:12px; padding:6px 10px; }
@@ -647,7 +638,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
 .kanban-card .kc-meta { display:flex; align-items:center; gap:6px; font-size:10px; color:var(--text2); }
 .kanban-col-body.drag-over, .kanban-column.drag-over { background:rgba(74,108,247,0.05); }
 
-.dep-chain-label { font-size:10px; color:var(--text2); padding:2px 8px; }
 
 /* Subtasks */
 .subtask-list { display:flex; flex-direction:column; gap:4px; margin-top:6px; }
@@ -752,43 +742,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 
 /* Custom Dashboard Widgets */
 .dash-widgets { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
-
-/* Dashboard Split Layout */
-.dashboard-split {
-  display:grid;
-  grid-template-columns:1fr 340px;
-  gap:16px;
-  height:calc(100vh - 120px);
-}
-.dashboard-canvas {
-  background:#bc5b5b;
-  border-radius:var(--radius);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-.dashboard-canvas-label {
-  font-size:96px;
-  font-weight:400;
-  color:#000;
-  letter-spacing:2px;
-  text-transform:uppercase;
-}
-.dashboard-metrics {
-  overflow-y:auto;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-.dashboard-metrics .stats-grid {
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  margin-bottom:0;
-}
-.dashboard-metrics .kpi-grid {
-  grid-template-columns:1fr;
-  margin-bottom:0;
-}
 .dash-widget { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; min-height:120px; position:relative; box-shadow:var(--shadow-sm); }
 .dash-widget-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .dash-widget-title { font-size:13px; font-weight:600; }
@@ -805,7 +758,7 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 .checkmark-anim { display:inline-block; animation:popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275); }
 @keyframes popIn { 0%{transform:scale(0);} 100%{transform:scale(1);} }
 
-/* pricing-input - still used in admin/dashboard */
+/* Pricing Input (kept for OKR/client widgets) */
 .pricing-input { width:70px; padding:4px 6px; background:var(--surface2); border:1px solid var(--border); border-radius:4px; color:var(--text); font-size:12px; text-align:center; font-family:'Heebo'; }
 </style>
 
@@ -908,24 +861,19 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
   <div class="content">
     <!-- DASHBOARD -->
     <div class="tab-content active" id="view-dashboard">
-      <div class="dashboard-split">
-        <div class="dashboard-canvas">
-          <span class="dashboard-canvas-label">Task Canvas</span>
+      <div class="widget-toggle" id="widgetToggle"></div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="kpi-grid" id="kpiGrid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+          <h3 style="font-size:14px;margin-bottom:14px;">📌 משימות דחופות</h3>
+          <div id="urgentTasks"></div>
         </div>
-        <div class="dashboard-metrics">
-          <div class="widget-toggle" id="widgetToggle"></div>
-          <div class="stats-grid" id="statsGrid"></div>
-          <div class="kpi-grid" id="kpiGrid"></div>
-          <div id="dashboardPanels">
-            <div id="urgentPanel" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;">
-              <h3 style="font-size:14px;margin-bottom:14px;">📌 משימות דחופות</h3>
-              <div id="urgentTasks"></div>
-            </div>
-            <div id="catPanel" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:14px;">
-              <h3 style="font-size:14px;margin-bottom:14px;">📊 התקדמות לפי קטגוריה</h3>
-              <div id="recentActivity"></div>
-            </div>
-          </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
+          <h3 style="font-size:14px;margin-bottom:14px;">📊 התקדמות לפי קטגוריה</h3>
+          <div id="recentActivity"></div>
+        </div>
+      </div>
           <!-- Merged widgets from removed views -->
           <div id="dashMergedWidgets" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;">
             <div id="velocityWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
@@ -933,8 +881,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
             <div id="financialWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
             <div id="activityWidget" style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;"></div>
           </div>
-        </div>
-      </div>
     </div>
 
     <!-- TASKS -->
@@ -1007,7 +953,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="calendar-grid" id="calendarGrid"></div>
     </div>
 
-
     <!-- KANBAN -->
     <div class="tab-content" id="view-kanban">
       <div class="filters-bar" style="margin-bottom:14px;">
@@ -1020,7 +965,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="kanban-container" id="kanbanContainer"></div>
     </div>
 
-
     <!-- PERSONAL TIMELINE -->
     <div class="tab-content" id="view-timeline">
       <div class="timeline-filter">
@@ -1031,7 +975,6 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       </div>
       <div class="timeline-container" id="timelineContainer"></div>
     </div>
-
 
     <div class="tab-content" id="view-admin">
       <div class="admin-panel" style="background:var(--surface);border-radius:12px;padding:20px;margin-bottom:16px;">
@@ -1407,9 +1350,9 @@ function renderDashboard() {
   document.getElementById('kpiGrid').style.display = dashWidgets.kpi ? '' : 'none';
   document.getElementById('kpiGrid').innerHTML = kpi;
 
-  const urgentParent = document.getElementById('urgentPanel');
-  const catParent = document.getElementById('catPanel');
-  document.getElementById('dashboardPanels').style.display = (dashWidgets.urgent || dashWidgets.categories) ? '' : 'none';
+  const urgentParent = document.getElementById('urgentTasks').parentElement;
+  const catParent = document.getElementById('recentActivity').parentElement;
+  urgentParent.parentElement.style.display = (dashWidgets.urgent || dashWidgets.categories) ? '' : 'none';
   urgentParent.style.display = dashWidgets.urgent ? '' : 'none';
   catParent.style.display = dashWidgets.categories ? '' : 'none';
 
@@ -1497,7 +1440,6 @@ function renderDashboard() {
       <span style="font-weight:600;">₪${(mHrs*rate).toFixed(0)}</span>
     </div>`;
   });
-  // Client summary
   if (typeof clients !== 'undefined' && clients.length) {
     const activeClients = clients.filter(c => c.status === 'active').length;
     const totalBudget = clients.reduce((s,c) => s + c.budget, 0);
@@ -1519,7 +1461,6 @@ function renderDashboard() {
   } else {
     actHtml += '<div style="text-align:center;padding:16px;color:var(--text2);font-size:12px;">אין פעילות עדיין</div>';
   }
-  // OKR summary
   if (typeof okrs !== 'undefined' && okrs.length) {
     actHtml += '<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);"><div style="font-size:12px;font-weight:600;margin-bottom:6px;">🎯 OKR</div>';
     okrs.forEach(o => {
@@ -1534,7 +1475,6 @@ function renderDashboard() {
   }
   document.getElementById('activityWidget').innerHTML = actHtml;
 }
-
 
 // ===== TASKS TABLE =====
 let selectedTaskIds = new Set();
@@ -2124,7 +2064,6 @@ function showDayTasks(year,month,day){
   openModal(html);
 }
 
-
 // ===== GOOGLE CALENDAR =====
 function addToGCal(taskId) {
   const t = allTasks.find(x => x.id === taskId);
@@ -2373,8 +2312,6 @@ function toast(msg) {
   setTimeout(() => t.remove(), 3000);
 }
 
-// ===== WORKLOAD VIEW =====
-
 // ===== KANBAN =====
 let kanbanFilterVal = 'all';
 function kanbanFilter(val, el) {
@@ -2513,9 +2450,15 @@ function logActivity(type, icon, text) {
   activityLogData = activityLogData.slice(0, 100);
 })();
 
+// ===== (Reports, Velocity views removed - merged into dashboard) =====
+// renderReports, renderVelocity, setReportPeriod removed
+// Stub to avoid errors if called:
+function setReportPeriod() {}
+function setBurndownRange() {}
+  renderReports();
+}
 
-
-// ===== DEPENDENCIES =====
+// ===== DEPENDENCIES (kept: data, initDeps, getBlockingTasks, isBlocked) =====
 let taskDependencies = [];
 
 // Generate some sample dependencies
@@ -2919,8 +2862,7 @@ function showConfetti() {
   setTimeout(() => container.remove(), 3000);
 }
 
-
-// ===== CLIENT DASHBOARD =====
+// ===== CLIENT DATA (kept for dashboard widgets) =====
 let clients = [
   {id:1, name:'סטארטאפ XYZ', project:'וידאו תדמית', status:'active', budget:15000, tasks:[]},
   {id:2, name:'חברת ABC', project:'סדרת אנימציה', status:'active', budget:45000, tasks:[]},
@@ -2928,8 +2870,7 @@ let clients = [
   {id:4, name:'עמותת חינוך', project:'סרטון הסברה', status:'proposal', budget:12000, tasks:[]},
 ];
 
-
-// ===== OKR TRACKER =====
+// ===== OKR DATA (kept for dashboard widgets) =====
 let okrs = [
   {id:1, objective:'הגדלת בסיס הלקוחות ב-50%', owner:'rubi', keyResults:[
     {id:1,text:'סגירת 5 לקוחות חדשים',current:2,target:5},
@@ -2947,7 +2888,6 @@ let okrs = [
     {id:3,text:'הגעה ל-50 צפיות ביוטיוב לסרטון',current:30,target:50}
   ]}
 ];
-
 
 // ===== ADMIN & PERMISSIONS =====
 function renderAdmin() {
