@@ -136,30 +136,31 @@ body {
 
 .content { padding:20px 24px; }
 
-.stats-grid {
-  display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
-  margin-bottom:24px;
+.global-stats-bar {
+  display:flex; gap:10px; margin-bottom:16px;
 }
-.stat-card {
+.stat-chip {
+  display:flex; align-items:center; gap:8px;
   background:var(--surface); border:1px solid var(--border);
-  border-radius:var(--radius); padding:16px 18px;
+  border-radius:var(--radius); padding:8px 14px;
   box-shadow:var(--shadow-sm); position:relative; cursor:pointer;
   transition: box-shadow 0.15s, transform 0.15s;
+  flex:1; min-width:0;
 }
-.stat-card:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
-.stat-card .label { font-size:11px; color:var(--text2); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
-.stat-card .value { font-size:26px; font-weight:700; }
-.stat-card .sub { font-size:11px; color:var(--text2); margin-top:3px; }
-.stat-card.accent .value { color:var(--accent); }
-.stat-card.green .value { color:var(--green); }
-.stat-card.yellow .value { color:var(--yellow); }
-.stat-card.red .value { color:var(--red); }
+.stat-chip:hover { box-shadow:var(--shadow-md); transform:translateY(-1px); }
+.stat-chip .stat-icon { font-size:16px; }
+.stat-chip .stat-val { font-size:18px; font-weight:700; }
+.stat-chip .stat-lbl { font-size:11px; color:var(--text2); }
+.stat-chip.accent .stat-val { color:var(--accent); }
+.stat-chip.green .stat-val { color:var(--green); }
+.stat-chip.yellow .stat-val { color:var(--yellow); }
+.stat-chip.red .stat-val { color:var(--red); }
 .stat-dropdown {
   position:absolute; top:100%; right:0; left:0; z-index:50;
   background:var(--surface); border:1px solid var(--border);
   border-radius:0 0 var(--radius) var(--radius);
   box-shadow:var(--shadow-md); max-height:260px; overflow-y:auto;
-  animation:fadeIn 0.15s ease;
+  animation:fadeIn 0.15s ease; min-width:280px;
 }
 .stat-dropdown-item {
   display:flex; align-items:center; gap:8px;
@@ -458,7 +459,8 @@ textarea.form-input { resize:vertical; min-height:60px; }
 ::-webkit-scrollbar-thumb:hover { background:#b0b5bf; }
 
 @media (max-width:1200px) {
-  .stats-grid { grid-template-columns:repeat(2,1fr); }
+  .global-stats-bar { flex-wrap:wrap; }
+  .stat-chip { flex:1 1 calc(50% - 10px); }
   .kpi-grid { grid-template-columns:repeat(2,1fr); }
 }
 
@@ -519,10 +521,10 @@ textarea.form-input { resize:vertical; min-height:60px; }
   /* Content area */
   .content { padding:12px; }
 
-  /* Stats grid */
-  .stats-grid { grid-template-columns:1fr 1fr; gap:10px; }
-  .stat-card { padding:12px; }
-  .stat-card .num { font-size:20px; }
+  /* Stats bar */
+  .global-stats-bar { flex-wrap:wrap; gap:8px; }
+  .stat-chip { flex:1 1 calc(50% - 8px); padding:6px 10px; }
+  .stat-chip .stat-val { font-size:15px; }
 
   /* KPI grid */
   .kpi-grid { grid-template-columns:1fr; }
@@ -643,8 +645,10 @@ textarea.form-input { resize:vertical; min-height:60px; }
 
 /* ===== SMALL MOBILE: < 480px ===== */
 @media (max-width:480px) {
-  .stats-grid { grid-template-columns:1fr; }
-  .stat-card { display:flex; align-items:center; justify-content:space-between; padding:10px 14px; }
+  .global-stats-bar { gap:6px; }
+  .stat-chip { flex:1 1 calc(50% - 6px); padding:5px 8px; }
+  .stat-chip .stat-val { font-size:14px; }
+  .stat-chip .stat-lbl { font-size:10px; }
 
   .topbar-title { font-size:14px; }
 
@@ -1101,10 +1105,10 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
   </div>
 
   <div class="content">
+    <div class="global-stats-bar" id="globalStatsBar"></div>
     <!-- DASHBOARD -->
     <div class="tab-content active" id="view-dashboard">
       <div class="widget-toggle" id="widgetToggle"></div>
-      <div class="stats-grid" id="statsGrid"></div>
       <div class="kpi-grid" id="kpiGrid"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
@@ -1713,7 +1717,25 @@ function switchView(view, el) {
   renderView();
 }
 
+function renderGlobalStats() {
+  const _vt = getVisibleTasks();
+  const total=_vt.length, done=_vt.filter(t=>t.status==='done').length,
+    prog=_vt.filter(t=>t.status==='progress').length,
+    review=_vt.filter(t=>t.status==='review').length,
+    overdue=_vt.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
+  document.getElementById('globalStatsBar').innerHTML = `
+    <div class="stat-chip accent" onclick="event.stopPropagation();toggleStatDropdown('total',this)">
+      <span class="stat-val">${total}</span><span class="stat-lbl">סה"כ</span></div>
+    <div class="stat-chip green" onclick="event.stopPropagation();toggleStatDropdown('done',this)">
+      <span class="stat-val">${done}</span><span class="stat-lbl">הושלמו (${total?Math.round(done/total*100):0}%)</span></div>
+    <div class="stat-chip yellow" onclick="event.stopPropagation();toggleStatDropdown('progress',this)">
+      <span class="stat-val">${prog+review}</span><span class="stat-lbl">בתהליך${review?' (+'+review+' בבדיקה)':''}</span></div>
+    <div class="stat-chip red" onclick="event.stopPropagation();toggleStatDropdown('overdue',this)">
+      <span class="stat-val">${overdue}</span><span class="stat-lbl">באיחור</span></div>`;
+}
+
 function renderView() {
+  renderGlobalStats();
   switch(currentView) {
     case 'dashboard': renderDashboard(); break;
     case 'bank': renderBank(); break;
@@ -1740,21 +1762,11 @@ function renderView() {
 // ===== DASHBOARD =====
 function renderDashboard() {
   // Widget toggle controls
-  const widgetNames = {stats:'📈 סטטיסטיקות',kpi:'👥 KPI צוות',urgent:'📌 דחופות',categories:'📊 קטגוריות'};
+  const widgetNames = {kpi:'👥 KPI צוות',urgent:'📌 דחופות',categories:'📊 קטגוריות'};
   document.getElementById('widgetToggle').innerHTML = '<span style="font-size:11px;color:var(--text2);line-height:26px;">ווידג\'טים:</span>' +
     Object.entries(widgetNames).map(([k,v]) => `<span class="widget-chip ${dashWidgets[k]?'active':''}" onclick="toggleWidget('${k}')">${v}</span>`).join('');
 
   const _vt = getVisibleTasks();
-  const total=_vt.length, done=_vt.filter(t=>t.status==='done').length,
-    prog=_vt.filter(t=>t.status==='progress').length,
-    overdue=_vt.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
-
-  document.getElementById('statsGrid').style.display = dashWidgets.stats ? '' : 'none';
-  document.getElementById('statsGrid').innerHTML = `
-    <div class="stat-card accent" onclick="event.stopPropagation();toggleStatDropdown('total',this)"><div class="label">סה"כ משימות</div><div class="value">${total}</div><div class="sub">${CATEGORIES.length} קטגוריות</div></div>
-    <div class="stat-card green" onclick="event.stopPropagation();toggleStatDropdown('done',this)"><div class="label">הושלמו</div><div class="value">${done}</div><div class="sub">${total?Math.round(done/total*100):0}%</div></div>
-    <div class="stat-card yellow" onclick="event.stopPropagation();toggleStatDropdown('progress',this)"><div class="label">בתהליך</div><div class="value">${prog}</div><div class="sub">${_vt.filter(t=>t.status==='review').length} בבדיקה</div></div>
-    <div class="stat-card red" onclick="event.stopPropagation();toggleStatDropdown('overdue',this)"><div class="label">באיחור</div><div class="value">${overdue}</div><div class="sub">דורשים טיפול</div></div>`;
 
   let kpi='';
   TEAM.forEach(m=>{
