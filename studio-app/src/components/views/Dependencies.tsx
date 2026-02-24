@@ -70,14 +70,14 @@ export function Dependencies() {
     <div className="space-y-5">
       {/* Add dependency */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
-        <h3 className="text-[14px] font-bold mb-3">הוסף תלות</h3>
+        <h3 className="text-[14px] font-bold mb-3">Add Dependency</h3>
         <div className="flex items-center gap-2 flex-wrap">
           <select
             className="flex-1 min-w-[200px] bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[8px] p-2 text-[12px]"
             value={fromId}
             onChange={e => setFromId(e.target.value)}
           >
-            <option value="">משימה חוסמת...</option>
+            <option value="">Blocking task...</option>
             {tasks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
 
@@ -88,7 +88,7 @@ export function Dependencies() {
             value={toId}
             onChange={e => setToId(e.target.value)}
           >
-            <option value="">משימה חסומה...</option>
+            <option value="">Blocked task...</option>
             {tasks.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
 
@@ -97,7 +97,7 @@ export function Dependencies() {
             onClick={addDep}
           >
             <Plus size={14} />
-            הוסף
+            Add
           </button>
         </div>
       </div>
@@ -105,9 +105,9 @@ export function Dependencies() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Dependency list */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
-          <h3 className="text-[14px] font-bold mb-3">רשימת תלויות ({deps.length})</h3>
+          <h3 className="text-[14px] font-bold mb-3">Dependencies ({deps.length})</h3>
           {deps.length === 0 ? (
-            <EmptyState title="אין תלויות" description="הוסף תלויות בין משימות" />
+            <EmptyState title="No dependencies" description="Add dependencies between tasks" />
           ) : (
             <div className="space-y-2">
               {deps.map((d, i) => {
@@ -156,11 +156,11 @@ export function Dependencies() {
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
           <h3 className="text-[14px] font-bold mb-3 flex items-center gap-2">
             <Warning size={16} className="text-[var(--color-red)]" />
-            משימות חסומות ({blockedTasks.length})
+            Blocked Tasks ({blockedTasks.length})
           </h3>
           {blockedTasks.length === 0 ? (
             <div className="text-center py-8 text-[13px] text-[var(--color-accent)]">
-              אין משימות חסומות
+              No blocked tasks
             </div>
           ) : (
             <div className="space-y-2">
@@ -187,7 +187,7 @@ export function Dependencies() {
                       )}
                     </div>
                     <div className="text-[11px] text-[var(--color-text-tertiary)]">
-                      חסום ע&quot;י: {blockers.map(b => b.name).join(', ')}
+                      Blocked by: {blockers.map(b => b.name).join(', ')}
                     </div>
                   </div>
                 )

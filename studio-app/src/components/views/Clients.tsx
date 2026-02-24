@@ -21,7 +21,7 @@ export function Clients() {
     }> = {}
 
     projects.forEach(p => {
-      const clientName = p.client || 'ללא לקוח'
+      const clientName = p.client || 'No Client'
       if (!map[clientName]) {
         map[clientName] = { name: clientName, projects: [], totalBudget: 0, totalTasks: 0, doneTasks: 0 }
       }
@@ -37,7 +37,7 @@ export function Clients() {
   }, [projects, tasks])
 
   // Summary stats
-  const totalClients = clientGroups.filter(g => g.name !== 'ללא לקוח').length
+  const totalClients = clientGroups.filter(g => g.name !== 'No Client').length
   const activeProjects = projects.filter(p => p.status === 'active').length
   const totalBudget = projects.reduce((s, p) => s + (p.budget || 0), 0)
 
@@ -45,15 +45,15 @@ export function Clients() {
     <div className="space-y-5">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="לקוחות" value={totalClients} color="var(--color-text-primary)" />
-        <StatCard label="פרויקטים פעילים" value={activeProjects} color="var(--color-accent)" />
-        <StatCard label="הצעות" value={projects.filter(p => p.status === 'proposal').length} color="var(--color-yellow)" />
-        <StatCard label="תקציב כולל" value={formatCurrency(totalBudget)} color="var(--color-purple)" />
+        <StatCard label="Clients" value={totalClients} color="var(--color-text-primary)" />
+        <StatCard label="Active Projects" value={activeProjects} color="var(--color-accent)" />
+        <StatCard label="Proposals" value={projects.filter(p => p.status === 'proposal').length} color="var(--color-yellow)" />
+        <StatCard label="Total Budget" value={formatCurrency(totalBudget)} color="var(--color-purple)" />
       </div>
 
       {/* Client cards */}
       {clientGroups.length === 0 ? (
-        <EmptyState title="אין לקוחות" description="צור פרויקטים עם שם לקוח כדי לראות כאן" />
+        <EmptyState title="No clients" description="Create projects with a client name to see them here" />
       ) : (
         <div className="space-y-4">
           {clientGroups.map(group => {
@@ -68,7 +68,7 @@ export function Clients() {
                   <div className="flex-1">
                     <div className="text-[14px] font-bold">{group.name}</div>
                     <div className="text-[11px] text-[var(--color-text-tertiary)]">
-                      {group.projects.length} פרויקטים &middot; {group.totalTasks} משימות &middot; {pct}% הושלמו
+                      {group.projects.length} projects &middot; {group.totalTasks} tasks &middot; {pct}% completed
                     </div>
                   </div>
                   {group.totalBudget > 0 && (

@@ -1,38 +1,38 @@
 @import "tailwindcss";
 
 @theme {
-  /* Zinc neutrals */
-  --color-surface: #ffffff;
-  --color-surface-2: #f8f9fa;
-  --color-surface-3: #f1f3f5;
-  --color-surface-dark: #18181b;
-  --color-surface-dark-2: #27272a;
-  --color-bg-dark: #09090b;
+  /* Brutalist Signal — Surfaces */
+  --color-surface: #E8E4DD;
+  --color-surface-2: #F5F3EE;
+  --color-surface-3: #DDD9D1;
+  --color-surface-dark: #1A1A1A;
+  --color-surface-dark-2: #222222;
+  --color-bg-dark: #111111;
 
-  /* Emerald accent */
-  --color-accent: #059669;
-  --color-accent-light: #34d399;
-  --color-accent-hover: #047857;
+  /* Signal Red — Single accent */
+  --color-accent: #E63B2E;
+  --color-accent-light: #F06B60;
+  --color-accent-hover: #CC2E22;
 
-  /* Semantic */
-  --color-red: #dc2626;
-  --color-yellow: #d97706;
-  --color-blue: #2563eb;
-  --color-green: #059669;
-  --color-purple: #7c3aed;
-  --color-pink: #db2777;
-  --color-cyan: #0891b2;
-  --color-orange: #ea580c;
-  --color-teal: #0d9488;
+  /* Semantic (desaturated for Brutalist palette) */
+  --color-red: #E63B2E;
+  --color-yellow: #C4841D;
+  --color-blue: #2B5DAA;
+  --color-green: #3A7D5C;
+  --color-purple: #6B4FA0;
+  --color-pink: #B8476E;
+  --color-cyan: #1A7A7A;
+  --color-orange: #C4612A;
+  --color-teal: #1A7A6F;
 
-  /* Text */
-  --color-text-primary: #18181b;
-  --color-text-secondary: #52525b;
-  --color-text-tertiary: #a1a1aa;
+  /* Text on Paper */
+  --color-text-primary: #111111;
+  --color-text-secondary: #4A4640;
+  --color-text-tertiary: #8A847B;
 
-  /* Border */
-  --color-border: #e4e4e7;
-  --color-border-dark: #3f3f46;
+  /* Borders */
+  --color-border: #CCC7BE;
+  --color-border-dark: #333333;
 
   /* Radius */
   --radius-sm: 8px;
@@ -40,27 +40,20 @@
   --radius-lg: 16px;
   --radius-xl: 20px;
 
-  /* Fonts */
-  --font-sans: 'Heebo', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Fonts — Brutalist Signal stack */
+  --font-sans: 'Space Grotesk', 'Heebo', sans-serif;
+  --font-serif: 'DM Serif Display', serif;
+  --font-mono: 'Space Mono', monospace;
 
   /* Easing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Shadows */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-}
-
-@font-face {
-  font-family: 'Heebo';
-  font-style: normal;
-  font-weight: 300 900;
-  font-display: swap;
-  src: url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+  /* Tinted shadows (warm) */
+  --shadow-xs: 0 1px 2px rgba(17, 17, 17, 0.04);
+  --shadow-sm: 0 2px 8px rgba(17, 17, 17, 0.06);
+  --shadow-md: 0 4px 16px rgba(17, 17, 17, 0.08);
+  --shadow-lg: 0 8px 32px rgba(17, 17, 17, 0.10);
 }
 
 html {
@@ -69,28 +62,50 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-surface);
+  background: var(--color-surface-2);
   color: var(--color-text-primary);
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
 }
 
-/* Dark mode */
+/* Dark mode — Brutalist */
 .dark body,
 .dark {
-  --color-surface: #09090b;
-  --color-surface-2: #18181b;
-  --color-surface-3: #27272a;
-  --color-text-primary: #fafafa;
-  --color-text-secondary: #a1a1aa;
-  --color-text-tertiary: #71717a;
-  --color-border: #3f3f46;
-  --color-accent: #34d399;
-  --color-accent-hover: #6ee7b7;
+  --color-surface: #111111;
+  --color-surface-2: #1A1A1A;
+  --color-surface-3: #222222;
+  --color-text-primary: #E8E4DD;
+  --color-text-secondary: #A09A91;
+  --color-text-tertiary: #6B6560;
+  --color-border: #333333;
+  --color-accent: #E63B2E;
+  --color-accent-hover: #F06B60;
 }
 
-/* Scrollbar */
+/* Noise overlay — fixed, pointer-events-none */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Accent button — magnetic hover + press */
+.btn-accent {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.2s;
+}
+.btn-accent:hover {
+  transform: scale(1.03);
+}
+.btn-accent:active {
+  transform: scale(0.97);
+}
+
+/* Scrollbar — brutalist */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -106,7 +121,7 @@ body {
   background: var(--color-text-tertiary);
 }
 
-/* Active press feedback (taste-skill) */
+/* Active press feedback */
 button:active:not(:disabled) {
   transform: scale(0.97);
 }

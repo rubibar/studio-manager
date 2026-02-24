@@ -35,7 +35,7 @@ export function Modal({ open, onClose, title, children, width = '540px' }: Modal
           onClick={(e) => e.target === overlayRef.current && onClose()}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-[#111111]/50" />
 
           {/* Content */}
           <motion.div

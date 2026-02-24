@@ -80,9 +80,9 @@ export function getScoreColor(score: number): string {
 }
 
 export function getScoreBg(score: number): string {
-  if (score >= 70) return 'rgba(220, 38, 38, 0.07)'
-  if (score >= 40) return 'rgba(217, 119, 6, 0.07)'
-  return 'rgba(161, 161, 170, 0.07)'
+  if (score >= 70) return 'rgba(230, 59, 46, 0.08)'
+  if (score >= 40) return 'rgba(196, 132, 29, 0.08)'
+  return 'rgba(138, 132, 123, 0.08)'
 }
 
 export function derivePriorityFromEisenhower(eis: string): 'high' | 'medium' | 'low' {

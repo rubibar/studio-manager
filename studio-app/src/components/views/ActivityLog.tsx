@@ -34,7 +34,7 @@ export function ActivityLog() {
         log.push({
           type: 'create',
           icon: '+',
-          text: `${memberName} יצר/ה "${t.name}" ב${cat?.emoji || ''} ${cat?.name || ''}`,
+          text: `${memberName} created "${t.name}" in ${cat?.emoji || ''} ${cat?.name || ''}`,
           time: new Date(t.createdAt),
           taskName: t.name,
           memberName,
@@ -44,9 +44,9 @@ export function ActivityLog() {
       // Status change
       if (t.status !== 'todo' && t.startDate) {
         const statusLabels: Record<string, string> = {
-          'in-progress': 'בתהליך',
-          'review': 'ביקורת',
-          'done': 'הושלם',
+          'in-progress': 'In Progress',
+          'review': 'Review',
+          'done': 'Done',
         }
         const statusIcons: Record<string, string> = {
           'in-progress': '~',
@@ -58,7 +58,7 @@ export function ActivityLog() {
         log.push({
           type: 'status',
           icon: statusIcons[t.status] || '~',
-          text: `${memberName} שינה/תה ל${statusLabels[t.status] || t.status}: "${t.name}"`,
+          text: `${memberName} changed to ${statusLabels[t.status] || t.status}: "${t.name}"`,
           time: d,
           taskName: t.name,
           memberName,
@@ -70,7 +70,7 @@ export function ActivityLog() {
         log.push({
           type: 'status',
           icon: 'v',
-          text: `${memberName} השלים/ה: "${t.name}"`,
+          text: `${memberName} completed: "${t.name}"`,
           time: new Date(t.completedAt),
           taskName: t.name,
           memberName,
@@ -85,9 +85,9 @@ export function ActivityLog() {
   const filtered = filter === 'all' ? activities : activities.filter(a => a.type === filter)
 
   const filters: { key: FilterType; label: string }[] = [
-    { key: 'all', label: 'הכל' },
-    { key: 'create', label: 'יצירה' },
-    { key: 'status', label: 'סטטוס' },
+    { key: 'all', label: 'All' },
+    { key: 'create', label: 'Created' },
+    { key: 'status', label: 'Status' },
   ]
 
   // Group by date
@@ -127,7 +127,7 @@ export function ActivityLog() {
 
       {/* Log entries */}
       {grouped.length === 0 ? (
-        <EmptyState title="אין פעילות" description="אין פעילות מהסוג שנבחר" />
+        <EmptyState title="No activity" description="No activity of the selected type" />
       ) : (
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] overflow-hidden">
           {grouped.map(group => (

@@ -54,19 +54,19 @@ export function Velocity() {
     <div className="space-y-5">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="ממוצע שבועי" value={avgVel} color="var(--color-text-primary)" />
-        <StatCard label="שבוע אחרון" value={lastWeek} color="var(--color-accent)" />
+        <StatCard label="Weekly Avg" value={avgVel} color="var(--color-text-primary)" />
+        <StatCard label="Last Week" value={lastWeek} color="var(--color-accent)" />
         <StatCard
-          label="מגמה"
+          label="Trend"
           value={`${trend >= 0 ? '+' : ''}${trend}`}
           color={trend >= 0 ? 'var(--color-accent)' : 'var(--color-red)'}
         />
-        <StatCard label="שבועות לסיום" value={weeksToFinish ?? '---'} color="var(--color-yellow)" />
+        <StatCard label="Weeks Left" value={weeksToFinish ?? '---'} color="var(--color-yellow)" />
       </div>
 
       {/* Chart */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-        <h3 className="text-[14px] font-bold mb-4">מהירות שבועית (12 שבועות)</h3>
+        <h3 className="text-[14px] font-bold mb-4">Weekly Velocity (12 weeks)</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={weeks} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(161,161,170,0.1)" />
@@ -77,7 +77,7 @@ export function Velocity() {
             />
             <Bar
               dataKey="done"
-              name="הושלמו"
+              name="Completed"
               radius={[4, 4, 0, 0]}
               fill="#059669"
             />
@@ -87,7 +87,7 @@ export function Velocity() {
 
       {/* Team velocity */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-        <h3 className="text-[14px] font-bold mb-4">מהירות לפי חבר צוות</h3>
+        <h3 className="text-[14px] font-bold mb-4">Team Velocity</h3>
         <div className="space-y-5">
           {teamVelocity.map(m => (
             <div key={m.id}>
@@ -96,7 +96,7 @@ export function Velocity() {
                   {m.name[0]}
                 </div>
                 <span className="text-[13px] font-medium">{m.name}</span>
-                <span className="text-[11px] text-[var(--color-text-tertiary)]">ממוצע: {m.avg} / שבוע</span>
+                <span className="text-[11px] text-[var(--color-text-tertiary)]">Avg: {m.avg} / week</span>
               </div>
               <div className="flex items-end gap-[3px] h-10">
                 {m.weeks.map((v, i) => (
@@ -108,7 +108,7 @@ export function Velocity() {
                       opacity: 0.3 + (v / m.max) * 0.7,
                       height: `${Math.max((v / m.max) * 100, 5)}%`,
                     }}
-                    title={`שבוע ${i + 1}: ${v} משימות`}
+                    title={`Week ${i + 1}: ${v} tasks`}
                   />
                 ))}
               </div>

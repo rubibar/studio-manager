@@ -72,7 +72,7 @@ export function Timeline() {
 
       {/* Timeline */}
       {personTasks.length === 0 ? (
-        <EmptyState title="אין משימות" description={`אין משימות ל${member?.name || 'חבר צוות'}`} />
+        <EmptyState title="No tasks" description={`No tasks for ${member?.name || 'team member'}`} />
       ) : (
         <div className="relative pr-6">
           {/* Vertical line */}

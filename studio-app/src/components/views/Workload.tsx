@@ -57,7 +57,7 @@ export function Workload() {
               </div>
               <div>
                 <div className="text-[14px] font-bold">{m.name}</div>
-                <div className="text-[11px] text-[var(--color-text-tertiary)]">{m.role} &middot; {m.total} משימות</div>
+                <div className="text-[11px] text-[var(--color-text-tertiary)]">{m.role} &middot; {m.total} tasks</div>
               </div>
             </div>
 
@@ -65,15 +65,15 @@ export function Workload() {
             <div className="h-1.5 rounded-full bg-[var(--color-surface-3)] mb-2 overflow-hidden">
               <div className="h-full rounded-full transition-all" style={{ width: `${m.pct}%`, background: m.color }} />
             </div>
-            <div className="text-[11px] text-[var(--color-text-tertiary)] mb-4">{m.pct}% הושלם</div>
+            <div className="text-[11px] text-[var(--color-text-tertiary)] mb-4">{m.pct}% completed</div>
 
             {/* Status bars */}
             <div className="space-y-2">
               {[
-                { label: 'לביצוע', value: m.todo, color: 'var(--color-text-tertiary)' },
-                { label: 'בתהליך', value: m.inProgress, color: 'var(--color-blue)' },
-                { label: 'ביקורת', value: m.review, color: 'var(--color-purple)' },
-                { label: 'הושלם', value: m.done, color: 'var(--color-accent)' },
+                { label: 'To Do', value: m.todo, color: 'var(--color-text-tertiary)' },
+                { label: 'In Progress', value: m.inProgress, color: 'var(--color-blue)' },
+                { label: 'Review', value: m.review, color: 'var(--color-purple)' },
+                { label: 'Done', value: m.done, color: 'var(--color-accent)' },
               ].map(row => (
                 <div key={row.label} className="flex items-center gap-2 text-[11px]">
                   <span className="w-14 text-[var(--color-text-tertiary)]">{row.label}</span>
@@ -94,17 +94,17 @@ export function Workload() {
             {/* Alerts */}
             {m.overdue > 0 && (
               <div className="mt-3 px-3 py-2 rounded-[8px] text-[11px] font-medium" style={{ background: 'rgba(220,38,38,0.06)', color: 'var(--color-red)' }}>
-                {m.overdue} משימות באיחור
+                {m.overdue} overdue tasks
               </div>
             )}
             {m.atCapacity && (
               <div className="mt-2 px-3 py-2 rounded-[8px] text-[11px] font-medium" style={{ background: 'rgba(217,119,6,0.06)', color: 'var(--color-yellow)' }}>
-                עומס מלא
+                At capacity
               </div>
             )}
             {m.hot > 0 && (
               <div className="mt-2 px-3 py-2 rounded-[8px] text-[11px] font-medium" style={{ background: 'rgba(220,38,38,0.04)', color: 'var(--color-red)' }}>
-                {m.hot} משימות hot
+                {m.hot} hot tasks
               </div>
             )}
           </div>
@@ -113,7 +113,7 @@ export function Workload() {
 
       {/* Heatmap */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-        <h3 className="text-[14px] font-bold mb-4">מפת חום - 13 שבועות</h3>
+        <h3 className="text-[14px] font-bold mb-4">Heatmap - 13 weeks</h3>
 
         {/* Week labels */}
         <div className="flex gap-[2px] mb-1.5 pr-[70px]">
@@ -149,7 +149,7 @@ export function Workload() {
                   key={i}
                   className="flex-1 h-6 rounded-[3px] flex items-center justify-center text-[9px]"
                   style={{ background: bg }}
-                  title={`${m.name}: ${cnt} משימות`}
+                  title={`${m.name}: ${cnt} tasks`}
                 >
                   {cnt > 0 ? cnt : ''}
                 </div>

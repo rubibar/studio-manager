@@ -44,7 +44,7 @@ export function Topbar() {
         <MagnifyingGlass size={16} className="text-[var(--color-text-tertiary)]" />
         <input
           type="text"
-          placeholder="חיפוש..."
+          placeholder="Search..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           className="bg-transparent text-sm outline-none flex-1 text-[var(--color-text-primary)] placeholder:text-[var(--color-text-tertiary)]"
@@ -55,7 +55,7 @@ export function Topbar() {
       <div className="flex items-center gap-2">
         {/* Quick stats */}
         {hotCount > 0 && (
-          <span className="text-[11px] bg-[rgba(220,38,38,0.08)] text-[var(--color-red)] px-2 py-0.5 rounded-full font-mono">
+          <span className="text-[11px] bg-[rgba(230,59,46,0.08)] text-[var(--color-accent)] px-2 py-0.5 rounded-full font-mono">
             {hotCount} hot
           </span>
         )}
@@ -66,7 +66,7 @@ export function Topbar() {
           className="flex items-center gap-1.5 bg-[var(--color-accent)] text-white text-[12px] font-medium px-3 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors"
         >
           <Plus size={14} weight="bold" />
-          <span className="hidden sm:inline">משימה חדשה</span>
+          <span className="hidden sm:inline">New Task</span>
         </button>
 
         {/* Review bell */}
@@ -104,7 +104,7 @@ export function Topbar() {
             onClick={logout}
             className="text-[11px] text-[var(--color-text-tertiary)] border border-[var(--color-border)] rounded-[var(--radius-sm)] px-2 py-1 hover:bg-[var(--color-surface-3)] transition-colors"
           >
-            התנתק
+            Sign Out
           </button>
         </div>
       </div>

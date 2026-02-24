@@ -50,15 +50,15 @@ export function Bank() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)]">
-          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">בבנק</div>
+          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">In Bank</div>
           <div className="text-[22px] font-bold font-mono text-[var(--color-yellow)]">{bankTasks.length}</div>
         </div>
         <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)]">
-          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">שובצו</div>
+          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">Assigned</div>
           <div className="text-[22px] font-bold font-mono text-[var(--color-accent)]">{assignedCount}</div>
         </div>
         <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)]">
-          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">הושלמו</div>
+          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">Completed</div>
           <div className="text-[22px] font-bold font-mono text-[var(--color-green)]">{doneCount}</div>
         </div>
       </div>
@@ -68,7 +68,7 @@ export function Bank() {
         <MagnifyingGlass className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)]" size={16} />
         <input
           className="w-full bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[12px] py-2.5 px-10 text-[13px] outline-none focus:border-[var(--color-accent)] transition-colors"
-          placeholder="חיפוש בבנק..."
+          placeholder="Search bank..."
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -76,7 +76,7 @@ export function Bank() {
 
       {/* Bank cards */}
       {bankTasks.length === 0 ? (
-        <EmptyState title="הבנק ריק" description="כל המשימות שובצו" />
+        <EmptyState title="Bank is empty" description="All tasks have been assigned" />
       ) : (
         <AnimatePresence>
           <div className="space-y-2">
@@ -122,7 +122,7 @@ export function Bank() {
                       onClick={() => setAssignFormId(assignFormId === t.id ? null : t.id)}
                     >
                       <UserPlus size={14} />
-                      שבץ
+                      Assign
                     </button>
                   </div>
 
@@ -141,7 +141,7 @@ export function Bank() {
                             value={assignPerson}
                             onChange={e => setAssignPerson(e.target.value)}
                           >
-                            <option value="">אחראי...</option>
+                            <option value="">Assignee...</option>
                             {TEAM.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                           </select>
                           <input
@@ -160,7 +160,7 @@ export function Bank() {
                             className="bg-[var(--color-accent)] text-white rounded-[8px] text-[12px] font-medium hover:opacity-90 transition-opacity"
                             onClick={() => handleAssign(t.id)}
                           >
-                            אישור
+                            Confirm
                           </button>
                         </div>
                       </motion.div>

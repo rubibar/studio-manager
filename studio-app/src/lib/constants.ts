@@ -59,10 +59,10 @@ export const CATEGORIES: CategorySub[] = [
 export const PROJECT_COLORS = ['#059669', '#2563eb', '#db2777', '#d97706', '#0891b2', '#7c3aed', '#ea580c', '#dc2626', '#4f46e5', '#0d9488']
 
 export const PROJECT_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  proposal: { label: 'הצעה', color: '#d97706' },
-  active: { label: 'פעיל', color: '#059669' },
-  completed: { label: 'הושלם', color: '#2563eb' },
-  'on-hold': { label: 'בהמתנה', color: '#a1a1aa' },
+  proposal: { label: 'Proposal', color: '#C4841D' },
+  active: { label: 'Active', color: '#3A7D5C' },
+  completed: { label: 'Completed', color: '#2B5DAA' },
+  'on-hold': { label: 'On Hold', color: '#8A847B' },
 }
 
 export const TAG_COLORS = ['#6c5ce7', '#00b894', '#fd79a8', '#fdcb6e', '#74b9ff', '#e17055', '#81ecec', '#a29bfe', '#55efc4', '#fab1a0']
@@ -75,38 +75,38 @@ export const WORK_END = 18
 export const TYPE_WEIGHTS: Record<string, number> = { client: 30, internal: 15, admin: 5 }
 export const EISENHOWER_WEIGHTS: Record<string, number> = { 'urgent-important': 40, important: 25, urgent: 15, neither: 5 }
 
-export const TYPE_LABELS: Record<string, string> = { client: 'לקוח', internal: 'פנימי/R&D', admin: 'אדמין/סטודיו' }
+export const TYPE_LABELS: Record<string, string> = { client: 'Client', internal: 'Internal', admin: 'Admin' }
 export const EISENHOWER_LABELS: Record<string, string> = {
-  'urgent-important': 'דחוף + חשוב',
-  important: 'חשוב / לא דחוף',
-  urgent: 'דחוף / לא חשוב',
-  neither: 'לא דחוף ולא חשוב',
+  'urgent-important': 'Urgent & Important',
+  important: 'Important',
+  urgent: 'Urgent',
+  neither: 'Neither',
 }
 
 // Google Calendar
 export const GCAL_CLIENT_ID = '906097921484-0evtil5r0q1ol3hf8q54nsj8li4fik55.apps.googleusercontent.com'
 export const GCAL_SCOPES = 'https://www.googleapis.com/auth/calendar'
 
-// View titles (Hebrew)
+// View titles
 export const VIEW_TITLES: Record<string, string> = {
-  dashboard: 'דשבורד',
-  bank: 'בנק משימות',
-  tasks: 'משימות',
-  gantt: 'תרשים גאנט',
-  calendar: 'קלנדר',
-  categories: 'לפי קטגוריה',
-  workload: 'עומסים',
-  weekview: 'שבוע נוכחי',
-  kanban: 'קנבאן',
-  burndown: 'ברנדאון',
-  activitylog: 'לוג פעילות',
-  reports: 'דוחות',
-  velocity: 'מהירות',
-  dependencies: 'תלויות',
-  timeline: 'ציר זמן אישי',
-  pricing: 'שעות ותמחור',
-  projects: 'פרויקטים',
-  clients: 'לקוחות',
+  dashboard: 'Dashboard',
+  bank: 'Task Bank',
+  tasks: 'Tasks',
+  gantt: 'Gantt Chart',
+  calendar: 'Calendar',
+  categories: 'Categories',
+  workload: 'Workload',
+  weekview: 'Week View',
+  kanban: 'Kanban',
+  burndown: 'Burndown',
+  activitylog: 'Activity Log',
+  reports: 'Reports',
+  velocity: 'Velocity',
+  dependencies: 'Dependencies',
+  timeline: 'Timeline',
+  pricing: 'Hours & Pricing',
+  projects: 'Projects',
+  clients: 'Clients',
   okr: 'OKR',
-  admin: 'ניהול',
+  admin: 'Admin',
 }

@@ -19,6 +19,7 @@ export default defineConfig({
           'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
           'vendor-motion': ['framer-motion'],
           'vendor-icons': ['@phosphor-icons/react'],
+              'vendor-gsap': ['gsap'],
         },
       },
     },

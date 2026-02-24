@@ -41,7 +41,7 @@ export function Pricing() {
     <div className="space-y-5">
       {/* Rate input */}
       <div className="flex items-center gap-3">
-        <label className="text-[12px] text-[var(--color-text-secondary)]">תעריף שעתי:</label>
+        <label className="text-[12px] text-[var(--color-text-secondary)]">Hourly rate:</label>
         <div className="relative">
           <input
             type="number"
@@ -55,17 +55,17 @@ export function Pricing() {
 
       {/* Team breakdown */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-        <h3 className="text-[14px] font-bold mb-4">סיכום שעות ותמחור</h3>
+        <h3 className="text-[14px] font-bold mb-4">Hours & Pricing Summary</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-[12px]">
             <thead>
               <tr className="text-[var(--color-text-tertiary)] text-[11px]">
-                <th className="text-start py-2 font-medium">חבר צוות</th>
-                <th className="text-start py-2 font-medium">שעות</th>
-                <th className="text-start py-2 font-medium">תעריף</th>
-                <th className="text-start py-2 font-medium">עלות</th>
-                <th className="text-start py-2 font-medium">משימות</th>
-                <th className="text-start py-2 font-medium">ממוצע/משימה</th>
+                <th className="text-start py-2 font-medium">Team Member</th>
+                <th className="text-start py-2 font-medium">Hours</th>
+                <th className="text-start py-2 font-medium">Rate</th>
+                <th className="text-start py-2 font-medium">Cost</th>
+                <th className="text-start py-2 font-medium">Tasks</th>
+                <th className="text-start py-2 font-medium">Avg/Task</th>
               </tr>
             </thead>
             <tbody>
@@ -79,20 +79,20 @@ export function Pricing() {
                       {m.name}
                     </div>
                   </td>
-                  <td className="py-2.5 font-mono">{m.hrs.toFixed(1)}ש</td>
+                  <td className="py-2.5 font-mono">{m.hrs.toFixed(1)}h</td>
                   <td className="py-2.5 font-mono">{formatCurrency(rate)}</td>
                   <td className="py-2.5 font-mono font-bold">{formatCurrency(m.cost)}</td>
                   <td className="py-2.5 font-mono">{m.taskCount}</td>
-                  <td className="py-2.5 font-mono">{m.avgPerTask.toFixed(1)}ש</td>
+                  <td className="py-2.5 font-mono">{m.avgPerTask.toFixed(1)}h</td>
                 </tr>
               ))}
               <tr className="border-t-2 border-[var(--color-border)] font-bold">
-                <td className="py-2.5">סה&quot;כ</td>
-                <td className="py-2.5 font-mono">{totalHrs.toFixed(1)}ש</td>
+                <td className="py-2.5">Total</td>
+                <td className="py-2.5 font-mono">{totalHrs.toFixed(1)}h</td>
                 <td className="py-2.5 font-mono">{formatCurrency(rate)}</td>
                 <td className="py-2.5 font-mono">{formatCurrency(totalCost)}</td>
                 <td className="py-2.5 font-mono">{tasks.length}</td>
-                <td className="py-2.5 font-mono">{tasks.length ? (totalHrs / tasks.length).toFixed(1) : '0'}ש</td>
+                <td className="py-2.5 font-mono">{tasks.length ? (totalHrs / tasks.length).toFixed(1) : '0'}h</td>
               </tr>
             </tbody>
           </table>
@@ -102,16 +102,16 @@ export function Pricing() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Category breakdown */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-4">לפי קטגוריה</h3>
+          <h3 className="text-[14px] font-bold mb-4">By Category</h3>
           {catRows.length === 0 ? (
-            <div className="text-center py-6 text-[12px] text-[var(--color-text-tertiary)]">אין שעות מתועדות</div>
+            <div className="text-center py-6 text-[12px] text-[var(--color-text-tertiary)]">No hours logged</div>
           ) : (
             <div className="space-y-3">
               {catRows.map(c => (
                 <div key={c.id} className="flex items-center justify-between text-[12px]">
                   <span>{c.emoji} {c.name}</span>
                   <div className="flex items-center gap-4">
-                    <span className="font-mono text-[var(--color-text-tertiary)]">{c.hrs.toFixed(1)}ש</span>
+                    <span className="font-mono text-[var(--color-text-tertiary)]">{c.hrs.toFixed(1)}h</span>
                     <span className="font-mono font-bold">{formatCurrency(c.cost)}</span>
                   </div>
                 </div>
@@ -122,9 +122,9 @@ export function Pricing() {
 
         {/* Top time-consuming tasks */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-4">משימות עם הכי הרבה שעות</h3>
+          <h3 className="text-[14px] font-bold mb-4">Most Time-Consuming Tasks</h3>
           {topTasks.length === 0 ? (
-            <div className="text-center py-6 text-[12px] text-[var(--color-text-tertiary)]">אין שעות מתועדות עדיין</div>
+            <div className="text-center py-6 text-[12px] text-[var(--color-text-tertiary)]">No hours logged yet</div>
           ) : (
             <div className="space-y-2">
               {topTasks.map(t => {
@@ -137,7 +137,7 @@ export function Pricing() {
                   >
                     <span className="truncate flex-1">{t.name}</span>
                     <div className="flex items-center gap-4 shrink-0">
-                      <span className="font-mono text-[var(--color-text-tertiary)]">{hrs.toFixed(1)}ש</span>
+                      <span className="font-mono text-[var(--color-text-tertiary)]">{hrs.toFixed(1)}h</span>
                       <span className="font-mono font-bold">{formatCurrency(hrs * rate)}</span>
                     </div>
                   </div>

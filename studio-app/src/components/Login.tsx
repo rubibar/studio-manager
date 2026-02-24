@@ -1,78 +1,411 @@
+import { useEffect, useRef, useState } from 'react'
 import { useAuthStore } from '@/stores/authStore'
-import { motion } from 'framer-motion'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
+gsap.registerPlugin(ScrollTrigger)
+
+/* ─────────────────────────────────────────────
+   Noise Overlay
+   ───────────────────────────────────────────── */
+function NoiseOverlay() {
+  return <div className="noise-overlay" />
+}
+
+/* ─────────────────────────────────────────────
+   Floating Navbar
+   ───────────────────────────────────────────── */
+function FloatingNavbar({
+  scrolled,
+  onSignInClick,
+}: {
+  scrolled: boolean
+  onSignInClick: () => void
+}) {
+  return (
+    <nav
+      className={`
+        fixed top-6 left-1/2 -translate-x-1/2 z-50
+        flex items-center justify-between gap-8
+        rounded-full px-6 py-3
+        transition-all duration-500 ease-out
+        ${
+          scrolled
+            ? 'bg-[#E8E4DD]/60 backdrop-blur-xl border border-[#CCC7BE] shadow-lg'
+            : 'bg-transparent border border-transparent'
+        }
+      `}
+    >
+      <span
+        className={`
+          text-sm font-bold tracking-tight whitespace-nowrap
+          transition-colors duration-500
+          ${scrolled ? 'text-[#111111]' : 'text-[#E8E4DD]'}
+        `}
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        Replica Studio
+      </span>
+
+      <button
+        onClick={onSignInClick}
+        className="
+          bg-[#E63B2E] text-[#E8E4DD] text-xs font-bold
+          rounded-full px-5 py-2
+          hover:bg-[#CC2E22] transition-colors duration-200
+          whitespace-nowrap cursor-pointer
+        "
+        style={{ fontFamily: "var(--font-sans)" }}
+      >
+        Sign In
+      </button>
+    </nav>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Hero Section — "The Opening Shot"
+   ───────────────────────────────────────────── */
+function HeroSection({ heroRef }: { heroRef: React.RefObject<HTMLElement | null> }) {
+  return (
+    <section
+      ref={heroRef}
+      className="hero-section relative min-h-[100dvh] flex flex-col justify-end overflow-hidden"
+    >
+      {/* Background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(https://picsum.photos/id/1040/1920/1080)',
+        }}
+      />
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#111111]/70 to-[#111111]" />
+
+      {/* Content — bottom-left (visually bottom-right in RTL) */}
+      <div className="relative z-10 px-8 md:px-16 pb-24 md:pb-32 max-w-4xl">
+        <p
+          className="hero-text text-4xl md:text-6xl tracking-tighter font-bold leading-tight"
+          style={{ fontFamily: "var(--font-sans)", color: '#E8E4DD' }}
+        >
+          Manage the
+        </p>
+
+        <h1
+          className="hero-text text-6xl md:text-[8rem] italic leading-[0.9] mt-2"
+          style={{ fontFamily: "var(--font-serif)", color: '#E8E4DD' }}
+        >
+          Studio.
+        </h1>
+
+        <p
+          className="hero-text text-lg mt-6"
+          style={{ fontFamily: "var(--font-sans)", color: '#8A847B' }}
+        >
+          Task management built for precision
+        </p>
+      </div>
+    </section>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Brand Story Section
+   ───────────────────────────────────────────── */
+function BrandStorySection() {
+  return (
+    <section className="brand-story bg-[#111111] py-32 px-8 md:px-16">
+      <div className="max-w-4xl mx-auto">
+        <p
+          className="story-line text-xl mb-8"
+          style={{ fontFamily: "var(--font-sans)", color: '#8A847B' }}
+        >
+          Most studios manage by deadline.
+        </p>
+
+        <p className="story-line text-4xl md:text-6xl font-bold tracking-tight leading-tight">
+          <span style={{ fontFamily: "var(--font-sans)", color: '#E8E4DD' }}>
+            We manage by{' '}
+          </span>
+          <span style={{ fontFamily: "var(--font-sans)", color: '#E63B2E' }}>
+            signal.
+          </span>
+        </p>
+      </div>
+    </section>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Login Card Section
+   ───────────────────────────────────────────── */
+function LoginCardSection({
+  loginRef,
+  login,
+  loading,
+  error,
+}: {
+  loginRef: React.RefObject<HTMLElement | null>
+  login: () => void
+  loading: boolean
+  error: string | null
+}) {
+  return (
+    <section
+      ref={loginRef}
+      className="login-section bg-[var(--color-surface-2)] py-32 px-8"
+    >
+      <div className="max-w-md mx-auto">
+        <div
+          className="login-card bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[2rem] p-8"
+        >
+          {/* Title */}
+          <h2
+            className="text-xl font-bold mb-1"
+            style={{ fontFamily: "var(--font-sans)", color: '#111111' }}
+          >
+            Sign in to Studio Manager
+          </h2>
+
+          {/* Subtitle */}
+          <p
+            className="text-sm mb-8"
+            style={{ fontFamily: "var(--font-mono)", color: '#8A847B' }}
+          >
+            Replica Animation Studio
+          </p>
+
+          {/* Google OAuth Button */}
+          <button
+            onClick={login}
+            disabled={loading}
+            className="
+              w-full flex items-center justify-center gap-3
+              bg-white text-[#111111] font-medium text-sm
+              rounded-[12px] px-4 py-3.5
+              border border-[var(--color-border)]
+              hover:bg-[#F5F3EE] transition-colors duration-200
+              disabled:opacity-50 cursor-pointer
+            "
+            style={{ fontFamily: "var(--font-sans)" }}
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-[#111111] border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285f4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
+                  />
+                  <path
+                    fill="#34a853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#fbbc05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#ea4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                Continue with Google
+              </>
+            )}
+          </button>
+
+          {/* Error display */}
+          {error && (
+            <p
+              className="text-sm text-center mt-4"
+              style={{ fontFamily: "var(--font-mono)", color: '#E63B2E' }}
+            >
+              {error}
+            </p>
+          )}
+
+          {/* Footer note */}
+          <p
+            className="text-xs text-center mt-6"
+            style={{ fontFamily: "var(--font-mono)", color: '#8A847B' }}
+          >
+            Team access only
+          </p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ─────────────────────────────────────────────
+   Footer
+   ───────────────────────────────────────────── */
+function FooterSection() {
+  return (
+    <footer className="bg-[#111111] rounded-t-[4rem] py-16 px-8 md:px-16">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+        {/* Brand */}
+        <div>
+          <h3
+            className="text-lg font-bold mb-2"
+            style={{ fontFamily: "var(--font-sans)", color: '#E8E4DD' }}
+          >
+            Replica Studio
+          </h3>
+          <p
+            className="text-sm leading-relaxed"
+            style={{ fontFamily: "var(--font-sans)", color: '#8A847B' }}
+          >
+            Animation studio management platform.
+            <br />
+            Built for creative teams.
+          </p>
+        </div>
+
+        {/* Status */}
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[#3A7D5C] opacity-75 animate-ping" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[#3A7D5C]" />
+            </span>
+            <span
+              className="text-sm"
+              style={{ fontFamily: "var(--font-mono)", color: '#E8E4DD' }}
+            >
+              System Operational
+            </span>
+          </div>
+          <p
+            className="text-xs"
+            style={{ fontFamily: "var(--font-mono)", color: '#8A847B' }}
+          >
+            All services running
+          </p>
+        </div>
+
+        {/* Links / Info */}
+        <div className="flex flex-col gap-1">
+          <span
+            className="text-xs"
+            style={{ fontFamily: "var(--font-mono)", color: '#8A847B' }}
+          >
+            v2.0 — Brutalist Signal
+          </span>
+          <span
+            className="text-xs"
+            style={{ fontFamily: "var(--font-mono)", color: '#8A847B' }}
+          >
+            Built with React + Firebase
+          </span>
+        </div>
+      </div>
+
+      {/* Copyright */}
+      <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-[#333333]">
+        <p
+          className="text-xs"
+          style={{ fontFamily: "var(--font-mono)", color: '#8A847B' }}
+        >
+          &copy; {new Date().getFullYear()} Replica Animation Studio. All rights reserved.
+        </p>
+      </div>
+    </footer>
+  )
+}
+
+/* ═════════════════════════════════════════════
+   LOGIN — Main Component
+   ═════════════════════════════════════════════ */
 export function Login() {
   const login = useAuthStore(s => s.login)
   const loading = useAuthStore(s => s.loading)
   const error = useAuthStore(s => s.error)
 
+  const heroRef = useRef<HTMLElement>(null)
+  const loginRef = useRef<HTMLElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  /* Scroll to login card when navbar "Sign In" is clicked */
+  const handleSignInClick = () => {
+    loginRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  }
+
+  /* ── Navbar morph via IntersectionObserver ── */
+  useEffect(() => {
+    const hero = heroRef.current
+    if (!hero) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setScrolled(!entry.isIntersecting)
+      },
+      { threshold: 0.05 }
+    )
+
+    observer.observe(hero)
+    return () => observer.disconnect()
+  }, [])
+
+  /* ── GSAP Animations ── */
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Hero text staggered reveal
+      gsap.from('.hero-text', {
+        y: 40,
+        opacity: 0,
+        stagger: 0.08,
+        duration: 1,
+        ease: 'power3.out',
+        delay: 0.3,
+      })
+
+      // Brand story scroll reveal
+      gsap.from('.story-line', {
+        scrollTrigger: {
+          trigger: '.brand-story',
+          start: 'top 80%',
+        },
+        y: 40,
+        opacity: 0,
+        stagger: 0.15,
+        duration: 0.8,
+        ease: 'power3.out',
+      })
+
+      // Login card scroll reveal
+      gsap.from('.login-card', {
+        scrollTrigger: {
+          trigger: '.login-section',
+          start: 'top 70%',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 0.8,
+        ease: 'power3.out',
+      })
+    }, containerRef)
+
+    return () => ctx.revert()
+  }, [])
+
   return (
-    <div
-      className="min-h-[100dvh] flex items-center justify-center"
-      dir="rtl"
-      style={{
-        background: '#09090b',
-        backgroundImage: 'radial-gradient(ellipse 80% 60% at 50% 120%, rgba(5,150,105,0.15), transparent)',
-      }}
-    >
-      <motion.div
-        className="w-full max-w-sm mx-4"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      >
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-[#18181b] border border-[#27272a] flex items-center justify-center mb-4">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="1.5">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-              <circle cx="12" cy="13" r="4" />
-            </svg>
-          </div>
-          <h1 className="text-white text-xl font-bold mb-1">Studio Manager</h1>
-          <p className="text-[#71717a] text-sm">Replica Animation Studio</p>
-        </div>
-
-        {/* Card */}
-        <div className="bg-[#18181b] border border-[#27272a] rounded-[20px] p-6">
-          <h2 className="text-white text-[15px] font-bold text-center mb-1">
-            ברוכים הבאים
-          </h2>
-          <p className="text-[#71717a] text-[13px] text-center mb-6">
-            התחבר עם חשבון Google כדי להמשיך
-          </p>
-
-          <button
-            onClick={login}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 bg-white text-[#18181b] font-medium text-[14px] rounded-[12px] px-4 py-3 hover:bg-[#f4f4f5] transition-colors disabled:opacity-50"
-          >
-            {loading ? (
-              <div className="w-5 h-5 border-2 border-[#18181b] border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
-                  <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                  <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                  <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                </svg>
-                התחבר עם Google
-              </>
-            )}
-          </button>
-
-          {error && (
-            <p className="text-[var(--color-red)] text-[12px] text-center mt-3">
-              {error}
-            </p>
-          )}
-        </div>
-
-        <p className="text-[#3f3f46] text-[11px] text-center mt-6">
-          גישה מוגבלת לצוות הסטודיו בלבד
-        </p>
-      </motion.div>
+    <div ref={containerRef} className="relative" dir="rtl">
+      <NoiseOverlay />
+      <FloatingNavbar scrolled={scrolled} onSignInClick={handleSignInClick} />
+      <HeroSection heroRef={heroRef} />
+      <BrandStorySection />
+      <LoginCardSection
+        loginRef={loginRef}
+        login={login}
+        loading={loading}
+        error={error}
+      />
+      <FooterSection />
     </div>
   )
 }

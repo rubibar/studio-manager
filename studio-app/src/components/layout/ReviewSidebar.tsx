@@ -37,7 +37,7 @@ export function ReviewSidebar() {
       >
         <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
           <h2 className="font-bold text-sm">
-            משימות לביקורת ({reviewTasks.length})
+            Review Queue ({reviewTasks.length})
           </h2>
           <button
             onClick={toggleReviewSidebar}
@@ -50,7 +50,7 @@ export function ReviewSidebar() {
         <div className="p-3 flex flex-col gap-2">
           {reviewTasks.length === 0 ? (
             <div className="text-center py-8 text-[var(--color-text-tertiary)] text-sm">
-              אין משימות לביקורת
+              No tasks in review
             </div>
           ) : (
             reviewTasks.map(t => {
@@ -75,7 +75,7 @@ export function ReviewSidebar() {
                   </div>
                   <div className="flex gap-3 text-[11px] text-[var(--color-text-secondary)]">
                     <span>{member?.name || '—'}</span>
-                    <span>{reviewer?.name || 'לא שויך'}</span>
+                    <span>{reviewer?.name || 'Unassigned'}</span>
                   </div>
                   <div className="flex gap-2 mt-2">
                     <button
@@ -85,7 +85,7 @@ export function ReviewSidebar() {
                       }}
                       className="text-[11px] bg-[var(--color-accent)] text-white px-2.5 py-1 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors"
                     >
-                      אשר
+                      Approve
                     </button>
                     <button
                       onClick={(e) => {
@@ -94,7 +94,7 @@ export function ReviewSidebar() {
                       }}
                       className="text-[11px] border border-[var(--color-border)] px-2.5 py-1 rounded-[var(--radius-sm)] hover:bg-[var(--color-surface-3)] transition-colors"
                     >
-                      החזר
+                      Return
                     </button>
                   </div>
                 </div>

@@ -75,7 +75,7 @@ export function TaskForm() {
 
   function handleSubmit() {
     if (!name.trim()) {
-      toast('יש להזין שם משימה', 'error')
+      toast('Task name is required', 'error')
       return
     }
 
@@ -99,7 +99,7 @@ export function TaskForm() {
 
     if (isEdit && taskId) {
       updateTask(taskId, taskData)
-      toast('משימה עודכנה', 'success')
+      toast('Task updated', 'success')
     } else {
       addTask({
         ...taskData,
@@ -115,7 +115,7 @@ export function TaskForm() {
         createdAt: new Date(),
         completedAt: null,
       } as Task)
-      toast('משימה נוספה', 'success')
+      toast('Task added', 'success')
     }
     closeModal()
   }
@@ -127,18 +127,18 @@ export function TaskForm() {
     <Modal
       open={modal.type === 'addTask' || modal.type === 'editTask'}
       onClose={closeModal}
-      title={isEdit ? 'עריכת משימה' : 'משימה חדשה'}
+      title={isEdit ? 'Edit Task' : 'New Task'}
       width="580px"
     >
       <div className="flex flex-col gap-3">
         {/* Name */}
         <div>
-          <label className={labelClass}>שם המשימה *</label>
+          <label className={labelClass}>Task Name *</label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
-            placeholder="תיאור קצר של המשימה..."
+            placeholder="Brief task description..."
             className={inputClass}
             autoFocus
           />
@@ -146,7 +146,7 @@ export function TaskForm() {
 
         {/* Description */}
         <div>
-          <label className={labelClass}>תיאור</label>
+          <label className={labelClass}>Description</label>
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
@@ -158,7 +158,7 @@ export function TaskForm() {
         {/* Type + Eisenhower */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>סוג</label>
+            <label className={labelClass}>Type</label>
             <select value={type} onChange={e => setType(e.target.value as TaskType)} className={inputClass}>
               {Object.entries(TYPE_LABELS).map(([val, label]) => (
                 <option key={val} value={val}>{label}</option>
@@ -166,7 +166,7 @@ export function TaskForm() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>עדיפות (אייזנהאואר)</label>
+            <label className={labelClass}>Priority (Eisenhower)</label>
             <select value={eisenhower} onChange={e => setEisenhower(e.target.value as EisenhowerQuadrant)} className={inputClass}>
               {Object.entries(EISENHOWER_LABELS).map(([val, label]) => (
                 <option key={val} value={val}>{label}</option>
@@ -178,18 +178,18 @@ export function TaskForm() {
         {/* Category + Subcategory */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>קטגוריה</label>
+            <label className={labelClass}>Category</label>
             <select value={category} onChange={e => { setCategory(e.target.value); setSubcategory(''); }} className={inputClass}>
-              <option value="">בחר קטגוריה</option>
+              <option value="">Select...</option>
               {CATEGORIES.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className={labelClass}>תת-קטגוריה</label>
+            <label className={labelClass}>Subcategory</label>
             <select value={subcategory} onChange={e => setSubcategory(e.target.value)} className={inputClass} disabled={!selectedCat}>
-              <option value="">בחר תת-קטגוריה</option>
+              <option value="">Select...</option>
               {selectedCat?.subs.map(s => (
                 <option key={s} value={s}>{s}</option>
               ))}
@@ -200,7 +200,7 @@ export function TaskForm() {
         {/* Assignee + Reviewer */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>אחראי</label>
+            <label className={labelClass}>Assignee</label>
             <select value={assignee} onChange={e => setAssignee(e.target.value)} className={inputClass}>
               {TEAM.map(m => (
                 <option key={m.id} value={m.id}>{m.name} — {m.role}</option>
@@ -208,9 +208,9 @@ export function TaskForm() {
             </select>
           </div>
           <div>
-            <label className={labelClass}>מבקר (reviewer)</label>
+            <label className={labelClass}>Reviewer</label>
             <select value={reviewer} onChange={e => setReviewer(e.target.value)} className={inputClass}>
-              <option value="">ללא מבקר</option>
+              <option value="">None</option>
               {TEAM.map(m => (
                 <option key={m.id} value={m.id}>{m.name}</option>
               ))}
@@ -220,9 +220,9 @@ export function TaskForm() {
 
         {/* Project */}
         <div>
-          <label className={labelClass}>פרויקט</label>
+          <label className={labelClass}>Project</label>
           <select value={project} onChange={e => setProject(e.target.value)} className={inputClass}>
-            <option value="">ללא פרויקט</option>
+            <option value="">None</option>
             {projects.map(p => (
               <option key={p.id} value={String(p.id)}>{p.emoji} {p.name}</option>
             ))}
@@ -232,11 +232,11 @@ export function TaskForm() {
         {/* Dates */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>תאריך התחלה</label>
+            <label className={labelClass}>Start Date</label>
             <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>דד-ליין</label>
+            <label className={labelClass}>Deadline</label>
             <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className={inputClass} />
           </div>
         </div>
@@ -244,17 +244,17 @@ export function TaskForm() {
         {/* Hours + Status */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className={labelClass}>שעות משוערות</label>
+            <label className={labelClass}>Est. Hours</label>
             <input type="number" value={estimatedHours} onChange={e => setEstimatedHours(e.target.value)} min="0" step="0.5" className={inputClass} />
           </div>
           {isEdit && (
             <div>
-              <label className={labelClass}>סטטוס</label>
+              <label className={labelClass}>Status</label>
               <select value={status} onChange={e => setStatus(e.target.value as TaskStatus)} className={inputClass}>
-                <option value="todo">לביצוע</option>
-                <option value="in-progress">בתהליך</option>
-                <option value="review">ביקורת</option>
-                <option value="done">הושלם</option>
+                <option value="todo">To Do</option>
+                <option value="in-progress">In Progress</option>
+                <option value="review">Review</option>
+                <option value="done">Done</option>
               </select>
             </div>
           )}
@@ -268,7 +268,7 @@ export function TaskForm() {
             onChange={e => setEmergency(e.target.checked)}
             className="accent-[var(--color-red)]"
           />
-          <span className="text-[13px] text-[var(--color-red)] font-medium">חירום (Emergency)</span>
+          <span className="text-[13px] text-[var(--color-red)] font-medium">Emergency</span>
         </label>
 
         {/* Submit */}
@@ -277,13 +277,13 @@ export function TaskForm() {
             onClick={closeModal}
             className="text-[13px] px-4 py-2 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-surface-3)] transition-colors"
           >
-            ביטול
+            Cancel
           </button>
           <button
             onClick={handleSubmit}
             className="text-[13px] px-4 py-2 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-white font-medium hover:bg-[var(--color-accent-hover)] transition-colors"
           >
-            {isEdit ? 'עדכן' : 'הוסף משימה'}
+            {isEdit ? 'Update' : 'Add Task'}
           </button>
         </div>
       </div>

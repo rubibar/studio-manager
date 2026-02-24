@@ -1,4 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useAuthStore } from '@/stores/authStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { useProjectStore } from '@/stores/projectStore'
@@ -77,9 +78,19 @@ function AppContent() {
 
   return (
     <AppShell>
-      <Suspense fallback={<ViewLoader />}>
-        {renderView()}
-      </Suspense>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeView}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <Suspense fallback={<ViewLoader />}>
+            {renderView()}
+          </Suspense>
+        </motion.div>
+      </AnimatePresence>
       <TaskForm />
       <ToastContainer />
     </AppShell>
@@ -113,8 +124,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-[#09090b]">
-        <div className="w-8 h-8 border-2 border-[#059669] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#111111]">
+        <div className="w-8 h-8 border-2 border-[#E63B2E] border-t-transparent rounded-full animate-spin" />
       </div>
     )
   }

@@ -51,16 +51,16 @@ export function Reports() {
 
   // Priority breakdown
   const priorities = [
-    { label: 'גבוהה', tasks: periodTasks.filter(t => t.priority === 'high'), color: 'var(--color-red)' },
-    { label: 'בינונית', tasks: periodTasks.filter(t => t.priority === 'medium'), color: 'var(--color-yellow)' },
-    { label: 'נמוכה', tasks: periodTasks.filter(t => t.priority === 'low'), color: 'var(--color-accent)' },
+    { label: 'High', tasks: periodTasks.filter(t => t.priority === 'high'), color: 'var(--color-red)' },
+    { label: 'Medium', tasks: periodTasks.filter(t => t.priority === 'medium'), color: 'var(--color-yellow)' },
+    { label: 'Low', tasks: periodTasks.filter(t => t.priority === 'low'), color: 'var(--color-accent)' },
   ]
 
-  const periodLabels: Record<ReportPeriod, string> = { week: 'שבועי', month: 'חודשי', all: 'כללי' }
+  const periodLabels: Record<ReportPeriod, string> = { week: 'Weekly', month: 'Monthly', all: 'Overall' }
   const periods: { key: ReportPeriod; label: string }[] = [
-    { key: 'week', label: 'שבוע' },
-    { key: 'month', label: 'חודש' },
-    { key: 'all', label: 'הכל' },
+    { key: 'week', label: 'Week' },
+    { key: 'month', label: 'Month' },
+    { key: 'all', label: 'All' },
   ]
 
   return (
@@ -84,20 +84,20 @@ export function Reports() {
 
       {/* Summary */}
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-        <h3 className="text-[14px] font-bold mb-4">סיכום {periodLabels[period]}</h3>
+        <h3 className="text-[14px] font-bold mb-4">{periodLabels[period]} Summary</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <StatCard label='סה"כ' value={totalP} color="var(--color-text-primary)" />
-          <StatCard label="הושלמו" value={donePeriod} color="var(--color-accent)" />
-          <StatCard label="% השלמה" value={`${pctDone}%`} color="var(--color-blue)" />
-          <StatCard label="באיחור" value={overdue} color="var(--color-red)" />
-          <StatCard label="שעות" value={totalHours.toFixed(1)} color="var(--color-purple)" />
+          <StatCard label="Total" value={totalP} color="var(--color-text-primary)" />
+          <StatCard label="Completed" value={donePeriod} color="var(--color-accent)" />
+          <StatCard label="% Done" value={`${pctDone}%`} color="var(--color-blue)" />
+          <StatCard label="Overdue" value={overdue} color="var(--color-red)" />
+          <StatCard label="Hours" value={totalHours.toFixed(1)} color="var(--color-purple)" />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Team performance */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-4">ביצועי צוות</h3>
+          <h3 className="text-[14px] font-bold mb-4">Team Performance</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={teamData} layout="vertical" margin={{ left: 10, right: 10 }}>
               <XAxis type="number" tick={{ fontSize: 10, fill: '#a1a1aa' }} />
@@ -105,15 +105,15 @@ export function Reports() {
               <Tooltip
                 contentStyle={{ background: '#18181b', border: '1px solid #27272a', borderRadius: 8, fontSize: 12 }}
               />
-              <Bar dataKey="done" fill="#059669" name="הושלמו" radius={[0, 4, 4, 0]} />
-              <Bar dataKey="total" fill="rgba(161,161,170,0.2)" name='סה"כ' radius={[0, 4, 4, 0]} />
+              <Bar dataKey="done" fill="#059669" name="Completed" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="total" fill="rgba(161,161,170,0.2)" name="Total" radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Type distribution */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-4">התפלגות לפי סוג</h3>
+          <h3 className="text-[14px] font-bold mb-4">Distribution by Type</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie
@@ -146,7 +146,7 @@ export function Reports() {
 
         {/* Category breakdown */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-4">לפי קטגוריה</h3>
+          <h3 className="text-[14px] font-bold mb-4">By Category</h3>
           <div className="space-y-3">
             {catData.map(c => {
               const pct = c.total ? Math.round((c.done / c.total) * 100) : 0
@@ -167,7 +167,7 @@ export function Reports() {
 
         {/* Priority breakdown */}
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-4">לפי עדיפות</h3>
+          <h3 className="text-[14px] font-bold mb-4">By Priority</h3>
           <div className="space-y-4">
             {priorities.map(p => {
               const pDone = p.tasks.filter(t => t.status === 'done').length
@@ -191,7 +191,7 @@ export function Reports() {
       {/* Overdue tasks */}
       {overdue > 0 && (
         <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
-          <h3 className="text-[14px] font-bold mb-3">משימות באיחור</h3>
+          <h3 className="text-[14px] font-bold mb-3">Overdue Tasks</h3>
           <div className="space-y-2">
             {periodTasks
               .filter(t => t.endDate && new Date(t.endDate) < today && t.status !== 'done')
@@ -210,7 +210,7 @@ export function Reports() {
                       )}
                       <span>{t.name}</span>
                     </div>
-                    <span className="text-[var(--color-red)] text-[11px]">{daysLate} ימים</span>
+                    <span className="text-[var(--color-red)] text-[11px]">{daysLate} days</span>
                   </div>
                 )
               })}

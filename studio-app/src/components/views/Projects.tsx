@@ -31,11 +31,11 @@ export function Projects() {
   }
 
   const filters: { key: FilterStatus; label: string }[] = [
-    { key: 'all', label: 'הכל' },
-    { key: 'active', label: 'פעילים' },
-    { key: 'on-hold', label: 'בהמתנה' },
-    { key: 'completed', label: 'הושלמו' },
-    { key: 'proposal', label: 'הצעות' },
+    { key: 'all', label: 'All' },
+    { key: 'active', label: 'Active' },
+    { key: 'on-hold', label: 'On Hold' },
+    { key: 'completed', label: 'Completed' },
+    { key: 'proposal', label: 'Proposals' },
   ]
 
   // Stats
@@ -47,14 +47,14 @@ export function Projects() {
       {/* Stats */}
       <div className="flex items-center gap-2 flex-wrap">
         <span className="px-3 py-1.5 rounded-full text-[11px] font-medium bg-[rgba(5,150,105,0.08)] text-[var(--color-accent)]">
-          {projects.length} פרויקטים
+          {projects.length} projects
         </span>
         <span className="px-3 py-1.5 rounded-full text-[11px] font-medium bg-[rgba(5,150,105,0.08)] text-[var(--color-accent)]">
-          {activeCount} פעילים
+          {activeCount} active
         </span>
         {totalBudget > 0 && (
           <span className="px-3 py-1.5 rounded-full text-[11px] font-medium bg-[rgba(124,58,237,0.08)] text-[var(--color-purple)]">
-            &#8362;{totalBudget.toLocaleString()} תקציב
+            &#8362;{totalBudget.toLocaleString()} budget
           </span>
         )}
         <button
@@ -62,7 +62,7 @@ export function Projects() {
           onClick={() => openModal({ type: 'addProject' })}
         >
           <Plus size={14} />
-          פרויקט חדש
+          New Project
         </button>
       </div>
 
@@ -86,14 +86,14 @@ export function Projects() {
       {/* Cards */}
       {filtered.length === 0 ? (
         <EmptyState
-          title="אין פרויקטים"
-          description="לחץ על 'פרויקט חדש' כדי להתחיל"
+          title="No projects"
+          description="Click 'New Project' to get started"
           action={
             <button
               className="px-4 py-2 rounded-[8px] text-[12px] font-medium bg-[var(--color-accent)] text-white"
               onClick={() => openModal({ type: 'addProject' })}
             >
-              פרויקט חדש
+              New Project
             </button>
           }
         />
@@ -130,7 +130,7 @@ export function Projects() {
 
                 {/* Progress */}
                 <div className="flex justify-between text-[11px] text-[var(--color-text-tertiary)] mb-1">
-                  <span>{done}/{pTasks.length} משימות</span>
+                  <span>{done}/{pTasks.length} tasks</span>
                   <span>{pct}%</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-[var(--color-surface-3)] overflow-hidden mb-3">
@@ -169,7 +169,7 @@ export function Projects() {
                   className="px-3 py-1.5 rounded-[8px] text-[11px] font-medium bg-[var(--color-accent)] text-white"
                   onClick={(e) => { e.stopPropagation(); openModal({ type: 'editProject', projectId: p.id }) }}
                 >
-                  עריכה
+                  Edit
                 </button>
               </div>
             </div>
@@ -179,14 +179,14 @@ export function Projects() {
             )}
 
             <div className="flex gap-4 text-[12px] text-[var(--color-text-tertiary)] mb-4 flex-wrap">
-              {p.startDate && <span>התחלה: {formatDate(p.startDate)}</span>}
-              {p.deadline && <span>דד-ליין: {formatDate(p.deadline)}</span>}
+              {p.startDate && <span>Start: {formatDate(p.startDate)}</span>}
+              {p.deadline && <span>Deadline: {formatDate(p.deadline)}</span>}
               {p.budget ? <span>&#8362;{p.budget.toLocaleString()}</span> : null}
             </div>
 
-            <h4 className="text-[13px] font-bold mb-2">משימות ({pTasks.length})</h4>
+            <h4 className="text-[13px] font-bold mb-2">Tasks ({pTasks.length})</h4>
             {pTasks.length === 0 ? (
-              <div className="text-center py-4 text-[12px] text-[var(--color-text-tertiary)]">אין משימות משויכות</div>
+              <div className="text-center py-4 text-[12px] text-[var(--color-text-tertiary)]">No associated tasks</div>
             ) : (
               <div className="space-y-1.5">
                 {pTasks.sort((a, b) => getScore(b.id) - getScore(a.id)).map(t => {

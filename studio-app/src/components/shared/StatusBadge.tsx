@@ -1,10 +1,10 @@
 import type { TaskStatus } from '@/types/task'
 
 const STATUS_CONFIG: Record<TaskStatus, { label: string; color: string; bg: string }> = {
-  'todo': { label: 'לביצוע', color: 'var(--color-text-secondary)', bg: 'rgba(161,161,170,0.1)' },
-  'in-progress': { label: 'בתהליך', color: 'var(--color-blue)', bg: 'rgba(37,99,235,0.08)' },
-  'review': { label: 'ביקורת', color: 'var(--color-purple)', bg: 'rgba(124,58,237,0.08)' },
-  'done': { label: 'הושלם', color: 'var(--color-accent)', bg: 'rgba(5,150,105,0.08)' },
+  'todo': { label: 'To Do', color: 'var(--color-text-secondary)', bg: 'rgba(138,132,123,0.1)' },
+  'in-progress': { label: 'In Progress', color: 'var(--color-blue)', bg: 'rgba(43,93,170,0.08)' },
+  'review': { label: 'Review', color: 'var(--color-purple)', bg: 'rgba(107,79,160,0.08)' },
+  'done': { label: 'Done', color: 'var(--color-green)', bg: 'rgba(58,125,92,0.08)' },
 }
 
 interface StatusBadgeProps {

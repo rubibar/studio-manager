@@ -8,7 +8,7 @@ export function PlaceholderView({ name }: PlaceholderViewProps) {
   return (
     <EmptyState
       title={name}
-      description="תצוגה זו תהיה זמינה בקרוב"
+      description="This view will be available soon"
     />
   )
 }

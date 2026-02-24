@@ -84,10 +84,10 @@ export function CalendarView() {
   }
 
   const viewModes: { key: CalViewMode; label: string }[] = [
-    { key: 'month', label: 'חודש' },
-    { key: 'week', label: 'שבוע' },
-    { key: 'day', label: 'יום' },
-    { key: 'agenda', label: 'שנה' },
+    { key: 'month', label: 'Month' },
+    { key: 'week', label: 'Week' },
+    { key: 'day', label: 'Day' },
+    { key: 'agenda', label: 'Year' },
   ]
 
   return (
@@ -262,7 +262,7 @@ function WeekViewCal({ calendarDate, today, getTasksForDate, getScore, openModal
                         <span className="font-medium truncate">{t.name}</span>
                       </div>
                       <div className="text-[9px] text-[var(--color-text-tertiary)]">
-                        {cat?.emoji} {(['todo', 'in-progress', 'review', 'done'] as const).includes(t.status) ? ({'todo':'לביצוע','in-progress':'בתהליך','review':'ביקורת','done':'הושלם'} as Record<string, string>)[t.status] : t.status}
+                        {cat?.emoji} {(['todo', 'in-progress', 'review', 'done'] as const).includes(t.status) ? ({'todo':'To Do','in-progress':'In Progress','review':'Review','done':'Done'} as Record<string, string>)[t.status] : t.status}
                       </div>
                     </div>
                   )
@@ -289,11 +289,11 @@ function DayView({ calendarDate, today: _today, getTasksForDate, getScore, openM
         <h3 className="text-[16px] font-bold">
           {format(calendarDate, 'EEEE, d MMMM yyyy', { locale: he })}
         </h3>
-        <span className="text-[12px] text-[var(--color-text-tertiary)]">{dayTasks.length} משימות</span>
+        <span className="text-[12px] text-[var(--color-text-tertiary)]">{dayTasks.length} tasks</span>
       </div>
 
       {dayTasks.length === 0 ? (
-        <div className="text-center py-10 text-[13px] text-[var(--color-text-tertiary)]">אין משימות ליום זה</div>
+        <div className="text-center py-10 text-[13px] text-[var(--color-text-tertiary)]">No tasks for this day</div>
       ) : (
         <div className="space-y-2">
           {dayTasks.map(t => {

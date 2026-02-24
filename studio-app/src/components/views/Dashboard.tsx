@@ -42,8 +42,8 @@ export function Dashboard() {
         <div
           className="relative rounded-[var(--radius-lg)] p-5 cursor-pointer overflow-hidden"
           style={{
-            background: '#18181b',
-            backgroundImage: 'radial-gradient(ellipse 60% 80% at 80% 50%, rgba(5,150,105,0.1), transparent)',
+            background: '#111111',
+            backgroundImage: 'radial-gradient(ellipse 60% 80% at 80% 50%, rgba(230,59,46,0.1), transparent)',
           }}
           onClick={() => openModal({ type: 'editTask', taskId: spotlightTask.id })}
         >
@@ -72,10 +72,10 @@ export function Dashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KPICard label="סה&quot;כ" value={tasks.length} color="var(--color-accent)" />
-        <KPICard label="הושלמו" value={done.length} color="var(--color-green)" />
-        <KPICard label="באיחור" value={overdue.length} color="var(--color-red)" />
-        <KPICard label="ביקורת" value={inReview.length} color="var(--color-purple)" />
+        <KPICard label="Total" value={tasks.length} color="var(--color-accent)" />
+        <KPICard label="Completed" value={done.length} color="var(--color-green)" />
+        <KPICard label="Overdue" value={overdue.length} color="var(--color-red)" />
+        <KPICard label="In Review" value={inReview.length} color="var(--color-purple)" />
       </div>
 
       {/* Team workload quick view */}
@@ -87,7 +87,7 @@ export function Dashboard() {
               <span className="text-[13px] font-bold">{m.name}</span>
             </div>
             <div className="flex items-center gap-3 text-[12px] text-[var(--color-text-secondary)]">
-              <span>{m.total} פעילות</span>
+              <span>{m.total} active</span>
               {m.hot > 0 && (
                 <span className="text-[var(--color-red)]">{m.hot} hot</span>
               )}
@@ -98,7 +98,7 @@ export function Dashboard() {
 
       {/* Urgent tasks by score */}
       <div>
-        <h2 className="text-[14px] font-bold mb-3">משימות דחופות</h2>
+        <h2 className="text-[14px] font-bold mb-3">Urgent Tasks</h2>
         <div className="space-y-1.5">
           {urgentTasks.map(t => {
             const score = getScore(t.id)
@@ -125,7 +125,7 @@ export function Dashboard() {
           })}
           {urgentTasks.length === 0 && (
             <p className="text-[13px] text-[var(--color-text-tertiary)] py-4 text-center">
-              אין משימות פעילות
+              No active tasks
             </p>
           )}
         </div>

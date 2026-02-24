@@ -16,7 +16,7 @@ export function Admin() {
   const { getScore } = useScoring()
 
   if (!isAdmin) {
-    return <EmptyState title="אין הרשאת גישה" description="רק מנהלים יכולים לגשת לדף זה" />
+    return <EmptyState title="Access Denied" description="Only admins can access this page" />
   }
 
   // Score distribution
@@ -43,14 +43,14 @@ export function Admin() {
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <Lock size={18} className="text-[var(--color-purple)]" />
-          <h3 className="text-[14px] font-bold">מצב ישיבת יום חמישי</h3>
+          <h3 className="text-[14px] font-bold">Thursday Meeting Mode</h3>
         </div>
 
         <div className="flex items-center justify-between py-3 px-4 bg-[var(--color-surface-2)] rounded-[8px]">
           <div>
-            <div className="text-[13px] font-medium">הקפאת ציוני קריטיות</div>
+            <div className="text-[13px] font-medium">Freeze criticality scores</div>
             <div className="text-[11px] text-[var(--color-text-tertiary)] mt-0.5">
-              הציונים לא ישתנו בזמן הדיון בישיבה
+              Scores will not change during the meeting discussion
             </div>
           </div>
           <button
@@ -66,7 +66,7 @@ export function Admin() {
 
         {thursdayMode && (
           <div className="mt-2 px-4 py-2 rounded-[8px] text-[12px] font-medium" style={{ background: 'rgba(124,58,237,0.06)', color: 'var(--color-purple)' }}>
-            מצב ישיבה פעיל - הציונים מוקפאים
+            Meeting mode active - scores frozen
           </div>
         )}
       </div>
@@ -75,7 +75,7 @@ export function Admin() {
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <Users size={18} className="text-[var(--color-blue)]" />
-          <h3 className="text-[14px] font-bold">ניהול עומסים</h3>
+          <h3 className="text-[14px] font-bold">Capacity Management</h3>
         </div>
 
         <div className="space-y-2">
@@ -91,13 +91,13 @@ export function Admin() {
                   </div>
                   <div>
                     <div className="text-[13px] font-medium">{m.name}</div>
-                    <div className="text-[11px] text-[var(--color-text-tertiary)]">{m.role} &middot; {memberTasks} משימות פעילות</div>
+                    <div className="text-[11px] text-[var(--color-text-tertiary)]">{m.role} &middot; {memberTasks} active tasks</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
                   {atCap && (
                     <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[rgba(217,119,6,0.08)] text-[var(--color-yellow)]">
-                      עומס מלא
+                      At capacity
                     </span>
                   )}
                   <button
@@ -120,7 +120,7 @@ export function Admin() {
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <Shield size={18} className="text-[var(--color-accent)]" />
-          <h3 className="text-[14px] font-bold">משתמשים והרשאות</h3>
+          <h3 className="text-[14px] font-bold">Users & Permissions</h3>
         </div>
 
         <div className="space-y-2">
@@ -140,15 +140,15 @@ export function Admin() {
                       {m.name}
                       <span className="text-[11px] text-[var(--color-text-tertiary)] mr-2">({m.role})</span>
                     </div>
-                    <div className="text-[11px] text-[var(--color-text-tertiary)]">{email} &middot; {taskCount} משימות</div>
+                    <div className="text-[11px] text-[var(--color-text-tertiary)]">{email} &middot; {taskCount} tasks</div>
                   </div>
                 </div>
                 {isAdm ? (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[rgba(5,150,105,0.08)] text-[var(--color-accent)]">
-                    מנהל
+                    Admin
                   </span>
                 ) : (
-                  <span className="text-[10px] text-[var(--color-text-tertiary)]">משתמש</span>
+                  <span className="text-[10px] text-[var(--color-text-tertiary)]">User</span>
                 )}
               </div>
             )
@@ -160,7 +160,7 @@ export function Admin() {
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <ChartBar size={18} className="text-[var(--color-red)]" />
-          <h3 className="text-[14px] font-bold">התפלגות ציוני קריטיות</h3>
+          <h3 className="text-[14px] font-bold">Criticality Score Distribution</h3>
         </div>
 
         <div className="flex items-end gap-3 h-32">
@@ -187,17 +187,17 @@ export function Admin() {
       <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
         <div className="flex items-center gap-3 mb-4">
           <Calendar size={18} className="text-[var(--color-blue)]" />
-          <h3 className="text-[14px] font-bold">סנכרון Google Calendar</h3>
+          <h3 className="text-[14px] font-bold">Google Calendar Sync</h3>
         </div>
         <p className="text-[12px] text-[var(--color-text-tertiary)]">
-          סנכרון Google Calendar מתבצע אוטומטית כאשר מחוברים. ניתן לנהל חיבורים מתוך הממשק.
+          Google Calendar sync runs automatically when connected. Manage connections from the interface.
         </p>
         {TEAM.map(m => {
           const count = tasks.filter(t => t.assignee === m.id && t.startDate && t.endDate && t.status !== 'done').length
           return (
             <div key={m.id} className="flex items-center justify-between py-2 mt-2 text-[12px]">
-              <span>{m.name} ({count} משימות פתוחות)</span>
-              <span className="text-[11px] text-[var(--color-text-tertiary)]">סנכרון ידני זמין מהקלנדר</span>
+              <span>{m.name} ({count} open tasks)</span>
+              <span className="text-[11px] text-[var(--color-text-tertiary)]">Manual sync available from calendar</span>
             </div>
           )
         })}

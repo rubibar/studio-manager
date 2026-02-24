@@ -22,10 +22,10 @@ import { useState } from 'react'
 import type { Task, TaskStatus } from '@/types/task'
 
 const COLUMNS: { id: TaskStatus; label: string; color: string }[] = [
-  { id: 'todo', label: 'לביצוע', color: 'var(--color-text-tertiary)' },
-  { id: 'in-progress', label: 'בתהליך', color: 'var(--color-blue)' },
-  { id: 'review', label: 'ביקורת', color: 'var(--color-purple)' },
-  { id: 'done', label: 'הושלם', color: 'var(--color-accent)' },
+  { id: 'todo', label: 'To Do', color: 'var(--color-text-tertiary)' },
+  { id: 'in-progress', label: 'In Progress', color: 'var(--color-blue)' },
+  { id: 'review', label: 'Review', color: 'var(--color-purple)' },
+  { id: 'done', label: 'Done', color: 'var(--color-green)' },
 ]
 
 function KanbanCard({ task, score, onClick }: { task: Task; score: number; onClick: () => void }) {

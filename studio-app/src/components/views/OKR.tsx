@@ -91,7 +91,7 @@ export function OKR() {
           <Target size={16} className="text-[var(--color-accent)] shrink-0" />
           <input
             className="flex-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[8px] py-2 px-3 text-[13px] outline-none focus:border-[var(--color-accent)]"
-            placeholder="יעד חדש..."
+            placeholder="New objective..."
             value={newObj}
             onChange={e => setNewObj(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && addOKR()}
@@ -108,7 +108,7 @@ export function OKR() {
             onClick={addOKR}
           >
             <Plus size={14} />
-            הוסף
+            Add
           </button>
         </div>
       </div>
@@ -195,7 +195,7 @@ function KRInput({ onAdd }: { onAdd: (text: string) => void }) {
     <div className="flex items-center gap-2 mt-3 pt-3 border-t border-[var(--color-border)]">
       <input
         className="flex-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[6px] py-1.5 px-3 text-[12px] outline-none focus:border-[var(--color-accent)]"
-        placeholder="הוסף תוצאה מפתח..."
+        placeholder="Add key result..."
         value={text}
         onChange={e => setText(e.target.value)}
         onKeyDown={e => { if (e.key === 'Enter') { onAdd(text); setText('') } }}

@@ -31,7 +31,7 @@ export function Categories() {
         // Group by subcategory
         const groups: Record<string, typeof catTasks> = {}
         catTasks.forEach(t => {
-          const key = t.subcategory || 'כללי'
+          const key = t.subcategory || 'General'
           if (!groups[key]) groups[key] = []
           groups[key].push(t)
         })
@@ -52,7 +52,7 @@ export function Categories() {
                 <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: cat.color }} />
               </div>
               <span className="text-[11px] text-[var(--color-text-tertiary)] font-mono w-8 text-center">{pct}%</span>
-              <span className="text-[11px] text-[var(--color-text-tertiary)]">{catTasks.length} משימות</span>
+              <span className="text-[11px] text-[var(--color-text-tertiary)]">{catTasks.length} tasks</span>
 
               {isCollapsed ? <CaretLeft size={14} className="text-[var(--color-text-tertiary)]" /> : <CaretDown size={14} className="text-[var(--color-text-tertiary)]" />}
             </button>
@@ -83,7 +83,7 @@ export function Categories() {
                                 <span className="text-[11px] text-[var(--color-text-tertiary)]">{member.name}</span>
                               </div>
                             ) : (
-                              <span className="text-[10px] text-[var(--color-text-tertiary)]">בנק</span>
+                              <span className="text-[10px] text-[var(--color-text-tertiary)]">Bank</span>
                             )}
                             <select
                               className="bg-transparent border-none text-[11px] cursor-pointer outline-none text-[var(--color-text-secondary)]"
@@ -94,10 +94,10 @@ export function Categories() {
                                 updateStatus(t.id, e.target.value as TaskStatus)
                               }}
                             >
-                              <option value="todo">לביצוע</option>
-                              <option value="in-progress">בתהליך</option>
-                              <option value="review">ביקורת</option>
-                              <option value="done">הושלם</option>
+                              <option value="todo">To Do</option>
+                              <option value="in-progress">In Progress</option>
+                              <option value="review">Review</option>
+                              <option value="done">Done</option>
                             </select>
                             <span className="text-[11px] text-[var(--color-text-tertiary)] min-w-[70px] text-start">
                               {formatDate(t.endDate)}
@@ -109,7 +109,7 @@ export function Categories() {
                 ))}
                 {catTasks.length === 0 && (
                   <div className="px-4 py-6 text-center text-[12px] text-[var(--color-text-tertiary)]">
-                    אין משימות בקטגוריה זו
+                    No tasks in this category
                   </div>
                 )}
               </div>

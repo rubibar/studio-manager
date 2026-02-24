@@ -46,9 +46,9 @@ export function Burndown() {
   }, [tasks, range, today])
 
   const ranges: { key: BurndownRange; label: string }[] = [
-    { key: 'month', label: 'חודש' },
-    { key: 'quarter', label: 'רבעון' },
-    { key: 'half', label: 'חצי שנה' },
+    { key: 'month', label: 'Month' },
+    { key: 'quarter', label: 'Quarter' },
+    { key: 'half', label: 'Half Year' },
   ]
 
   return (
@@ -72,10 +72,10 @@ export function Burndown() {
 
       {/* Stats cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label='סה"כ משימות' value={stats.totalTasks} color="var(--color-text-primary)" />
-        <StatCard label="הושלמו בתקופה" value={stats.doneThisPeriod} color="var(--color-accent)" />
-        <StatCard label="ממוצע ליום" value={stats.avgPerDay} color="var(--color-blue)" />
-        <StatCard label="ימים לסיום (צפי)" value={stats.daysToFinish ?? '---'} color="var(--color-yellow)" />
+        <StatCard label="Total Tasks" value={stats.totalTasks} color="var(--color-text-primary)" />
+        <StatCard label="Completed" value={stats.doneThisPeriod} color="var(--color-accent)" />
+        <StatCard label="Avg / Day" value={stats.avgPerDay} color="var(--color-blue)" />
+        <StatCard label="Days to Finish" value={stats.daysToFinish ?? '---'} color="var(--color-yellow)" />
       </div>
 
       {/* Chart */}
@@ -103,18 +103,18 @@ export function Burndown() {
                 fontSize: 12,
               }}
             />
-            <Line type="monotone" dataKey="ideal" stroke="#a1a1aa" strokeWidth={1.5} strokeDasharray="6 4" dot={false} name="אידיאלי" />
-            <Area type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} fill="url(#burnGrad)" name="בפועל" />
+            <Line type="monotone" dataKey="ideal" stroke="#a1a1aa" strokeWidth={1.5} strokeDasharray="6 4" dot={false} name="Ideal" />
+            <Area type="monotone" dataKey="actual" stroke="#059669" strokeWidth={2} fill="url(#burnGrad)" name="Actual" />
           </AreaChart>
         </ResponsiveContainer>
 
         {/* Legend */}
         <div className="flex items-center justify-center gap-6 mt-3 text-[11px] text-[var(--color-text-tertiary)]">
           <span className="flex items-center gap-1.5">
-            <div className="w-3 h-0.5 bg-[var(--color-accent)] rounded" /> בפועל
+            <div className="w-3 h-0.5 bg-[var(--color-accent)] rounded" /> Actual
           </span>
           <span className="flex items-center gap-1.5">
-            <div className="w-3 h-0.5 bg-[var(--color-text-tertiary)] rounded" style={{ opacity: 0.5 }} /> אידיאלי
+            <div className="w-3 h-0.5 bg-[var(--color-text-tertiary)] rounded" style={{ opacity: 0.5 }} /> Ideal
           </span>
         </div>
       </div>

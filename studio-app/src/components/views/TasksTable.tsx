@@ -43,20 +43,20 @@ export function TasksTable() {
           <thead>
             <tr className="bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] text-[11px] uppercase tracking-wider">
               <th className="text-right px-3 py-2.5 cursor-pointer hover:text-[var(--color-text-primary)]" onClick={() => toggleSort('score')}>
-                ציון <SortIcon field="score" />
+                Score <SortIcon field="score" />
               </th>
               <th className="text-right px-3 py-2.5 cursor-pointer hover:text-[var(--color-text-primary)]" onClick={() => toggleSort('name')}>
-                משימה <SortIcon field="name" />
+                Task <SortIcon field="name" />
               </th>
-              <th className="text-right px-3 py-2.5">סוג</th>
+              <th className="text-right px-3 py-2.5">Type</th>
               <th className="text-right px-3 py-2.5 cursor-pointer hover:text-[var(--color-text-primary)]" onClick={() => toggleSort('status')}>
-                סטטוס <SortIcon field="status" />
+                Status <SortIcon field="status" />
               </th>
               <th className="text-right px-3 py-2.5 cursor-pointer hover:text-[var(--color-text-primary)]" onClick={() => toggleSort('assignee')}>
-                אחראי <SortIcon field="assignee" />
+                Assignee <SortIcon field="assignee" />
               </th>
               <th className="text-right px-3 py-2.5 cursor-pointer hover:text-[var(--color-text-primary)]" onClick={() => toggleSort('deadline')}>
-                דד-ליין <SortIcon field="deadline" />
+                Deadline <SortIcon field="deadline" />
               </th>
               <th className="px-3 py-2.5 w-10"></th>
             </tr>
@@ -97,10 +97,10 @@ export function TasksTable() {
                       onChange={e => updateStatus(t.id, e.target.value as TaskStatus)}
                       className="text-[11px] bg-transparent border border-[var(--color-border)] rounded px-1.5 py-0.5 outline-none"
                     >
-                      <option value="todo">לביצוע</option>
-                      <option value="in-progress">בתהליך</option>
-                      <option value="review">ביקורת</option>
-                      <option value="done">הושלם</option>
+                      <option value="todo">To Do</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="review">Review</option>
+                      <option value="done">Done</option>
                     </select>
                   </td>
                   <td className="px-3 py-2.5">
@@ -118,7 +118,7 @@ export function TasksTable() {
                     <button
                       onClick={e => {
                         e.stopPropagation()
-                        if (confirm('למחוק את המשימה?')) deleteTask(t.id)
+                        if (confirm('Delete this task?')) deleteTask(t.id)
                       }}
                       className="p-1 rounded hover:bg-[rgba(220,38,38,0.1)] text-[var(--color-text-tertiary)] hover:text-[var(--color-red)] transition-colors"
                     >
@@ -131,7 +131,7 @@ export function TasksTable() {
             {tasks.length === 0 && (
               <tr>
                 <td colSpan={7} className="text-center py-12 text-[var(--color-text-tertiary)]">
-                  אין משימות להציג
+                  No tasks to display
                 </td>
               </tr>
             )}
@@ -140,7 +140,7 @@ export function TasksTable() {
       </div>
 
       <div className="mt-2 text-[11px] text-[var(--color-text-tertiary)]">
-        {tasks.length} משימות
+        {tasks.length} tasks
       </div>
     </div>
   )

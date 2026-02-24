@@ -47,10 +47,10 @@ export function ToastContainer() {
             className={`
               px-4 py-2.5 rounded-[var(--radius-default)] shadow-md text-[13px] font-medium
               ${t.type === 'error'
-                ? 'bg-[var(--color-red)] text-white'
+                ? 'bg-[var(--color-accent)] text-white'
                 : t.type === 'success'
-                  ? 'bg-[var(--color-accent)] text-white'
-                  : 'bg-[var(--color-surface-dark)] text-white'
+                  ? 'bg-[var(--color-green)] text-white'
+                  : 'bg-[var(--color-bg-dark)] text-[#E8E4DD]'
               }
             `}
           >

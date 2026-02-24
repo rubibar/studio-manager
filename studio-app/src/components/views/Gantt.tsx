@@ -216,7 +216,7 @@ export function Gantt() {
   }, [ganttStart, updateTask])
 
   const filters: { key: FilterVal; label: string }[] = [
-    { key: 'all', label: 'הכל' },
+    { key: 'all', label: 'All' },
     ...TEAM.map(m => ({ key: m.id, label: m.name })),
   ]
 
@@ -238,7 +238,7 @@ export function Gantt() {
           </button>
         ))}
         <span className="mr-auto text-[11px] text-[var(--color-text-tertiary)]">
-          {tasks.length} משימות &middot; {GANTT_DAYS} ימים
+          {tasks.length} tasks &middot; {GANTT_DAYS} days
         </span>
       </div>
 
@@ -248,7 +248,7 @@ export function Gantt() {
         <div className="flex border-b border-[var(--color-border)]">
           {/* Label column */}
           <div className="w-[180px] min-w-[180px] px-3 py-2 text-[11px] font-bold text-[var(--color-text-tertiary)] flex items-end border-l border-[var(--color-border)]">
-            משימה
+            Task
           </div>
           {/* Timeline headers */}
           <div className="flex-1 overflow-x-auto">
@@ -284,7 +284,7 @@ export function Gantt() {
         <div className="max-h-[calc(100vh-280px)] overflow-y-auto">
           {grouped.length === 0 ? (
             <div className="py-12 text-center text-[13px] text-[var(--color-text-tertiary)]">
-              אין משימות עם תאריכים לתצוגת גאנט
+              No tasks with dates for Gantt view
             </div>
           ) : (
             grouped.map(({ cat, tasks: catTasks }) => (
@@ -387,21 +387,21 @@ export function Gantt() {
       <div className="flex items-center gap-4 text-[10px] text-[var(--color-text-tertiary)]">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-2 rounded-[2px] bg-[#059669aa]" />
-          <span>לביצוע</span>
+          <span>To Do</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-2 rounded-[2px] bg-[#059669]" />
-          <span>בביצוע</span>
+          <span>In Progress</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-2 rounded-[2px] bg-[#fdcb6e]" />
-          <span>בבדיקה</span>
+          <span>Review</span>
         </div>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-2 rounded-[2px] bg-[#00b894]" />
-          <span>הושלם</span>
+          <span>Done</span>
         </div>
-        <span className="mr-auto">גרור בר כדי לשנות תאריכים</span>
+        <span className="mr-auto">Drag bar to change dates</span>
       </div>
     </div>
   )
