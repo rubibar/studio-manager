@@ -30,12 +30,12 @@ export function ReviewSidebar() {
       {/* Panel */}
       <div
         className={`
-          fixed top-0 left-0 h-full w-80 bg-[var(--color-surface)] border-r border-[var(--color-border)]
+          fixed top-0 left-0 h-full w-80 glass-panel border-r border-[var(--glass-border)]
           z-50 transition-transform duration-300 overflow-y-auto
           ${open ? 'translate-x-0' : '-translate-x-full'}
         `}
       >
-        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--glass-border)]">
           <h2 className="font-bold text-sm">
             Review Queue ({reviewTasks.length})
           </h2>

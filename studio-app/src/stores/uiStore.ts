@@ -30,6 +30,7 @@ interface UIState {
   searchQuery: string
   commandPaletteOpen: boolean
   slideOverTaskId: number | null
+  gradientPreset: string
 
   setView: (view: ViewName) => void
   toggleSidebar: () => void
@@ -49,6 +50,7 @@ interface UIState {
   toggleCommandPalette: () => void
   openSlideOver: (taskId: number) => void
   closeSlideOver: () => void
+  setGradientPreset: (preset: string) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -64,6 +66,7 @@ export const useUIStore = create<UIState>((set) => ({
   searchQuery: '',
   commandPaletteOpen: false,
   slideOverTaskId: null,
+  gradientPreset: localStorage.getItem('gradientPreset') || 'warm-paper',
 
   setView: (view) => set({ activeView: view }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -89,4 +92,9 @@ export const useUIStore = create<UIState>((set) => ({
   toggleCommandPalette: () => set((s) => ({ commandPaletteOpen: !s.commandPaletteOpen })),
   openSlideOver: (taskId) => set({ slideOverTaskId: taskId }),
   closeSlideOver: () => set({ slideOverTaskId: null }),
+  setGradientPreset: (preset) =>
+    set(() => {
+      localStorage.setItem('gradientPreset', preset)
+      return { gradientPreset: preset }
+    }),
 }))

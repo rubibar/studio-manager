@@ -242,4 +242,8 @@ button:active:not(:disabled) {
   .skeleton { animation: none; }
   .breathe { animation: none; opacity: 1; }
   .spotlight-border::before { display: none; }
+  .backdrop-blur-xl {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }

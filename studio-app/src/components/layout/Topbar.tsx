@@ -5,6 +5,7 @@ import { useUIStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { useMagnetic } from '@/hooks/useMagnetic'
+import { GradientPicker } from '@/components/shared/GradientPicker'
 import { VIEW_TITLES } from '@/lib/constants'
 
 export function Topbar() {
@@ -78,6 +79,9 @@ export function Topbar() {
             <motion.span layout className="text-[11px] font-bold font-mono">{reviewCount}</motion.span>
           </motion.button>
         )}
+
+        {/* Gradient picker */}
+        <GradientPicker />
 
         {/* Dark mode */}
         <button

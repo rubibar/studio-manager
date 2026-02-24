@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MagnifyingGlass, ArrowRight, Keyboard, Moon, Sun, Plus } from '@phosphor-icons/react'
+import { MagnifyingGlass, ArrowRight, Keyboard, Moon, Sun, Plus, Palette } from '@phosphor-icons/react'
 import { useUIStore, type ViewName } from '@/stores/uiStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { VIEW_TITLES } from '@/lib/constants'
@@ -119,6 +119,18 @@ export function CommandPalette() {
         group: 'Actions',
         onSelect: () => { toggleDarkMode(); close() },
       },
+      {
+        id: 'action-gradient',
+        label: 'Change Background Theme',
+        group: 'Actions',
+        onSelect: () => {
+          const presets = ['none', 'warm-paper', 'sunset', 'ocean', 'aurora', 'signal']
+          const current = useUIStore.getState().gradientPreset
+          const nextIdx = (presets.indexOf(current) + 1) % presets.length
+          useUIStore.getState().setGradientPreset(presets[nextIdx])
+          close()
+        },
+      },
     ]
     const matchedActions = q.length > 0
       ? actions.filter(a => a.label.toLowerCase().includes(q))
@@ -213,7 +225,9 @@ export function CommandPalette() {
                         {item.group === 'Actions' && (
                           item.id.includes('dark')
                             ? (darkMode ? <Sun size={14} className="shrink-0 opacity-50" /> : <Moon size={14} className="shrink-0 opacity-50" />)
-                            : <Plus size={14} className="shrink-0 opacity-50" />
+                            : item.id.includes('gradient')
+                              ? <Palette size={14} className="shrink-0 opacity-50" />
+                              : <Plus size={14} className="shrink-0 opacity-50" />
                         )}
                         <span className="truncate">{item.label}</span>
                       </button>

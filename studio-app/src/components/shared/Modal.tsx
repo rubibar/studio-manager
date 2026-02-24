@@ -39,7 +39,7 @@ export function Modal({ open, onClose, title, children, width = '540px' }: Modal
 
           {/* Content */}
           <motion.div
-            className="relative bg-[var(--color-surface)] rounded-[var(--radius-xl)] shadow-lg overflow-hidden"
+            className="relative glass-panel rounded-[var(--radius-xl)] shadow-lg overflow-hidden"
             style={{ width, maxWidth: '95vw', maxHeight: '85vh' }}
             initial={{ scale: 0.95, y: 10 }}
             animate={{ scale: 1, y: 0 }}
@@ -47,7 +47,7 @@ export function Modal({ open, onClose, title, children, width = '540px' }: Modal
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-[var(--color-border)]">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-[var(--glass-border)]">
               <h2 className="text-[15px] font-bold">{title}</h2>
               <button
                 onClick={onClose}
