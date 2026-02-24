@@ -18,9 +18,9 @@ export function TaskForm() {
   const projects = useProjectStore(s => s.projects)
   const teamMemberId = useAuthStore(s => s.teamMemberId)
 
-  const isEdit = modal.type === 'editTask'
-  const taskId = modal.taskId
-  const existingTask = taskId ? getTask(taskId) : undefined
+  const isEdit = false
+  const taskId = undefined as number | undefined
+  const existingTask = undefined as ReturnType<typeof getTask>
 
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
@@ -125,9 +125,9 @@ export function TaskForm() {
 
   return (
     <Modal
-      open={modal.type === 'addTask' || modal.type === 'editTask'}
+      open={modal.type === 'addTask'}
       onClose={closeModal}
-      title={isEdit ? 'Edit Task' : 'New Task'}
+      title="New Task"
       width="580px"
     >
       <div className="flex flex-col gap-3">

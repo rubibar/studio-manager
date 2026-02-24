@@ -3,6 +3,8 @@ import { useVisibleTasks } from '@/hooks/useFilters'
 import { useScoring } from '@/hooks/useScoring'
 import { useTaskStore } from '@/stores/taskStore'
 import { useUIStore } from '@/stores/uiStore'
+import { AnimatedNumber } from '@/components/shared/AnimatedNumber'
+import { SpotlightCard } from '@/components/shared/SpotlightCard'
 import { ScoreBadge } from '@/components/shared/ScoreBadge'
 import { TypeBadge } from '@/components/shared/TypeBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -14,7 +16,7 @@ export function Bank() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
   const updateTask = useTaskStore(s => s.updateTask)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [search, setSearch] = useState('')
   const [assignFormId, setAssignFormId] = useState<number | null>(null)
   const [assignPerson, setAssignPerson] = useState('')
@@ -48,18 +50,18 @@ export function Bank() {
   return (
     <div className="space-y-5">
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)]">
-          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">In Bank</div>
-          <div className="text-[22px] font-bold font-mono text-[var(--color-yellow)]">{bankTasks.length}</div>
+      <div className="flex items-center gap-0 divide-x divide-[var(--color-border)] mb-5">
+        <div className="px-6 py-3 first:pr-6 first:pl-0">
+          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-tertiary)] font-mono mb-0.5">In Bank</div>
+          <AnimatedNumber value={bankTasks.length} className="text-[24px] font-bold font-serif" />
         </div>
-        <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)]">
-          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">Assigned</div>
-          <div className="text-[22px] font-bold font-mono text-[var(--color-accent)]">{assignedCount}</div>
+        <div className="px-6 py-3">
+          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-tertiary)] font-mono mb-0.5">Assigned</div>
+          <AnimatedNumber value={assignedCount} className="text-[24px] font-bold font-serif" />
         </div>
-        <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)]">
-          <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">Completed</div>
-          <div className="text-[22px] font-bold font-mono text-[var(--color-green)]">{doneCount}</div>
+        <div className="px-6 py-3">
+          <div className="text-[10px] uppercase tracking-wider text-[var(--color-text-tertiary)] font-mono mb-0.5">Completed</div>
+          <AnimatedNumber value={doneCount} className="text-[24px] font-bold font-serif" />
         </div>
       </div>
 
@@ -84,17 +86,14 @@ export function Bank() {
               const cat = CATEGORIES.find(c => c.id === t.category)
               const score = getScore(t.id)
               return (
-                <motion.div
+                <SpotlightCard
                   key={t.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
                   className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4 hover:border-[var(--color-accent)] transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div
                       className="flex-1 cursor-pointer"
-                      onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                      onClick={() => openSlideOver(t.id)}
                     >
                       <div className="flex items-center gap-2 mb-2">
                         <ScoreBadge score={score} />
@@ -166,7 +165,7 @@ export function Bank() {
                       </motion.div>
                     )}
                   </AnimatePresence>
-                </motion.div>
+                </SpotlightCard>
               )
             })}
           </div>

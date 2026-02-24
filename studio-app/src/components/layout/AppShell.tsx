@@ -1,12 +1,32 @@
+import { useEffect } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { ReviewSidebar } from './ReviewSidebar'
+import { CommandPalette } from '@/components/shared/CommandPalette'
+import { SlideOver } from '@/components/shared/SlideOver'
+import { TaskDetailPanel } from '@/components/forms/TaskDetailPanel'
+import { useUIStore } from '@/stores/uiStore'
 
 interface AppShellProps {
   children: React.ReactNode
 }
 
 export function AppShell({ children }: AppShellProps) {
+  const toggleCommandPalette = useUIStore(s => s.toggleCommandPalette)
+  const slideOverTaskId = useUIStore(s => s.slideOverTaskId)
+  const closeSlideOver = useUIStore(s => s.closeSlideOver)
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault()
+        toggleCommandPalette()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [toggleCommandPalette])
+
   return (
     <div className="flex min-h-[100dvh]" dir="rtl">
       <div className="noise-overlay" aria-hidden="true" />
@@ -18,6 +38,14 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
       <ReviewSidebar />
+      <CommandPalette />
+      <SlideOver
+        open={slideOverTaskId !== null}
+        onClose={closeSlideOver}
+        title="Task Details"
+      >
+        {slideOverTaskId !== null && <TaskDetailPanel taskId={slideOverTaskId} />}
+      </SlideOver>
     </div>
   )
 }

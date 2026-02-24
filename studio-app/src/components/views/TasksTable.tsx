@@ -15,7 +15,7 @@ export function TasksTable() {
   const { getScore } = useScoring()
   const sort = useUIStore(s => s.sort)
   const setSort = useUIStore(s => s.setSort)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const updateStatus = useTaskStore(s => s.updateStatus)
   const deleteTask = useTaskStore(s => s.deleteTask)
 
@@ -72,7 +72,7 @@ export function TasksTable() {
                   key={t.id}
                   className="border-t border-[var(--color-border)] hover:bg-[var(--color-surface-2)] cursor-pointer transition-colors"
                   style={{ borderRight: `3px solid ${score >= 70 ? 'var(--color-red)' : score >= 40 ? 'var(--color-yellow)' : 'transparent'}` }}
-                  onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                  onClick={() => openSlideOver(t.id)}
                 >
                   <td className="px-3 py-2.5">
                     <ScoreBadge score={score} />

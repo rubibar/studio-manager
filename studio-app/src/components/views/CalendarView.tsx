@@ -23,7 +23,7 @@ export function CalendarView() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
   const updateTask = useTaskStore(s => s.updateTask)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const calendarDate = useUIStore(s => s.calendarDate)
   const setCalendarDate = useUIStore(s => s.setCalendarDate)
   const calViewMode = useUIStore(s => s.calViewMode)
@@ -126,9 +126,9 @@ export function CalendarView() {
       </div>
 
       {/* Calendar body */}
-      {calViewMode === 'month' && <MonthView calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} getScore={getScore} openModal={openModal} dragTaskId={dragTaskId} setDragTaskId={setDragTaskId} handleDrop={handleDrop} />}
-      {calViewMode === 'week' && <WeekViewCal calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} getScore={getScore} openModal={openModal} dragTaskId={dragTaskId} setDragTaskId={setDragTaskId} handleDrop={handleDrop} />}
-      {calViewMode === 'day' && <DayView calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} getScore={getScore} openModal={openModal} />}
+      {calViewMode === 'month' && <MonthView calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} getScore={getScore} openSlideOver={openSlideOver} dragTaskId={dragTaskId} setDragTaskId={setDragTaskId} handleDrop={handleDrop} />}
+      {calViewMode === 'week' && <WeekViewCal calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} getScore={getScore} openSlideOver={openSlideOver} dragTaskId={dragTaskId} setDragTaskId={setDragTaskId} handleDrop={handleDrop} />}
+      {calViewMode === 'day' && <DayView calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} getScore={getScore} openSlideOver={openSlideOver} />}
       {calViewMode === 'agenda' && <YearView calendarDate={calendarDate} today={today} getTasksForDate={getTasksForDate} setCalendarDate={setCalendarDate} setCalViewMode={setCalViewMode} />}
     </div>
   )
@@ -140,13 +140,13 @@ interface ViewProps {
   today: Date
   getTasksForDate: (date: Date) => Task[]
   getScore: (id: number) => number
-  openModal: (m: { type: 'editTask'; taskId: number }) => void
+  openSlideOver: (taskId: number) => void
   dragTaskId: number | null
   setDragTaskId: (id: number | null) => void
   handleDrop: (date: Date, taskId: number) => void
 }
 
-function MonthView({ calendarDate, today, getTasksForDate, getScore: _getScore, openModal, dragTaskId, setDragTaskId, handleDrop }: ViewProps) {
+function MonthView({ calendarDate, today, getTasksForDate, getScore: _getScore, openSlideOver, dragTaskId, setDragTaskId, handleDrop }: ViewProps) {
   const year = calendarDate.getFullYear()
   const month = calendarDate.getMonth()
   const firstDay = startOfMonth(calendarDate)
@@ -205,7 +205,7 @@ function MonthView({ calendarDate, today, getTasksForDate, getScore: _getScore, 
                     style={{ background: `${cat?.color || '#a1a1aa'}20`, color: cat?.color || '#a1a1aa' }}
                     draggable
                     onDragStart={() => setDragTaskId(t.id)}
-                    onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                    onClick={() => openSlideOver(t.id)}
                   >
                     {t.name}
                   </div>
@@ -223,7 +223,7 @@ function MonthView({ calendarDate, today, getTasksForDate, getScore: _getScore, 
 }
 
 /* ---- Week View ---- */
-function WeekViewCal({ calendarDate, today, getTasksForDate, getScore, openModal, dragTaskId, setDragTaskId, handleDrop }: ViewProps) {
+function WeekViewCal({ calendarDate, today, getTasksForDate, getScore, openSlideOver, dragTaskId, setDragTaskId, handleDrop }: ViewProps) {
   const sun = startOfWeek(calendarDate, { weekStartsOn: 0 })
   const days = Array.from({ length: 7 }, (_, i) => addDays(sun, i))
 
@@ -255,7 +255,7 @@ function WeekViewCal({ calendarDate, today, getTasksForDate, getScore, openModal
                       style={{ borderRight: `3px solid ${cat?.color || 'var(--color-border)'}` }}
                       draggable
                       onDragStart={() => setDragTaskId(t.id)}
-                      onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                      onClick={() => openSlideOver(t.id)}
                     >
                       <div className="flex items-center gap-1 mb-0.5">
                         <ScoreBadge score={sc} />
@@ -280,7 +280,7 @@ function WeekViewCal({ calendarDate, today, getTasksForDate, getScore, openModal
 }
 
 /* ---- Day View ---- */
-function DayView({ calendarDate, today: _today, getTasksForDate, getScore, openModal }: Omit<ViewProps, 'dragTaskId' | 'setDragTaskId' | 'handleDrop'>) {
+function DayView({ calendarDate, today: _today, getTasksForDate, getScore, openSlideOver }: Omit<ViewProps, 'dragTaskId' | 'setDragTaskId' | 'handleDrop'>) {
   const dayTasks = getTasksForDate(calendarDate)
 
   return (
@@ -305,7 +305,7 @@ function DayView({ calendarDate, today: _today, getTasksForDate, getScore, openM
               <div
                 key={t.id}
                 className="flex items-center gap-3 p-3 rounded-[8px] border border-[var(--color-border)] hover:border-[var(--color-accent)] cursor-pointer transition-colors"
-                onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                onClick={() => openSlideOver(t.id)}
               >
                 <ScoreBadge score={sc} />
                 <div className="flex-1">

@@ -13,7 +13,7 @@ export function Categories() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
   const updateStatus = useTaskStore(s => s.updateStatus)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
 
   function toggleCat(catId: string) {
@@ -73,7 +73,7 @@ export function Categories() {
                           <div
                             key={t.id}
                             className="flex items-center gap-3 px-4 py-2.5 border-t border-[var(--color-border)] hover:bg-[var(--color-surface-2)] cursor-pointer transition-colors text-[13px]"
-                            onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                            onClick={() => openSlideOver(t.id)}
                           >
                             <ScoreBadge score={getScore(t.id)} />
                             <span className="flex-1 truncate">{t.name}</span>

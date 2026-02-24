@@ -3,6 +3,7 @@ import { useScoring } from '@/hooks/useScoring'
 import { useUIStore } from '@/stores/uiStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { ScoreBadge } from '@/components/shared/ScoreBadge'
+import { SpotlightCard } from '@/components/shared/SpotlightCard'
 import { TypeBadge } from '@/components/shared/TypeBadge'
 import { TEAM } from '@/lib/constants'
 import { formatDate } from '@/lib/formatters'
@@ -35,42 +36,45 @@ function KanbanCard({ task, score, onClick }: { task: Task; score: number; onCli
   } = useSortable({ id: String(task.id), data: { task } })
 
   return (
-    <div
+    <SpotlightCard
       ref={setNodeRef}
-      {...attributes}
-      {...listeners}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        transition,
-        opacity: isDragging ? 0.4 : 1,
-      }}
-      className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-default)] p-3 cursor-grab active:cursor-grabbing hover:border-[var(--color-accent)] transition-colors"
+      className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 cursor-grab active:cursor-grabbing hover:border-[var(--color-accent)] transition-colors"
       onClick={onClick}
     >
-      <div className="flex items-start justify-between mb-2">
-        <span className="text-[13px] font-medium leading-tight flex-1 ml-2">
-          {task.name}
-        </span>
-        <ScoreBadge score={score} />
-      </div>
-      <div className="flex items-center gap-2 flex-wrap">
-        <TypeBadge type={task.type} />
-        {member && (
-          <div className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: member.color }} />
-            <span className="text-[10px] text-[var(--color-text-tertiary)]">{member.name}</span>
-          </div>
-        )}
-        {task.endDate && (
-          <span className="text-[10px] text-[var(--color-text-tertiary)]">
-            {formatDate(task.endDate)}
+      <div
+        {...attributes}
+        {...listeners}
+        style={{
+          transform: CSS.Transform.toString(transform),
+          transition,
+          opacity: isDragging ? 0.4 : 1,
+        }}
+      >
+        <div className="flex items-start justify-between mb-2">
+          <span className="text-[13px] font-medium leading-tight flex-1 ml-2">
+            {task.name}
           </span>
-        )}
-        {task.emergency && (
-          <span className="text-[9px] bg-[var(--color-red)] text-white px-1 rounded">SOS</span>
-        )}
+          <ScoreBadge score={score} />
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <TypeBadge type={task.type} />
+          {member && (
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: member.color }} />
+              <span className="text-[10px] text-[var(--color-text-tertiary)]">{member.name}</span>
+            </div>
+          )}
+          {task.endDate && (
+            <span className="text-[10px] text-[var(--color-text-tertiary)]">
+              {formatDate(task.endDate)}
+            </span>
+          )}
+          {task.emergency && (
+            <span className="text-[9px] bg-[var(--color-red)] text-white px-1 rounded">SOS</span>
+          )}
+        </div>
       </div>
-    </div>
+    </SpotlightCard>
   )
 }
 
@@ -78,7 +82,7 @@ export function Kanban() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
   const updateStatus = useTaskStore(s => s.updateStatus)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
@@ -130,11 +134,11 @@ export function Kanban() {
           return (
             <div
               key={col.id}
-              className="flex-shrink-0 w-72 bg-[var(--color-surface-2)] rounded-[var(--radius-lg)] p-3"
+              className="flex-shrink-0 w-72 bg-[var(--color-surface-2)] rounded-[var(--radius-bento)] p-3"
             >
               {/* Column header */}
               <div className="flex items-center gap-2 mb-3 px-1">
-                <div className="w-2 h-2 rounded-full" style={{ background: col.color }} />
+                <div className="w-2 h-2 rounded-full breathe" style={{ background: col.color }} />
                 <span className="text-[13px] font-bold">{col.label}</span>
                 <span className="text-[11px] text-[var(--color-text-tertiary)] font-mono">
                   {colTasks.length}
@@ -153,7 +157,7 @@ export function Kanban() {
                       key={t.id}
                       task={t}
                       score={getScore(t.id)}
-                      onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                      onClick={() => openSlideOver(t.id)}
                     />
                   ))}
                 </div>

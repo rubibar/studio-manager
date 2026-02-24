@@ -8,7 +8,7 @@ import { TEAM } from '@/lib/constants'
 export function ReviewSidebar() {
   const open = useUIStore(s => s.reviewSidebarOpen)
   const toggleReviewSidebar = useUIStore(s => s.toggleReviewSidebar)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const tasks = useTaskStore(s => s.tasks)
   const updateStatus = useTaskStore(s => s.updateStatus)
   const { getScore } = useScoring()
@@ -63,7 +63,7 @@ export function ReviewSidebar() {
                   key={t.id}
                   className="p-3 rounded-[var(--radius-default)] border border-[var(--color-border)] cursor-pointer hover:bg-[var(--color-surface-2)] transition-colors"
                   onClick={() => {
-                    openModal({ type: 'editTask', taskId: t.id })
+                    openSlideOver(t.id)
                     toggleReviewSidebar()
                   }}
                 >

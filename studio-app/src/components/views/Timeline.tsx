@@ -16,7 +16,7 @@ export function Timeline() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
   const currentTeamId = useAuthStore(s => s.teamMemberId)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [person, setPerson] = useState(currentTeamId)
 
   const today = useMemo(() => new Date(), [])
@@ -108,7 +108,7 @@ export function Timeline() {
                     key={t.id}
                     className="relative mr-4 mb-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
                     style={isOverdue ? { borderColor: 'var(--color-red)' } : undefined}
-                    onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                    onClick={() => openSlideOver(t.id)}
                   >
                     {/* Timeline dot */}
                     <div

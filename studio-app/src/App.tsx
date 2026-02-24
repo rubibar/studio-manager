@@ -9,6 +9,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { Login } from '@/components/Login'
 import { TaskForm } from '@/components/forms/TaskForm'
 import { ToastContainer } from '@/components/shared/Toast'
+import { SkeletonLoader } from '@/components/shared/SkeletonLoader'
 
 // Core views — eagerly loaded (most visited)
 import { Dashboard } from '@/components/views/Dashboard'
@@ -35,11 +36,7 @@ const OKR = lazy(() => import('@/components/views/OKR').then(m => ({ default: m.
 const Admin = lazy(() => import('@/components/views/Admin').then(m => ({ default: m.Admin })))
 
 function ViewLoader() {
-  return (
-    <div className="flex items-center justify-center py-24">
-      <div className="w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-    </div>
-  )
+  return <SkeletonLoader variant="default" />
 }
 
 function AppContent() {
@@ -81,10 +78,10 @@ function AppContent() {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeView}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: 12, scale: 0.99 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -8, scale: 0.99 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
         >
           <Suspense fallback={<ViewLoader />}>
             {renderView()}
@@ -125,7 +122,15 @@ export default function App() {
   if (loading) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-[#111111]">
-        <div className="w-8 h-8 border-2 border-[#E63B2E] border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-[1.25rem] bg-[#E63B2E] flex items-center justify-center breathe">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+              <circle cx="12" cy="13" r="4" />
+            </svg>
+          </div>
+          <div className="skeleton h-1.5 w-24 rounded-full" />
+        </div>
       </div>
     )
   }

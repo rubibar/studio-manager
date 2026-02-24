@@ -12,7 +12,7 @@ const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמיש
 export function WeekView() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [weekOffset, setWeekOffset] = useState(0)
 
   const today = useMemo(() => new Date(), [])
@@ -116,7 +116,7 @@ export function WeekView() {
                           key={t.id}
                           className="p-1.5 rounded-[6px] mb-1 cursor-pointer hover:bg-[var(--color-surface-3)] transition-colors"
                           style={{ borderRight: `2px solid ${cat?.color || 'var(--color-border)'}` }}
-                          onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                          onClick={() => openSlideOver(t.id)}
                         >
                           <div className="flex items-center gap-1">
                             <ScoreBadge score={score} />

@@ -17,6 +17,7 @@ export function Projects() {
   const tasks = useVisibleTasks()
   const { getScore } = useScoring()
   const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [detailId, setDetailId] = useState<number | null>(null)
 
@@ -195,7 +196,7 @@ export function Projects() {
                     <div
                       key={t.id}
                       className="flex items-center gap-3 p-2 rounded-[8px] hover:bg-[var(--color-surface-2)] cursor-pointer text-[12px] transition-colors"
-                      onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                      onClick={() => openSlideOver(t.id)}
                     >
                       <ScoreBadge score={getScore(t.id)} />
                       <span className="flex-1 truncate">{t.name}</span>

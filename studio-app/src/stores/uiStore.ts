@@ -28,6 +28,8 @@ interface UIState {
   modal: ModalState
   reviewSidebarOpen: boolean
   searchQuery: string
+  commandPaletteOpen: boolean
+  slideOverTaskId: number | null
 
   setView: (view: ViewName) => void
   toggleSidebar: () => void
@@ -42,6 +44,11 @@ interface UIState {
   closeModal: () => void
   toggleReviewSidebar: () => void
   setSearchQuery: (q: string) => void
+  openCommandPalette: () => void
+  closeCommandPalette: () => void
+  toggleCommandPalette: () => void
+  openSlideOver: (taskId: number) => void
+  closeSlideOver: () => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -55,6 +62,8 @@ export const useUIStore = create<UIState>((set) => ({
   modal: { type: null },
   reviewSidebarOpen: false,
   searchQuery: '',
+  commandPaletteOpen: false,
+  slideOverTaskId: null,
 
   setView: (view) => set({ activeView: view }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -75,4 +84,9 @@ export const useUIStore = create<UIState>((set) => ({
   closeModal: () => set({ modal: { type: null } }),
   toggleReviewSidebar: () => set((s) => ({ reviewSidebarOpen: !s.reviewSidebarOpen })),
   setSearchQuery: (q) => set({ searchQuery: q }),
+  openCommandPalette: () => set({ commandPaletteOpen: true }),
+  closeCommandPalette: () => set({ commandPaletteOpen: false }),
+  toggleCommandPalette: () => set((s) => ({ commandPaletteOpen: !s.commandPaletteOpen })),
+  openSlideOver: (taskId) => set({ slideOverTaskId: taskId }),
+  closeSlideOver: () => set({ slideOverTaskId: null }),
 }))

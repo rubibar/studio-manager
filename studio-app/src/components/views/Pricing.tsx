@@ -6,7 +6,7 @@ import { formatCurrency } from '@/lib/formatters'
 
 export function Pricing() {
   const tasks = useVisibleTasks()
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [rate, setRate] = useState(250)
 
   const { teamRows, catRows, topTasks, totalHrs, totalCost } = useMemo(() => {
@@ -133,7 +133,7 @@ export function Pricing() {
                   <div
                     key={t.id}
                     className="flex items-center justify-between text-[12px] py-1.5 border-b border-[var(--color-border)] last:border-b-0 cursor-pointer hover:bg-[var(--color-surface-2)] px-2 rounded-[6px] transition-colors"
-                    onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                    onClick={() => openSlideOver(t.id)}
                   >
                     <span className="truncate flex-1">{t.name}</span>
                     <div className="flex items-center gap-4 shrink-0">

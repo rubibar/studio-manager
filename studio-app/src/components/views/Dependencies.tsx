@@ -11,7 +11,7 @@ export function Dependencies() {
   const tasks = useVisibleTasks()
   const allTasks = useTaskStore(s => s.tasks)
   const updateTask = useTaskStore(s => s.updateTask)
-  const openModal = useUIStore(s => s.openModal)
+  const openSlideOver = useUIStore(s => s.openSlideOver)
   const [fromId, setFromId] = useState('')
   const [toId, setToId] = useState('')
 
@@ -123,7 +123,7 @@ export function Dependencies() {
                       className={`flex-1 px-3 py-2 rounded-[8px] cursor-pointer truncate ${
                         fromDone ? 'bg-[rgba(5,150,105,0.06)] text-[var(--color-accent)]' : 'bg-[var(--color-surface-2)]'
                       }`}
-                      onClick={() => openModal({ type: 'editTask', taskId: fromTask.id })}
+                      onClick={() => openSlideOver(fromTask.id)}
                     >
                       {fromDone ? 'v' : '~'} {fromTask.name}
                     </div>
@@ -134,7 +134,7 @@ export function Dependencies() {
                       className={`flex-1 px-3 py-2 rounded-[8px] cursor-pointer truncate ${
                         toIsBlocked ? 'bg-[rgba(220,38,38,0.06)] text-[var(--color-red)]' : 'bg-[var(--color-surface-2)]'
                       }`}
-                      onClick={() => openModal({ type: 'editTask', taskId: toTask.id })}
+                      onClick={() => openSlideOver(toTask.id)}
                     >
                       {toIsBlocked ? '!' : ''} {toTask.name}
                     </div>
@@ -176,7 +176,7 @@ export function Dependencies() {
                     <div className="flex items-center gap-2 mb-1.5">
                       <span
                         className="text-[13px] font-medium cursor-pointer hover:underline"
-                        onClick={() => openModal({ type: 'editTask', taskId: t.id })}
+                        onClick={() => openSlideOver(t.id)}
                       >
                         {t.name}
                       </span>
