@@ -553,8 +553,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
   /* Bank */
   .bank-layout { grid-template-columns:1fr; }
   .bank-sidebar { position:static; max-height:none; }
-  .bank-stat-row { flex-wrap:wrap; }
-  .bank-stat { min-width:calc(50% - 6px); }
 
   /* Workload */
   .workload-grid { grid-template-columns:1fr; }
@@ -660,8 +658,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
   .form-group label { font-size:10px; }
   .form-input { font-size:12px; padding:7px 10px; }
 
-  .bank-stat { min-width:100%; }
-  .bank-stat-row { flex-direction:column; }
 
   /* Stack the new task button text */
   .btn-primary { font-size:12px; padding:6px 10px; }
@@ -710,10 +706,6 @@ textarea.form-input { resize:vertical; min-height:60px; }
 .bank-assign-panel h4 { font-size:13px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
 .bank-search { width:100%; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-family:'Heebo',sans-serif; font-size:13px; outline:none; margin-bottom:12px; }
 .bank-search:focus { border-color:var(--accent); }
-.bank-stat-row { display:flex; gap:12px; margin-bottom:16px; }
-.bank-stat { flex:1; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px; text-align:center; }
-.bank-stat .num { font-size:22px; font-weight:700; }
-.bank-stat .lbl { font-size:10px; color:var(--text2); margin-top:2px; }
 
 .export-panel {
   background:var(--surface); border:1px solid var(--border);
@@ -965,6 +957,34 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 .kr-progress { flex:1; }
 .kr-value { font-size:20px; font-weight:700; min-width:50px; text-align:center; }
 .okr-add-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+
+/* ===== PROJECTS ===== */
+.project-grid {
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:16px;
+}
+.project-card {
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--radius); padding:16px; cursor:pointer;
+  transition:border-color 0.15s, box-shadow 0.15s;
+  box-shadow:var(--shadow-sm); position:relative;
+}
+.project-card:hover { border-color:var(--accent); box-shadow:var(--shadow-md); }
+.project-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.project-card-title { font-size:14px; font-weight:600; display:flex; align-items:center; gap:6px; }
+.project-card-client { font-size:11px; color:var(--text2); margin-top:2px; }
+.project-card-stats { display:flex; gap:12px; font-size:11px; color:var(--text2); margin-top:10px; }
+.project-status-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:2px 8px; border-radius:12px; font-size:10px; font-weight:500; white-space:nowrap;
+}
+.project-tag {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:1px 7px; border-radius:4px; font-size:10px; font-weight:500; cursor:pointer;
+}
+.project-add-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+@media (max-width:768px) {
+  .project-grid { grid-template-columns:1fr; }
+}
 </style>
 
 <!-- Firebase SDKs (compat version for simple use) -->
@@ -1043,6 +1063,9 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
     </div>
     <div class="nav-item" onclick="switchView('pricing',this)">
       <span class="icon">💰</span> שעות ותמחור
+    </div>
+    <div class="nav-item" onclick="switchView('projects',this)">
+      <span class="icon">📂</span> פרויקטים
     </div>
     <div class="nav-item" onclick="switchView('clients',this)">
       <span class="icon">🏢</span> לקוחות
@@ -1316,6 +1339,17 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <div class="pricing-grid" id="pricingGrid"></div>
     </div>
 
+    <!-- PROJECTS -->
+    <div class="tab-content" id="view-projects">
+      <div class="project-add-bar">
+        <button class="btn btn-primary" onclick="openAddProject()">➕ פרויקט חדש</button>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;" id="projectFilterChips"></div>
+        <div class="global-stats-bar" id="projectStatsBar" style="margin-right:auto;"></div>
+      </div>
+      <div class="project-grid" id="projectGrid"></div>
+      <div id="projectDetailPanel" style="display:none;"></div>
+    </div>
+
     <!-- CLIENT DASHBOARD -->
     <div class="tab-content" id="view-clients">
       <div class="client-add-bar">
@@ -1340,8 +1374,10 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 
     <!-- TASK BANK -->
     <div class="tab-content" id="view-bank">
-      <div class="bank-stat-row" id="bankStats"></div>
-      <input class="bank-search" id="bankSearch" placeholder="🔍 חפש משימות בבנק..." oninput="renderBank()">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+        <div class="global-stats-bar" id="bankStats" style="margin-right:0;"></div>
+        <input class="bank-search" id="bankSearch" placeholder="🔍 חפש משימות בבנק..." oninput="renderBank()" style="flex:1;margin-bottom:0;">
+      </div>
       <div class="bank-layout">
         <div class="bank-main" id="bankMain"></div>
         <div class="bank-sidebar">
@@ -1520,8 +1556,18 @@ function deserializeTasks(data) {
     endDate: deserializeDate(t.endDate),
     subtasks: t.subtasks || [],
     tags: t.tags || [],
+    project: t.project || null,
     comments: (t.comments||[]).map(c => ({...c, time: deserializeDate(c.time)}))
   }));
+}
+
+function serializeProjects(projs) {
+  return projs.map(p => ({...p, startDate:serializeDate(p.startDate), deadline:serializeDate(p.deadline), createdAt:serializeDate(p.createdAt)}));
+}
+function deserializeProjects(data) {
+  if (!data) return null;
+  const arr = Array.isArray(data) ? data : Object.values(data);
+  return arr.map(p => ({...p, startDate:deserializeDate(p.startDate), deadline:deserializeDate(p.deadline), createdAt:deserializeDate(p.createdAt)}));
 }
 
 let _lastSaveTime = 0; // Timestamp of our last write — ignore echoes within 2s
@@ -1581,6 +1627,18 @@ function saveTasksNow() {
   saveToDB();
 }
 
+function saveProjectsToDB() {
+  if (!dbReady) return;
+  _lastProjectSaveTime = Date.now();
+  const data = projects.length > 0 ? serializeProjects(projects) : null;
+  db.ref('projects_v2').set(data).then(()=>console.log('✅ Projects saved')).catch(err=>console.error('❌ Projects save failed:',err));
+  db.ref('meta_v2/nextProjectId').set(nextProjectId);
+}
+function saveProjects() {
+  clearTimeout(_projectSaveTimer);
+  _projectSaveTimer = setTimeout(saveProjectsToDB, 400);
+}
+
 function initFirebaseSync() {
   console.log('🔄 Starting Firebase sync...');
   db.ref('tasks_v2').on('value', snap => {
@@ -1620,6 +1678,20 @@ function initFirebaseSync() {
     const val = snap.val();
     if (val && val > nextId) nextId = val;
   });
+  // Projects sync
+  db.ref('projects_v2').on('value', snap => {
+    if (Date.now() - _lastProjectSaveTime < 2000) return;
+    const data = snap.val();
+    if (data) {
+      const parsed = deserializeProjects(data);
+      if (parsed && parsed.length > 0) { projects = parsed; nextProjectId = projects.reduce((m,p)=>Math.max(m,p.id||0),0)+1; renderView(); return; }
+    }
+    projects = []; nextProjectId = 1;
+  });
+  db.ref('meta_v2/nextProjectId').on('value', snap => {
+    const val = snap.val();
+    if (val && val > nextProjectId) nextProjectId = val;
+  });
 }
 
 const TEAM = [
@@ -1658,6 +1730,17 @@ const today = new Date();
 
 let allTasks = []; // Populated from Firebase
 
+// ===== PROJECTS =====
+let projects = [];
+let nextProjectId = 1;
+let projectDetailOpen = null;
+let projectFilterStatus = 'all';
+let _lastProjectSaveTime = 0;
+let _projectSaveTimer = null;
+const PROJECT_COLORS = ['#4a6cf7','#36b37e','#e8598b','#f5a623','#4a9df8','#8777d9','#4ecdc4','#f7943e','#eb5757','#6c5ce7'];
+const PROJECT_EMOJIS = ['🎬','🎥','📹','🎨','🖼️','📱','💻','🌐','📦','🚀','✨','🎯'];
+const PROJECT_STATUS_MAP = {proposal:{label:'הצעה',color:'var(--yellow)'},active:{label:'פעיל',color:'var(--green)'},completed:{label:'הושלם',color:'var(--blue)'},'on-hold':{label:'בהמתנה',color:'var(--text2)'}};
+
 // Tag color palette
 const TAG_COLORS = ['#6c5ce7','#00b894','#fd79a8','#fdcb6e','#74b9ff','#e17055','#81ecec','#a29bfe','#55efc4','#fab1a0'];
 const TAG_PRESETS = ['דחוף','חשוב','לקוח','עיצוב','פיתוח','שיווק','תוכן','פיננסי','ישיבה','מעקב'];
@@ -1694,7 +1777,7 @@ function generateInitialNotifs() {
 
 let currentView = 'dashboard';
 let currentSort = { field:'deadline', asc:true };
-let activeFilters = { category:'all', assignee:'all', status:'all', priority:'all' };
+let activeFilters = { category:'all', assignee:'all', status:'all', priority:'all', project:'all' };
 let calendarDate = new Date(today);
 let calViewMode = 'month';
 
@@ -1707,7 +1790,7 @@ function switchView(view, el) {
   document.getElementById('view-'+view).classList.add('active');
   // Close sidebar on mobile after selecting a view
   if (window.innerWidth <= 1024) closeSidebar();
-  const titles = {dashboard:'📊 דשבורד',bank:'🏦 בנק משימות',tasks:'📋 משימות',gantt:'📅 תרשים גאנט',calendar:'🗓️ קלנדר',categories:'📁 לפי קטגוריה',workload:'⚖️ עומסים',weekview:'📆 שבוע נוכחי',kanban:'🔲 קנבאן',burndown:'📉 ברנדאון',activitylog:'📝 לוג פעילות',reports:'📊 דוחות',velocity:'🚀 מהירות',dependencies:'🔗 תלויות',timeline:'📌 ציר זמן אישי',pricing:'💰 שעות ותמחור',clients:'🏢 לקוחות',okr:'🎯 OKR'};
+  const titles = {dashboard:'📊 דשבורד',bank:'🏦 בנק משימות',tasks:'📋 משימות',gantt:'📅 תרשים גאנט',calendar:'🗓️ קלנדר',categories:'📁 לפי קטגוריה',workload:'⚖️ עומסים',weekview:'📆 שבוע נוכחי',kanban:'🔲 קנבאן',burndown:'📉 ברנדאון',activitylog:'📝 לוג פעילות',reports:'📊 דוחות',velocity:'🚀 מהירות',dependencies:'🔗 תלויות',timeline:'📌 ציר זמן אישי',pricing:'💰 שעות ותמחור',projects:'📂 פרויקטים',clients:'🏢 לקוחות',okr:'🎯 OKR'};
   document.getElementById('viewTitle').textContent = titles[view]||'';
   renderView();
 }
@@ -1748,6 +1831,7 @@ function renderView() {
     case 'dependencies': renderDependencies(); break;
     case 'timeline': renderTimeline(); break;
     case 'pricing': renderPricing(); break;
+    case 'projects': renderProjects(); break;
     case 'clients': renderClients(); break;
     case 'okr': renderOKR(); break;
     case 'admin': renderAdmin(); break;
@@ -1797,6 +1881,18 @@ function renderDashboard() {
       <span>${c.emoji}</span><span style="flex:1;">${c.name}</span><span style="color:var(--text2);width:40px;text-align:left;">${p}%</span>
       <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${p}%;background:${c.color};"></div></div></div>`;
   }).join('');
+  // Active projects in dashboard
+  const activeProjects=projects.filter(p=>p.status==='active');
+  if(activeProjects.length>0){
+    document.getElementById('recentActivity').innerHTML+=`
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:10px;">
+        <div style="font-size:12px;font-weight:600;margin-bottom:6px;">📂 פרויקטים פעילים (${activeProjects.length})</div>
+        ${activeProjects.map(p=>{const ts=getProjectTasks(p.id),d=ts.filter(t=>t.status==='done').length,pct=ts.length?Math.round(d/ts.length*100):0;
+          return `<div style="display:flex;align-items:center;gap:8px;padding:4px;font-size:12px;cursor:pointer;border-radius:4px;" onclick="switchView('projects',document.querySelector('.nav-item[onclick*=projects]'))" onmouseover="this.style.background='var(--surface3)'" onmouseout="this.style.background='transparent'">
+            <span>${p.emoji}</span><span style="flex:1;">${p.name}</span><span style="color:var(--text2);width:40px;text-align:left;">${pct}%</span>
+            <div class="progress-bar" style="width:80px;"><div class="progress-fill" style="width:${pct}%;background:${p.color};"></div></div></div>`;}).join('')}
+      </div>`;
+  }
 }
 
 // ===== TASK BANK =====
@@ -1811,10 +1907,14 @@ function renderBank() {
 
   // Stats
   document.getElementById('bankStats').innerHTML = `
-    <div class="bank-stat"><div class="num" style="color:var(--accent)">${bankTasks.length}</div><div class="lbl">בבנק</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--green)">${assignedTasks.length}</div><div class="lbl">שובצו</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--yellow)">${_vt.length}</div><div class="lbl">סה"כ</div></div>
-    <div class="bank-stat"><div class="num" style="color:var(--pink)">${assignedTasks.filter(t=>t.status==='done').length}</div><div class="lbl">הושלמו</div></div>
+    <div class="stat-pill accent" onclick="event.stopPropagation();toggleBankDropdown('bank',this)">
+      <span class="stat-val">${bankTasks.length}</span> 🏦 בבנק</div>
+    <div class="stat-pill green" onclick="event.stopPropagation();toggleBankDropdown('assigned',this)">
+      <span class="stat-val">${assignedTasks.length}</span> שובצו</div>
+    <div class="stat-pill yellow">
+      <span class="stat-val">${_vt.length}</span> סה"כ</div>
+    <div class="stat-pill green" onclick="event.stopPropagation();toggleBankDropdown('done',this)">
+      <span class="stat-val">${assignedTasks.filter(t=>t.status==='done').length}</span> ✅</div>
   `;
 
   // Group by category
@@ -1969,6 +2069,7 @@ function renderTasks() {
         <div>${t.name}${t.recurrence&&t.recurrence!=='none'?' <span class="recur-badge">🔁 '+getRecurrenceLabel(t.recurrence)+'</span>':''}</div>
         ${t.tags&&t.tags.length?'<div class="tags-wrap" style="margin-top:3px;">'+t.tags.map(tg=>'<span class="tag" style="background:'+getTagColor(tg)+'33;color:'+getTagColor(tg)+';">'+tg+'</span>').join('')+'</div>':''}
         ${t.subtasks&&t.subtasks.length?'<div style="font-size:10px;color:var(--text2);margin-top:2px;">📋 '+t.subtasks.filter(s=>s.done).length+'/'+t.subtasks.length+' תתי-משימות</div>':''}
+        ${(()=>{const proj=t.project?projects.find(pp=>pp.id===t.project):null;return proj?'<span class="project-tag" style="background:'+proj.color+'22;color:'+proj.color+';margin-top:3px;display:inline-block;">📂 '+proj.name+'</span>':'';})()}
       </td>
       <td><span class="category-tag" style="background:${c.color}22;color:${c.color};cursor:pointer;" onclick="event.stopPropagation();navigateToCategory('${c.id}')">${c.emoji} ${c.name}</span></td>
       <td>${m?`<div style="display:flex;align-items:center;gap:6px;"><div class="avatar avatar-${t.assignee}" style="width:22px;height:22px;font-size:10px;">${m.name[0]}</div>${m.name}</div>`:'<span style="color:var(--text2);font-size:12px;">🏦 בבנק</span>'}</td>
@@ -1999,6 +2100,12 @@ function renderFilters() {
   h+='<span style="margin-right:10px;font-size:12px;color:var(--text2);">|</span>';
   h+=`<div class="filter-chip ${activeFilters.assignee==='all'?'active':''}" onclick="setFilter('assignee','all')">כולם</div>`;
   TEAM.forEach(m=>{h+=`<div class="filter-chip ${activeFilters.assignee===m.id?'active':''}" onclick="setFilter('assignee','${m.id}')">${m.name}</div>`;});
+  if(projects.length>0){
+    h+='<span style="margin-right:10px;font-size:12px;color:var(--text2);">|</span>';
+    h+=`<div class="filter-chip ${activeFilters.project==='all'?'active':''}" onclick="setFilter('project','all')">כל הפרויקטים</div>`;
+    h+=`<div class="filter-chip ${activeFilters.project==='none'?'active':''}" onclick="setFilter('project','none')">ללא פרויקט</div>`;
+    projects.filter(p=>p.status!=='completed').forEach(p=>{h+=`<div class="filter-chip ${activeFilters.project==String(p.id)?'active':''}" onclick="setFilter('project','${p.id}')">${p.emoji} ${p.name}</div>`;});
+  }
   document.getElementById('filtersBar').innerHTML = h;
 }
 
@@ -2042,6 +2149,31 @@ function toggleStatDropdown(type, cardEl) {
   cardEl.appendChild(dd);
   openStatDropdown = dd;
 }
+function toggleBankDropdown(type, pillEl) {
+  const existing = pillEl.querySelector('.stat-dropdown');
+  if (existing) { existing.remove(); return; }
+  document.querySelectorAll('.stat-dropdown').forEach(d => d.remove());
+  const _vt = getVisibleTasks();
+  let tasks = [];
+  if (type === 'bank') tasks = _vt.filter(t => t.inBank);
+  else if (type === 'assigned') tasks = _vt.filter(t => !t.inBank && t.assignee);
+  else if (type === 'done') tasks = _vt.filter(t => !t.inBank && t.assignee && t.status === 'done');
+  if (!tasks.length) return;
+  const dd = document.createElement('div');
+  dd.className = 'stat-dropdown';
+  dd.innerHTML = tasks.slice(0, 20).map(t => {
+    const c = CATEGORIES.find(x => x.id === t.category);
+    const m = TEAM.find(x => x.id === t.assignee);
+    return `<div class="stat-dropdown-item" onclick="event.stopPropagation();openEditTask(${t.id})">
+      <span class="priority-dot priority-${t.priority}"></span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.name}</span>
+      ${c ? `<span style="font-size:10px;">${c.emoji}</span>` : ''}
+      ${m ? `<div class="avatar avatar-${m.id}" style="width:18px;height:18px;font-size:8px;">${m.name[0]}</div>` : '<span style="font-size:10px;">🏦</span>'}
+    </div>`;
+  }).join('') + (tasks.length > 20 ? `<div style="padding:6px 12px;font-size:11px;color:var(--text2);text-align:center;">+${tasks.length - 20} נוספות...</div>` : '');
+  dd.onclick = function(e) { e.stopPropagation(); };
+  pillEl.appendChild(dd);
+}
 document.addEventListener('click', function() {
   document.querySelectorAll('.stat-dropdown').forEach(d => d.remove());
   openStatDropdown = null;
@@ -2054,6 +2186,10 @@ function getFilteredTasks() {
   if(activeFilters.category!=='all') t=t.filter(x=>x.category===activeFilters.category);
   if(activeFilters.assignee!=='all') t=t.filter(x=>x.assignee===activeFilters.assignee);
   if(activeFilters.status!=='all') t=t.filter(x=>x.status===activeFilters.status);
+  if(activeFilters.project&&activeFilters.project!=='all'){
+    if(activeFilters.project==='none') t=t.filter(x=>!x.project);
+    else t=t.filter(x=>x.project==activeFilters.project);
+  }
   return t;
 }
 
@@ -2704,6 +2840,7 @@ function openAddTask(){
       <div class="form-group"><label>תאריך התחלה</label><input class="form-input" type="date" id="f-start" value="${fmtISO(today)}"></div>
       <div class="form-group"><label>דד-ליין</label><input class="form-input" type="date" id="f-end"></div>
     </div>
+    <div class="form-group"><label>📂 פרויקט (אופציונלי)</label><select class="form-input" id="f-project"><option value="">ללא פרויקט</option>${projects.filter(p=>p.status!=='completed').map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('')}</select></div>
     <div class="form-group"><label>יעד</label><input class="form-input" id="f-goal" placeholder="מה היעד של המשימה?"></div>
     <div class="form-group"><label>הערות</label><textarea class="form-input" id="f-notes" placeholder="פרטים נוספים..."></textarea></div>
     <div class="modal-actions">
@@ -2722,7 +2859,7 @@ function saveNewTask(){
     assignee:document.getElementById('f-assignee').value,priority:document.getElementById('f-priority').value,
     status:document.getElementById('f-status').value,goal:document.getElementById('f-goal').value,
     startDate:document.getElementById('f-start').value?new Date(document.getElementById('f-start').value):null,endDate:document.getElementById('f-end').value?new Date(document.getElementById('f-end').value):null,notes:document.getElementById('f-notes').value,
-    subtasks:[],tags:[],recurrence:'none',comments:[],inBank:!document.getElementById('f-assignee').value||!document.getElementById('f-start').value||!document.getElementById('f-end').value});
+    subtasks:[],tags:[],recurrence:'none',comments:[],project:document.getElementById('f-project')?.value?parseInt(document.getElementById('f-project').value):null,inBank:!document.getElementById('f-assignee').value||!document.getElementById('f-start').value||!document.getElementById('f-end').value});
   const newTaskId = nextId - 1;
   saveTasks();closeModal();renderView();toast('✅ משימה חדשה נוספה');
   queueGCalSync(newTaskId);
@@ -2759,6 +2896,7 @@ function openEditTask(id){
         <option value="monthly" ${t.recurrence==='monthly'?'selected':''}>חודשי</option>
       </select></div>
     </div>
+    <div class="form-group"><label>📂 פרויקט</label><select class="form-input" id="f-project"><option value="">ללא פרויקט</option>${projects.map(p=>`<option value="${p.id}" ${t.project===p.id?'selected':''}>${p.emoji} ${p.name}</option>`).join('')}</select></div>
     <div class="form-group"><label>🏷️ תגיות</label>
       <div class="tags-wrap" id="f-tags-wrap">${(t.tags||[]).map((tag,i) => `<span class="tag" style="background:${TAG_COLORS[TAG_PRESETS.indexOf(tag)%TAG_COLORS.length]}33;color:${TAG_COLORS[TAG_PRESETS.indexOf(tag)%TAG_COLORS.length]};">${tag}<button class="tag-remove" onclick="removeTagFromEdit(${t.id},'${tag}')">✕</button></span>`).join('')}</div>
       <div class="tag-input-wrap"><input id="f-tag-input" placeholder="הוסף תגית..." onkeydown="if(event.key==='Enter'){addTagToEdit(${t.id});event.preventDefault();}"><button class="btn btn-secondary btn-sm" onclick="addTagToEdit(${t.id})">+</button></div>
@@ -2800,6 +2938,7 @@ function saveEditTask(id){
   t.startDate=sv?new Date(sv):null;t.endDate=ev?new Date(ev):null;
   t.goal=document.getElementById('f-goal').value;t.notes=document.getElementById('f-notes').value;
   t.recurrence=document.getElementById('f-recurrence').value;
+  t.project=document.getElementById('f-project')?.value?parseInt(document.getElementById('f-project').value):null;
   // Update bank status based on assignment
   t.inBank = !t.assignee || !t.startDate || !t.endDate;
   if(t.status==='done' && t.recurrence && t.recurrence!=='none') generateRecurringTask(t);
@@ -3006,6 +3145,7 @@ function renderKanban() {
           <span style="width:8px;height:8px;border-radius:50%;background:${pColor};"></span>
         </div>
         <div style="font-size:13px;font-weight:500;margin-bottom:8px;">${t.name}</div>
+        ${(()=>{const proj=t.project?projects.find(pp=>pp.id===t.project):null;return proj?`<span class="project-tag" style="background:${proj.color}22;color:${proj.color};margin-bottom:6px;display:inline-block;">📂 ${proj.name}</span>`:'';})()}
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="avatar avatar-${t.assignee}" style="width:22px;height:22px;font-size:9px;" title="${m?m.name:''}">${m?m.name[0]:''}</div>
           <span style="font-size:10px;color:var(--text2);">${t.endDate?fmtDS(t.endDate):'—'}</span>
@@ -3991,6 +4131,214 @@ function renderClients() {
   });
 
   document.getElementById('clientGrid').innerHTML = html;
+}
+
+// ===== PROJECTS =====
+function getProjectTasks(pid) { return getVisibleTasks().filter(t=>t.project===pid); }
+function getProjectProgress(pid) { const ts=getProjectTasks(pid); if(!ts.length)return 0; return Math.round(ts.filter(t=>t.status==='done').length/ts.length*100); }
+
+function renderProjects() {
+  const active=projects.filter(p=>p.status==='active').length;
+  const onHold=projects.filter(p=>p.status==='on-hold').length;
+  const totalBudget=projects.reduce((s,p)=>s+(p.budget||0),0);
+  // Stats pills
+  document.getElementById('projectStatsBar').innerHTML = `
+    <div class="stat-pill accent"><span class="stat-val">${projects.length}</span> פרויקטים</div>
+    <div class="stat-pill green"><span class="stat-val">${active}</span> פעילים</div>
+    ${onHold?`<div class="stat-pill yellow"><span class="stat-val">${onHold}</span> בהמתנה</div>`:''}
+    ${totalBudget?`<div class="stat-pill" style="background:rgba(135,119,217,0.1);"><span class="stat-val" style="color:var(--purple);">₪${totalBudget.toLocaleString()}</span> תקציב</div>`:''}`;
+  // Filter chips
+  document.getElementById('projectFilterChips').innerHTML = [
+    {val:'all',lbl:'הכל'},{val:'active',lbl:'פעילים'},{val:'on-hold',lbl:'בהמתנה'},{val:'completed',lbl:'הושלמו'},{val:'proposal',lbl:'הצעות'}
+  ].map(f=>`<div class="filter-chip ${projectFilterStatus===f.val?'active':''}" onclick="projectFilterStatus='${f.val}';renderProjects();">${f.lbl}</div>`).join('');
+  // Cards
+  const filtered = projectFilterStatus==='all' ? projects : projects.filter(p=>p.status===projectFilterStatus);
+  let html='';
+  filtered.forEach(p=>{
+    const tasks=getProjectTasks(p.id), done=tasks.filter(t=>t.status==='done').length, pct=tasks.length?Math.round(done/tasks.length*100):0;
+    const cl=p.client?clients.find(c=>c.id===p.client):null;
+    const mgr=p.manager?TEAM.find(m=>m.id===p.manager):null;
+    const overdue=p.deadline&&p.deadline<today&&p.status!=='completed';
+    const st=PROJECT_STATUS_MAP[p.status]||{label:p.status,color:'var(--text2)'};
+    html+=`<div class="project-card" style="border-right:4px solid ${p.color};" onclick="toggleProjectDetail(${p.id})">
+      <div class="project-card-header">
+        <div><div class="project-card-title">${p.emoji} ${p.name}</div>
+          <div class="project-card-client">${cl?'🏢 '+cl.name:''}${mgr?' • 👤 '+mgr.name:''}</div></div>
+        <span class="project-status-badge" style="background:${st.color}22;color:${st.color};">${st.label}</span>
+      </div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;"><span>${done}/${tasks.length} משימות</span><span>${pct}%</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${p.color};"></div></div>
+      </div>
+      <div class="project-card-stats">
+        <span>📅 ${p.deadline?fmtD(p.deadline):'ללא דד-ליין'}${overdue?' ⚠️':''}</span>
+        ${p.budget?'<span>💰 ₪'+p.budget.toLocaleString()+'</span>':''}
+      </div>
+    </div>`;
+  });
+  document.getElementById('projectGrid').innerHTML = html||'<div style="text-align:center;padding:40px;color:var(--text2);">אין פרויקטים. לחץ "פרויקט חדש" להתחלה.</div>';
+  // Keep detail panel open if viewing a project
+  if(projectDetailOpen && filtered.some(p=>p.id===projectDetailOpen)) toggleProjectDetail(projectDetailOpen, true);
+  else { document.getElementById('projectDetailPanel').style.display='none'; projectDetailOpen=null; }
+}
+
+function toggleProjectDetail(id, forceOpen) {
+  const panel=document.getElementById('projectDetailPanel');
+  if(projectDetailOpen===id && !forceOpen) { panel.style.display='none'; projectDetailOpen=null; return; }
+  projectDetailOpen=id;
+  const p=projects.find(x=>x.id===id);
+  if(!p) return;
+  const tasks=getProjectTasks(p.id);
+  const cl=p.client?clients.find(c=>c.id===p.client):null;
+  let taskRows=tasks.map(t=>{
+    const m=TEAM.find(x=>x.id===t.assignee), cat=CATEGORIES.find(c=>c.id===t.category);
+    const od=t.endDate&&t.endDate<today&&t.status!=='done';
+    return `<tr onclick="openEditTask(${t.id})" style="cursor:pointer;">
+      <td><span class="priority-dot priority-${t.priority}"></span></td>
+      <td>${t.name}</td>
+      <td>${cat?cat.emoji+' '+cat.name:''}</td>
+      <td>${m?m.name:'🏦'}</td>
+      <td><select onchange="event.stopPropagation();updateStatus(${t.id},this.value)" style="background:transparent;border:none;color:inherit;font-family:'Heebo';font-size:12px;cursor:pointer;">
+        <option value="todo" ${t.status==='todo'?'selected':''}>📝 לביצוע</option>
+        <option value="progress" ${t.status==='progress'?'selected':''}>🔄 בתהליך</option>
+        <option value="review" ${t.status==='review'?'selected':''}>👀 בבדיקה</option>
+        <option value="done" ${t.status==='done'?'selected':''}>✅ הושלם</option>
+        <option value="blocked" ${t.status==='blocked'?'selected':''}>🚫 חסום</option>
+      </select></td>
+      <td style="${od?'color:var(--red);font-weight:600;':''}">${t.endDate?fmtD(t.endDate):'—'}${od?' ⚠️':''}</td></tr>`;
+  }).join('');
+  panel.style.display='block';
+  panel.innerHTML=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-top:16px;border-right:4px solid ${p.color};">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+      <h3 style="font-size:16px;">${p.emoji} ${p.name}</h3>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-primary btn-sm" onclick="openAddTaskForProject(${p.id})">➕ משימה חדשה</button>
+        <button class="btn btn-secondary btn-sm" onclick="openEditProject(${p.id})">✏️ עריכה</button>
+        <button class="btn btn-sm" style="background:var(--red-bg);color:var(--red);border:1px solid var(--red);" onclick="deleteProject(${p.id})">🗑️</button>
+      </div>
+    </div>
+    ${p.description?`<p style="font-size:13px;color:var(--text2);margin-bottom:12px;">${p.description}</p>`:''}
+    <div style="display:flex;gap:16px;font-size:12px;color:var(--text2);margin-bottom:14px;flex-wrap:wrap;">
+      ${cl?'<span>🏢 '+cl.name+'</span>':''}
+      ${p.startDate?'<span>📅 התחלה: '+fmtD(p.startDate)+'</span>':''}
+      ${p.deadline?'<span>🏁 דד-ליין: '+fmtD(p.deadline)+'</span>':''}
+      ${p.budget?'<span>💰 ₪'+p.budget.toLocaleString()+'</span>':''}
+    </div>
+    <h4 style="font-size:13px;margin-bottom:10px;">📋 משימות (${tasks.length})</h4>
+    ${tasks.length?`<div style="overflow-x:auto;"><table class="task-table"><thead><tr>
+      <th>עדיפות</th><th>משימה</th><th>קטגוריה</th><th>אחראי</th><th>סטטוס</th><th>דד-ליין</th>
+    </tr></thead><tbody>${taskRows}</tbody></table></div>`:'<div style="text-align:center;padding:20px;color:var(--text2);">אין משימות משויכות. לחץ "➕ משימה חדשה" להוספה.</div>'}
+  </div>`;
+}
+
+function openAddTaskForProject(projectId) {
+  openAddTask();
+  setTimeout(()=>{ const sel=document.getElementById('f-project'); if(sel) sel.value=String(projectId); },50);
+}
+
+function openAddProject() {
+  const clientOpts=clients.map(c=>`<option value="${c.id}">${c.name}</option>`).join('');
+  const teamOpts=TEAM.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  const colorPicker=PROJECT_COLORS.map(c=>`<span onclick="document.getElementById('f-proj-color').value='${c}';document.querySelectorAll('.pcolor-opt').forEach(x=>x.style.outline='none');this.style.outline='2px solid var(--text)'" class="pcolor-opt" style="display:inline-block;width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;"></span>`).join('');
+  const emojiPicker=PROJECT_EMOJIS.map(e=>`<span onclick="document.getElementById('f-proj-emoji').value='${e}';document.querySelectorAll('.pemoji-opt').forEach(x=>x.style.background='transparent');this.style.background='var(--surface3)'" class="pemoji-opt" style="cursor:pointer;padding:4px;border-radius:4px;font-size:18px;">${e}</span>`).join('');
+  openModal(`<h2>➕ פרויקט חדש</h2>
+    <div class="form-group"><label>שם הפרויקט</label><input class="form-input" id="f-proj-name" placeholder="למשל: סרטון תדמית לחברת ABC"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>🏢 לקוח</label><select class="form-input" id="f-proj-client"><option value="">ללא לקוח</option>${clientOpts}</select></div>
+      <div class="form-group"><label>👤 מנהל פרויקט</label><select class="form-input" id="f-proj-manager">${teamOpts}</select></div>
+    </div>
+    <div class="form-group"><label>אמוג'י</label><div style="display:flex;gap:4px;flex-wrap:wrap;">${emojiPicker}</div><input type="hidden" id="f-proj-emoji" value="🎬"></div>
+    <div class="form-group"><label>צבע</label><div style="display:flex;gap:6px;flex-wrap:wrap;">${colorPicker}</div><input type="hidden" id="f-proj-color" value="#4a6cf7"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>סטטוס</label><select class="form-input" id="f-proj-status"><option value="proposal">הצעה</option><option value="active" selected>פעיל</option><option value="on-hold">בהמתנה</option></select></div>
+      <div class="form-group"><label>💰 תקציב (₪)</label><input class="form-input" type="number" id="f-proj-budget" value="0"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>תאריך התחלה</label><input class="form-input" type="date" id="f-proj-start" value="${fmtISO(today)}"></div>
+      <div class="form-group"><label>דד-ליין</label><input class="form-input" type="date" id="f-proj-deadline"></div>
+    </div>
+    <div class="form-group"><label>תיאור</label><textarea class="form-input" id="f-proj-desc" rows="2" placeholder="תיאור קצר של הפרויקט..."></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveNewProject()">💾 שמור</button>
+      <button class="btn btn-secondary" onclick="closeModal()">ביטול</button>
+    </div>`);
+}
+
+function saveNewProject() {
+  const name=document.getElementById('f-proj-name').value.trim();
+  if(!name){toast('⚠️ הזן שם פרויקט');return;}
+  projects.push({
+    id:nextProjectId++, name,
+    client:document.getElementById('f-proj-client').value?parseInt(document.getElementById('f-proj-client').value):null,
+    emoji:document.getElementById('f-proj-emoji').value||'🎬',
+    color:document.getElementById('f-proj-color').value||'#4a6cf7',
+    status:document.getElementById('f-proj-status').value,
+    description:document.getElementById('f-proj-desc').value,
+    budget:parseInt(document.getElementById('f-proj-budget').value)||0,
+    startDate:document.getElementById('f-proj-start').value?new Date(document.getElementById('f-proj-start').value):null,
+    deadline:document.getElementById('f-proj-deadline').value?new Date(document.getElementById('f-proj-deadline').value):null,
+    createdAt:new Date(),
+    manager:document.getElementById('f-proj-manager').value||null
+  });
+  saveProjects(); closeModal(); renderView(); toast('✅ פרויקט נוצר בהצלחה');
+}
+
+function openEditProject(id) {
+  const p=projects.find(x=>x.id===id);
+  if(!p) return;
+  const clientOpts=clients.map(c=>`<option value="${c.id}" ${p.client===c.id?'selected':''}>${c.name}</option>`).join('');
+  const teamOpts=TEAM.map(m=>`<option value="${m.id}" ${p.manager===m.id?'selected':''}>${m.name}</option>`).join('');
+  const colorPicker=PROJECT_COLORS.map(c=>`<span onclick="document.getElementById('f-proj-color').value='${c}';document.querySelectorAll('.pcolor-opt').forEach(x=>x.style.outline='none');this.style.outline='2px solid var(--text)'" class="pcolor-opt" style="display:inline-block;width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;${p.color===c?'outline:2px solid var(--text);':''}"></span>`).join('');
+  const emojiPicker=PROJECT_EMOJIS.map(e=>`<span onclick="document.getElementById('f-proj-emoji').value='${e}';document.querySelectorAll('.pemoji-opt').forEach(x=>x.style.background='transparent');this.style.background='var(--surface3)'" class="pemoji-opt" style="cursor:pointer;padding:4px;border-radius:4px;font-size:18px;${p.emoji===e?'background:var(--surface3);':''}">${e}</span>`).join('');
+  openModal(`<h2>✏️ עריכת פרויקט</h2>
+    <div class="form-group"><label>שם הפרויקט</label><input class="form-input" id="f-proj-name" value="${p.name}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>🏢 לקוח</label><select class="form-input" id="f-proj-client"><option value="">ללא לקוח</option>${clientOpts}</select></div>
+      <div class="form-group"><label>👤 מנהל פרויקט</label><select class="form-input" id="f-proj-manager"><option value="">—</option>${teamOpts}</select></div>
+    </div>
+    <div class="form-group"><label>אמוג'י</label><div style="display:flex;gap:4px;flex-wrap:wrap;">${emojiPicker}</div><input type="hidden" id="f-proj-emoji" value="${p.emoji}"></div>
+    <div class="form-group"><label>צבע</label><div style="display:flex;gap:6px;flex-wrap:wrap;">${colorPicker}</div><input type="hidden" id="f-proj-color" value="${p.color}"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>סטטוס</label><select class="form-input" id="f-proj-status">
+        <option value="proposal" ${p.status==='proposal'?'selected':''}>הצעה</option>
+        <option value="active" ${p.status==='active'?'selected':''}>פעיל</option>
+        <option value="on-hold" ${p.status==='on-hold'?'selected':''}>בהמתנה</option>
+        <option value="completed" ${p.status==='completed'?'selected':''}>הושלם</option>
+      </select></div>
+      <div class="form-group"><label>💰 תקציב (₪)</label><input class="form-input" type="number" id="f-proj-budget" value="${p.budget||0}"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>תאריך התחלה</label><input class="form-input" type="date" id="f-proj-start" value="${p.startDate?fmtISO(p.startDate):''}"></div>
+      <div class="form-group"><label>דד-ליין</label><input class="form-input" type="date" id="f-proj-deadline" value="${p.deadline?fmtISO(p.deadline):''}"></div>
+    </div>
+    <div class="form-group"><label>תיאור</label><textarea class="form-input" id="f-proj-desc" rows="2">${p.description||''}</textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveEditProject(${p.id})">💾 שמור</button>
+      <button class="btn btn-secondary" onclick="closeModal()">ביטול</button>
+    </div>`);
+}
+
+function saveEditProject(id) {
+  const p=projects.find(x=>x.id===id);
+  if(!p)return;
+  p.name=document.getElementById('f-proj-name').value.trim();
+  p.client=document.getElementById('f-proj-client').value?parseInt(document.getElementById('f-proj-client').value):null;
+  p.emoji=document.getElementById('f-proj-emoji').value;
+  p.color=document.getElementById('f-proj-color').value;
+  p.status=document.getElementById('f-proj-status').value;
+  p.description=document.getElementById('f-proj-desc').value;
+  p.budget=parseInt(document.getElementById('f-proj-budget').value)||0;
+  p.startDate=document.getElementById('f-proj-start').value?new Date(document.getElementById('f-proj-start').value):null;
+  p.deadline=document.getElementById('f-proj-deadline').value?new Date(document.getElementById('f-proj-deadline').value):null;
+  p.manager=document.getElementById('f-proj-manager').value||null;
+  saveProjects(); closeModal(); renderView(); toast('✅ פרויקט עודכן');
+}
+
+function deleteProject(id) {
+  if(!confirm('למחוק את הפרויקט? המשימות המשויכות לא יימחקו.'))return;
+  projects=projects.filter(x=>x.id!==id);
+  allTasks.filter(t=>t.project===id).forEach(t=>{t.project=null;});
+  saveTasks(); saveProjects(); projectDetailOpen=null; closeModal(); renderView(); toast('🗑️ פרויקט נמחק');
 }
 
 // ===== OKR TRACKER =====
