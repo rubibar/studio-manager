@@ -1,4 +1,4 @@
-import { getScoreHeatClass, getScoreColor, getScoreBg } from '@/lib/scoring'
+import { getScoreColor, getScoreBg } from '@/lib/scoring'
 
 interface ScoreBadgeProps {
   score: number

@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect } from 'react'
 
 interface ToastItem {
   id: number

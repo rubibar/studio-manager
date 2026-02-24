@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useVisibleTasks } from '@/hooks/useFilters'
 import { subDays, addDays, isBefore, isAfter, format } from 'date-fns'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
+import { Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Area, AreaChart } from 'recharts'
 
 type BurndownRange = 'month' | 'quarter' | 'half'
 

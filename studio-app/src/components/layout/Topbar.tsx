@@ -1,4 +1,4 @@
-import { List, MagnifyingGlass, Moon, Sun, Eye, Bell, Plus } from '@phosphor-icons/react'
+import { List, MagnifyingGlass, Moon, Sun, Eye, Plus } from '@phosphor-icons/react'
 import { useUIStore } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useTaskStore } from '@/stores/taskStore'

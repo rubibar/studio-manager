@@ -16,8 +16,6 @@ export function Dashboard() {
   const done = tasks.filter(t => t.status === 'done')
   const overdue = active.filter(t => t.endDate && new Date(t.endDate) < new Date())
   const inReview = tasks.filter(t => t.status === 'review')
-  const hot = active.filter(t => getScore(t.id) >= 70)
-
   // Sort by score descending for the urgent list
   const urgentTasks = [...active]
     .sort((a, b) => getScore(b.id) - getScore(a.id))

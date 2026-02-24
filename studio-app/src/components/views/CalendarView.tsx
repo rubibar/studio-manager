@@ -7,12 +7,12 @@ import { ScoreBadge } from '@/components/shared/ScoreBadge'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { CATEGORIES, TEAM } from '@/lib/constants'
 import {
-  startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, addMonths, addWeeks,
-  subMonths, subWeeks, isSameDay, isSameMonth, format, getDay, getDaysInMonth, isWithinInterval,
+  startOfMonth, startOfWeek, endOfWeek, addDays, addMonths, addWeeks,
+  subMonths, isSameDay, isSameMonth, format, getDay, getDaysInMonth,
   addYears, subYears,
 } from 'date-fns'
 import { he } from 'date-fns/locale'
-import { CaretRight, CaretLeft, House, CalendarBlank } from '@phosphor-icons/react'
+import { CaretRight, CaretLeft, House } from '@phosphor-icons/react'
 import type { Task } from '@/types/task'
 
 const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
@@ -146,7 +146,7 @@ interface ViewProps {
   handleDrop: (date: Date, taskId: number) => void
 }
 
-function MonthView({ calendarDate, today, getTasksForDate, getScore, openModal, dragTaskId, setDragTaskId, handleDrop }: ViewProps) {
+function MonthView({ calendarDate, today, getTasksForDate, getScore: _getScore, openModal, dragTaskId, setDragTaskId, handleDrop }: ViewProps) {
   const year = calendarDate.getFullYear()
   const month = calendarDate.getMonth()
   const firstDay = startOfMonth(calendarDate)
@@ -280,7 +280,7 @@ function WeekViewCal({ calendarDate, today, getTasksForDate, getScore, openModal
 }
 
 /* ---- Day View ---- */
-function DayView({ calendarDate, today, getTasksForDate, getScore, openModal }: Omit<ViewProps, 'dragTaskId' | 'setDragTaskId' | 'handleDrop'>) {
+function DayView({ calendarDate, today: _today, getTasksForDate, getScore, openModal }: Omit<ViewProps, 'dragTaskId' | 'setDragTaskId' | 'handleDrop'>) {
   const dayTasks = getTasksForDate(calendarDate)
 
   return (

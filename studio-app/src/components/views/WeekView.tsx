@@ -4,8 +4,7 @@ import { useScoring } from '@/hooks/useScoring'
 import { useUIStore } from '@/stores/uiStore'
 import { ScoreBadge } from '@/components/shared/ScoreBadge'
 import { TEAM, CATEGORIES } from '@/lib/constants'
-import { startOfWeek, addDays, addWeeks, format, isSameDay, isWithinInterval } from 'date-fns'
-import { he } from 'date-fns/locale'
+import { startOfWeek, addDays, addWeeks, format, isSameDay } from 'date-fns'
 import { CaretRight, CaretLeft, House } from '@phosphor-icons/react'
 
 const DAY_NAMES = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי']

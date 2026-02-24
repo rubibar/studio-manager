@@ -7,7 +7,7 @@ import { ScoreBadge } from '@/components/shared/ScoreBadge'
 import { TypeBadge } from '@/components/shared/TypeBadge'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TEAM, CATEGORIES } from '@/lib/constants'
-import { Warehouse, UserPlus, MagnifyingGlass } from '@phosphor-icons/react'
+import { UserPlus, MagnifyingGlass } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export function Bank() {

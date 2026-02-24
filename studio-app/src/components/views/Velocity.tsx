@@ -8,7 +8,7 @@ export function Velocity() {
   const tasks = useVisibleTasks()
   const today = useMemo(() => new Date(), [])
 
-  const { weeks, avgVel, lastWeek, prevWeek, trend, weeksToFinish } = useMemo(() => {
+  const { weeks, avgVel, lastWeek, trend, weeksToFinish } = useMemo(() => {
     const w: { label: string; done: number; start: Date; end: Date }[] = []
     for (let i = 11; i >= 0; i--) {
       const wEnd = endOfWeek(subWeeks(today, i), { weekStartsOn: 0 })

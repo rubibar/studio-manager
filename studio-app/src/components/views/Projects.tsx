@@ -7,7 +7,7 @@ import { ScoreBadge } from '@/components/shared/ScoreBadge'
 import { TEAM, PROJECT_STATUS_MAP } from '@/lib/constants'
 import { formatDate } from '@/lib/formatters'
 import { EmptyState } from '@/components/shared/EmptyState'
-import { Plus, FolderOpen } from '@phosphor-icons/react'
+import { Plus } from '@phosphor-icons/react'
 import type { Task } from '@/types/task'
 
 type FilterStatus = 'all' | 'proposal' | 'active' | 'completed' | 'on-hold'
