@@ -120,7 +120,7 @@ export function TaskForm() {
     closeModal()
   }
 
-  const inputClass = "w-full text-[13px] bg-[var(--color-surface-2)] border border-[var(--color-border)] rounded-[var(--radius-sm)] px-3 py-2 outline-none focus:border-[var(--color-accent)] transition-colors"
+  const inputClass = "input-glass"
   const labelClass = "text-[12px] font-medium text-[var(--color-text-secondary)] mb-1 block"
 
   return (

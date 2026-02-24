@@ -141,7 +141,7 @@ body {
 .noise-overlay {
   position: fixed;
   inset: 0;
-  z-index: 50;
+  z-index: 1;
   pointer-events: none;
   opacity: 0.02;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -182,13 +182,14 @@ button:active:not(:disabled) {
 /* ── Smooth transitions ── */
 * {
   transition-timing-function: var(--ease-out);
+  transition-duration: 0.2s;
 }
 
 /* ── visionOS Glass panels ── */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(40px) saturate(1.8);
-  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.5);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
   border: 1px solid var(--glass-border);
 }
 .dark .glass-panel {
@@ -199,15 +200,16 @@ button:active:not(:disabled) {
 /* ── Glass card — reusable card component ── */
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(40px) saturate(1.8);
-  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  backdrop-filter: blur(40px) saturate(1.5);
+  -webkit-backdrop-filter: blur(40px) saturate(1.5);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-bento);
-  transition: box-shadow 0.3s var(--ease-out), transform 0.2s var(--ease-out);
+  transition: box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
 }
 .glass-card:hover {
   box-shadow: var(--shadow-bento-hover);
+  transform: translateY(-2px);
 }
 .dark .glass-card {
   background: var(--glass-bg-dark);
@@ -234,7 +236,7 @@ button:active:not(:disabled) {
 /* ── Breathing pulse ── */
 @keyframes breathe {
   0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.15); }
+  50% { opacity: 1; transform: scale(1.08); }
 }
 .breathe {
   animation: breathe 3s ease-in-out infinite;
@@ -282,6 +284,27 @@ button:active:not(:disabled) {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
+}
+
+/* ── Apple-like glass inputs ── */
+.input-glass {
+  width: 100%;
+  font-size: 13px;
+  background: color-mix(in srgb, var(--color-surface-2) 60%, transparent);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid color-mix(in srgb, var(--color-border) 50%, transparent);
+  border-radius: var(--radius-default);
+  padding: 0.625rem 0.875rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-glass:focus {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 10%, transparent);
+}
+.input-glass::placeholder {
+  color: var(--color-text-tertiary);
 }
 
 /* ── Reduced motion ── */

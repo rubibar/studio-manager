@@ -46,7 +46,7 @@ export function SlideOver({ open, onClose, title, children }: SlideOverProps) {
               {title && <h2 className="text-[16px] font-bold tracking-tight">{title}</h2>}
               <button
                 onClick={onClose}
-                className="p-2 rounded-[var(--radius-bento-sm)] hover:bg-[var(--color-surface-3)] transition-colors mr-auto"
+                className="p-2 rounded-[var(--radius-bento-sm)] hover:bg-[var(--color-surface-3)] transition-colors ml-auto"
               >
                 <X size={18} />
               </button>

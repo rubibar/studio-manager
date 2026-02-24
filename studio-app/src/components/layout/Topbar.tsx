@@ -1,25 +1,18 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { List, MagnifyingGlass, Moon, Sun, Eye, Plus, SignOut } from '@phosphor-icons/react'
+import { List, MagnifyingGlass, Eye, Plus } from '@phosphor-icons/react'
 import { useUIStore } from '@/stores/uiStore'
-import { useAuthStore } from '@/stores/authStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { useMagnetic } from '@/hooks/useMagnetic'
-import { AccentColorPicker } from '@/components/shared/AccentColorPicker'
-import { GradientPicker } from '@/components/shared/GradientPicker'
+import { SettingsPopover } from '@/components/shared/SettingsPopover'
 import { VIEW_TITLES } from '@/lib/constants'
 
 export function Topbar() {
   const activeView = useUIStore(s => s.activeView)
   const toggleSidebar = useUIStore(s => s.toggleSidebar)
-  const darkMode = useUIStore(s => s.darkMode)
-  const toggleDarkMode = useUIStore(s => s.toggleDarkMode)
   const openModal = useUIStore(s => s.openModal)
   const openCommandPalette = useUIStore(s => s.openCommandPalette)
   const toggleReviewSidebar = useUIStore(s => s.toggleReviewSidebar)
-  const user = useAuthStore(s => s.user)
-  const isAdmin = useAuthStore(s => s.isAdmin)
-  const logout = useAuthStore(s => s.logout)
   const tasks = useTaskStore(s => s.tasks)
 
   const reviewCount = tasks.filter(t => t.status === 'review').length
@@ -54,7 +47,7 @@ export function Topbar() {
       </button>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
         {/* New task — magnetic */}
         <motion.button
           ref={newTaskRef}
@@ -81,38 +74,8 @@ export function Topbar() {
           </motion.button>
         )}
 
-        {/* Accent color picker */}
-        <AccentColorPicker />
-
-        {/* Gradient picker */}
-        <GradientPicker />
-
-        {/* Dark mode */}
-        <button
-          onClick={toggleDarkMode}
-          className="p-1.5 rounded-[var(--radius-default)] hover:bg-[var(--color-surface-3)]/50 transition-colors"
-        >
-          {darkMode ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-
-        {/* User + logout */}
-        <div className="flex items-center gap-2 mr-2">
-          {isAdmin && (
-            <span className="text-[9px] bg-[var(--color-accent)] text-white px-1.5 py-0.5 rounded-full font-mono">
-              admin
-            </span>
-          )}
-          <span className="text-[12px] text-[var(--color-text-secondary)] hidden sm:inline truncate max-w-[100px]">
-            {user?.displayName || user?.email || ''}
-          </span>
-          <button
-            onClick={logout}
-            className="p-1.5 rounded-[var(--radius-default)] hover:bg-[var(--color-surface-3)]/50 transition-colors text-[var(--color-text-tertiary)]"
-            title="Sign Out"
-          >
-            <SignOut size={16} />
-          </button>
-        </div>
+        {/* Settings gear — contains dark mode, accent color, background, user/logout */}
+        <SettingsPopover />
       </div>
     </header>
   )
