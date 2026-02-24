@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm install --prefix studio-app",
-  "buildCommand": "npm run build --prefix studio-app",
-  "outputDirectory": "studio-app/dist",
-  "framework": null
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "framework": "vite"
 }
