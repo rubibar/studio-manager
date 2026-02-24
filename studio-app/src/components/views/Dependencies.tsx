@@ -69,7 +69,7 @@ export function Dependencies() {
   return (
     <div className="space-y-5">
       {/* Add dependency */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
+      <div className="glass-card p-4">
         <h3 className="text-[14px] font-bold mb-3">Add Dependency</h3>
         <div className="flex items-center gap-2 flex-wrap">
           <select
@@ -104,7 +104,7 @@ export function Dependencies() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Dependency list */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
+        <div className="glass-card p-4">
           <h3 className="text-[14px] font-bold mb-3">Dependencies ({deps.length})</h3>
           {deps.length === 0 ? (
             <EmptyState title="No dependencies" description="Add dependencies between tasks" />
@@ -153,7 +153,7 @@ export function Dependencies() {
         </div>
 
         {/* Blocked tasks */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
+        <div className="glass-card p-4">
           <h3 className="text-[14px] font-bold mb-3 flex items-center gap-2">
             <Warning size={16} className="text-[var(--color-red)]" />
             Blocked Tasks ({blockedTasks.length})

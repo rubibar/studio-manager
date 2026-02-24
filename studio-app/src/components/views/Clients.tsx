@@ -59,7 +59,7 @@ export function Clients() {
           {clientGroups.map(group => {
             const pct = group.totalTasks ? Math.round((group.doneTasks / group.totalTasks) * 100) : 0
             return (
-              <div key={group.name} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] overflow-hidden">
+              <div key={group.name} className="glass-card overflow-hidden">
                 {/* Client header */}
                 <div className="flex items-center gap-3 p-4 border-b border-[var(--color-border)]">
                   <div className="w-10 h-10 rounded-[10px] bg-[var(--color-surface-3)] flex items-center justify-center">
@@ -125,7 +125,7 @@ export function Clients() {
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
-    <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)] text-center">
+    <div className="glass-card p-4 text-center">
       <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">{label}</div>
       <div className="text-[20px] font-bold font-mono" style={{ color }}>{value}</div>
     </div>

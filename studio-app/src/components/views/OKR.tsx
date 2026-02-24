@@ -86,7 +86,7 @@ export function OKR() {
   return (
     <div className="space-y-5">
       {/* Add OKR */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4">
+      <div className="glass-card p-4">
         <div className="flex items-center gap-2">
           <Target size={16} className="text-[var(--color-accent)] shrink-0" />
           <input
@@ -127,7 +127,7 @@ export function OKR() {
         const progressColor = avgProgress >= 70 ? 'var(--color-accent)' : avgProgress >= 40 ? 'var(--color-yellow)' : 'var(--color-red)'
 
         return (
-          <div key={o.id} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+          <div key={o.id} className="glass-card p-5">
             {/* Objective header */}
             <div className="flex items-center gap-3 mb-3">
               {member && (

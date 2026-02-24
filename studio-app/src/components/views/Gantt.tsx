@@ -243,7 +243,7 @@ export function Gantt() {
       </div>
 
       {/* Gantt chart */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] overflow-hidden">
+      <div className="glass-card overflow-hidden">
         {/* Header */}
         <div className="flex border-b border-[var(--color-border)]">
           {/* Label column */}

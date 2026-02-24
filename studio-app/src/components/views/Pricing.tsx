@@ -54,7 +54,7 @@ export function Pricing() {
       </div>
 
       {/* Team breakdown */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <h3 className="text-[14px] font-bold mb-4">Hours & Pricing Summary</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-[12px]">
@@ -101,7 +101,7 @@ export function Pricing() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Category breakdown */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-4">By Category</h3>
           {catRows.length === 0 ? (
             <div className="text-center py-6 text-[12px] text-[var(--color-text-tertiary)]">No hours logged</div>
@@ -121,7 +121,7 @@ export function Pricing() {
         </div>
 
         {/* Top time-consuming tasks */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-4">Most Time-Consuming Tasks</h3>
           {topTasks.length === 0 ? (
             <div className="text-center py-6 text-[12px] text-[var(--color-text-tertiary)]">No hours logged yet</div>

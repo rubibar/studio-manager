@@ -59,10 +59,10 @@ export const CATEGORIES: CategorySub[] = [
 export const PROJECT_COLORS = ['#059669', '#2563eb', '#db2777', '#d97706', '#0891b2', '#7c3aed', '#ea580c', '#dc2626', '#4f46e5', '#0d9488']
 
 export const PROJECT_STATUS_MAP: Record<string, { label: string; color: string }> = {
-  proposal: { label: 'Proposal', color: '#C4841D' },
-  active: { label: 'Active', color: '#3A7D5C' },
-  completed: { label: 'Completed', color: '#2B5DAA' },
-  'on-hold': { label: 'On Hold', color: '#8A847B' },
+  proposal: { label: 'Proposal', color: '#FF9500' },
+  active: { label: 'Active', color: '#34C759' },
+  completed: { label: 'Completed', color: '#007AFF' },
+  'on-hold': { label: 'On Hold', color: '#8E8E93' },
 }
 
 export const TAG_COLORS = ['#6c5ce7', '#00b894', '#fd79a8', '#fdcb6e', '#74b9ff', '#e17055', '#81ecec', '#a29bfe', '#55efc4', '#fab1a0']

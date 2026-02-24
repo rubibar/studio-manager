@@ -88,7 +88,7 @@ export function Bank() {
               return (
                 <SpotlightCard
                   key={t.id}
-                  className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4 hover:border-[var(--color-accent)] transition-colors"
+                  className="glass-card p-4 hover:border-[var(--color-accent)] transition-colors"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div

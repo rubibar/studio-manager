@@ -48,10 +48,10 @@ export function ToastContainer() {
               px-4 py-2.5 rounded-[var(--radius-default)] shadow-md text-[13px] font-medium
               backdrop-blur-xl border border-white/10
               ${t.type === 'error'
-                ? 'bg-[rgba(230,59,46,0.85)] text-white'
+                ? 'bg-[rgba(255,59,48,0.9)] text-white'
                 : t.type === 'success'
-                  ? 'bg-[rgba(58,125,92,0.85)] text-white'
-                  : 'bg-[rgba(17,17,17,0.8)] text-[#E8E4DD]'
+                  ? 'bg-[rgba(52,199,89,0.9)] text-white'
+                  : 'bg-[rgba(28,28,30,0.85)] text-[#F5F5F7]'
               }
             `}
           >

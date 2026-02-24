@@ -79,7 +79,7 @@ export function Burndown() {
       </div>
 
       {/* Chart */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
@@ -124,7 +124,7 @@ export function Burndown() {
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
-    <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)] text-center">
+    <div className="glass-card p-4 text-center">
       <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">{label}</div>
       <div className="text-[22px] font-bold font-mono" style={{ color }}>{value}</div>
     </div>

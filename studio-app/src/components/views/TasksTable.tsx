@@ -38,7 +38,7 @@ export function TasksTable() {
     <div>
       <FilterBar />
 
-      <div className="overflow-x-auto rounded-[var(--radius-default)] border border-[var(--color-border)]">
+      <div className="overflow-x-auto glass-card">
         <table className="w-full text-[13px]">
           <thead>
             <tr className="bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] text-[11px] uppercase tracking-wider">

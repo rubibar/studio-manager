@@ -28,7 +28,7 @@ export function SlideOver({ open, onClose, title, children }: SlideOverProps) {
       {open && (
         <>
           <motion.div
-            className="fixed inset-0 z-[90] bg-[#111111]/40"
+            className="fixed inset-0 z-[90] bg-[#000000]/30 backdrop-blur-sm"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

@@ -83,7 +83,7 @@ export function Reports() {
       </div>
 
       {/* Summary */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <h3 className="text-[14px] font-bold mb-4">{periodLabels[period]} Summary</h3>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <StatCard label="Total" value={totalP} color="var(--color-text-primary)" />
@@ -96,7 +96,7 @@ export function Reports() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Team performance */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-4">Team Performance</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={teamData} layout="vertical" margin={{ left: 10, right: 10 }}>
@@ -112,7 +112,7 @@ export function Reports() {
         </div>
 
         {/* Type distribution */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-4">Distribution by Type</h3>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
@@ -145,7 +145,7 @@ export function Reports() {
         </div>
 
         {/* Category breakdown */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-4">By Category</h3>
           <div className="space-y-3">
             {catData.map(c => {
@@ -166,7 +166,7 @@ export function Reports() {
         </div>
 
         {/* Priority breakdown */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-4">By Priority</h3>
           <div className="space-y-4">
             {priorities.map(p => {
@@ -190,7 +190,7 @@ export function Reports() {
 
       {/* Overdue tasks */}
       {overdue > 0 && (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+        <div className="glass-card p-5">
           <h3 className="text-[14px] font-bold mb-3">Overdue Tasks</h3>
           <div className="space-y-2">
             {periodTasks

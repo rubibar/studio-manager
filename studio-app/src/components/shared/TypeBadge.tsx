@@ -2,9 +2,9 @@ import type { TaskType } from '@/types/task'
 import { TYPE_LABELS } from '@/lib/constants'
 
 const TYPE_COLORS: Record<TaskType, { color: string; bg: string }> = {
-  client: { color: '#2B5DAA', bg: 'rgba(43,93,170,0.08)' },
-  internal: { color: '#C4841D', bg: 'rgba(196,132,29,0.08)' },
-  admin: { color: '#8A847B', bg: 'rgba(138,132,123,0.08)' },
+  client: { color: '#007AFF', bg: 'rgba(0,122,255,0.10)' },
+  internal: { color: '#FF9500', bg: 'rgba(255,149,0,0.10)' },
+  admin: { color: '#8E8E93', bg: 'rgba(142,142,147,0.10)' },
 }
 
 interface TypeBadgeProps {

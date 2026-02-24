@@ -37,7 +37,7 @@ export function Categories() {
         })
 
         return (
-          <div key={cat.id} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] overflow-hidden">
+          <div key={cat.id} className="glass-card overflow-hidden">
             {/* Category header */}
             <button
               className="w-full flex items-center gap-3 p-4 hover:bg-[var(--color-surface-2)] transition-colors text-start"

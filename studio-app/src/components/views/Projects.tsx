@@ -110,7 +110,7 @@ export function Projects() {
             return (
               <div
                 key={p.id}
-                className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
+                className="glass-card p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
                 style={{ borderRight: `4px solid ${p.color}` }}
                 onClick={() => setDetailId(detailId === p.id ? null : p.id)}
               >
@@ -160,7 +160,7 @@ export function Projects() {
 
         return (
           <div
-            className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5"
+            className="glass-card p-5"
             style={{ borderRight: `4px solid ${p.color}` }}
           >
             <div className="flex items-center justify-between mb-4">

@@ -38,7 +38,7 @@ function KanbanCard({ task, score, onClick }: { task: Task; score: number; onCli
   return (
     <SpotlightCard
       ref={setNodeRef}
-      className="bg-[var(--color-surface)] border border-[var(--color-border)] p-3 cursor-grab active:cursor-grabbing hover:border-[var(--color-accent)] transition-colors"
+      className="glass-card p-3 cursor-grab active:cursor-grabbing hover:border-[var(--color-accent)] transition-colors"
       onClick={onClick}
     >
       <div

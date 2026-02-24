@@ -124,10 +124,22 @@ export function CommandPalette() {
         label: 'Change Background Theme',
         group: 'Actions',
         onSelect: () => {
-          const presets = ['none', 'warm-paper', 'sunset', 'ocean', 'aurora', 'signal']
+          const presets = ['none', 'clean', 'frost', 'dawn', 'ocean', 'mint']
           const current = useUIStore.getState().gradientPreset
           const nextIdx = (presets.indexOf(current) + 1) % presets.length
           useUIStore.getState().setGradientPreset(presets[nextIdx])
+          close()
+        },
+      },
+      {
+        id: 'action-accent',
+        label: 'Change Accent Color',
+        group: 'Actions',
+        onSelect: () => {
+          const colors = ['blue', 'red', 'purple', 'green', 'orange', 'pink'] as const
+          const current = useUIStore.getState().accentColor
+          const nextIdx = (colors.indexOf(current) + 1) % colors.length
+          useUIStore.getState().setAccentColor(colors[nextIdx])
           close()
         },
       },
@@ -176,7 +188,7 @@ export function CommandPalette() {
           transition={{ duration: 0.15 }}
           onClick={(e) => { if (e.target === e.currentTarget) close() }}
         >
-          <div className="absolute inset-0 bg-[#111111]/50 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-[#000000]/40 backdrop-blur-sm" />
 
           <motion.div
             className="relative w-full max-w-lg mx-4 glass-panel rounded-[var(--radius-bento)] shadow-2xl overflow-hidden"

@@ -9,6 +9,7 @@ export type ViewName =
   | 'timeline' | 'pricing' | 'projects' | 'clients' | 'okr' | 'admin'
 
 export type CalViewMode = 'month' | 'week' | 'day' | 'agenda'
+export type AccentColor = 'blue' | 'red' | 'purple' | 'green' | 'orange' | 'pink'
 
 interface ModalState {
   type: 'addTask' | 'editTask' | 'addProject' | 'editProject' | 'confirm' | null
@@ -31,6 +32,7 @@ interface UIState {
   commandPaletteOpen: boolean
   slideOverTaskId: number | null
   gradientPreset: string
+  accentColor: AccentColor
 
   setView: (view: ViewName) => void
   toggleSidebar: () => void
@@ -51,6 +53,7 @@ interface UIState {
   openSlideOver: (taskId: number) => void
   closeSlideOver: () => void
   setGradientPreset: (preset: string) => void
+  setAccentColor: (color: AccentColor) => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -66,7 +69,8 @@ export const useUIStore = create<UIState>((set) => ({
   searchQuery: '',
   commandPaletteOpen: false,
   slideOverTaskId: null,
-  gradientPreset: localStorage.getItem('gradientPreset') || 'warm-paper',
+  gradientPreset: localStorage.getItem('gradientPreset') || 'clean',
+  accentColor: (localStorage.getItem('accentColor') as AccentColor) || 'blue',
 
   setView: (view) => set({ activeView: view }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
@@ -96,5 +100,11 @@ export const useUIStore = create<UIState>((set) => ({
     set(() => {
       localStorage.setItem('gradientPreset', preset)
       return { gradientPreset: preset }
+    }),
+  setAccentColor: (color) =>
+    set(() => {
+      localStorage.setItem('accentColor', color)
+      document.documentElement.setAttribute('data-accent', color)
+      return { accentColor: color }
     }),
 }))

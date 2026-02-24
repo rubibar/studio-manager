@@ -40,7 +40,7 @@ export function Admin() {
   return (
     <div className="space-y-5">
       {/* Thursday meeting mode */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <Lock size={18} className="text-[var(--color-purple)]" />
           <h3 className="text-[14px] font-bold">Thursday Meeting Mode</h3>
@@ -72,7 +72,7 @@ export function Admin() {
       </div>
 
       {/* Team capacity */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <Users size={18} className="text-[var(--color-blue)]" />
           <h3 className="text-[14px] font-bold">Capacity Management</h3>
@@ -117,7 +117,7 @@ export function Admin() {
       </div>
 
       {/* User management */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <Shield size={18} className="text-[var(--color-accent)]" />
           <h3 className="text-[14px] font-bold">Users & Permissions</h3>
@@ -157,7 +157,7 @@ export function Admin() {
       </div>
 
       {/* Score distribution */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <ChartBar size={18} className="text-[var(--color-red)]" />
           <h3 className="text-[14px] font-bold">Criticality Score Distribution</h3>
@@ -184,7 +184,7 @@ export function Admin() {
       </div>
 
       {/* GCal section */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <div className="flex items-center gap-3 mb-4">
           <Calendar size={18} className="text-[var(--color-blue)]" />
           <h3 className="text-[14px] font-bold">Google Calendar Sync</h3>

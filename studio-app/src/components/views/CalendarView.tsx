@@ -284,7 +284,7 @@ function DayView({ calendarDate, today: _today, getTasksForDate, getScore, openS
   const dayTasks = getTasksForDate(calendarDate)
 
   return (
-    <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+    <div className="glass-card p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-[16px] font-bold">
           {format(calendarDate, 'EEEE, d MMMM yyyy', { locale: he })}
@@ -343,7 +343,7 @@ function YearView({ calendarDate, today, getTasksForDate, setCalendarDate, setCa
         const dim = getDaysInMonth(first)
 
         return (
-          <div key={month} className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-3">
+          <div key={month} className="glass-card p-3">
             <div
               className="text-[13px] font-bold mb-2 cursor-pointer hover:text-[var(--color-accent)] transition-colors"
               onClick={() => { setCalendarDate(new Date(year, month, 1)); setCalViewMode('month') }}

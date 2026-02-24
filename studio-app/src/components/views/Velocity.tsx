@@ -65,7 +65,7 @@ export function Velocity() {
       </div>
 
       {/* Chart */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <h3 className="text-[14px] font-bold mb-4">Weekly Velocity (12 weeks)</h3>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={weeks} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
@@ -86,7 +86,7 @@ export function Velocity() {
       </div>
 
       {/* Team velocity */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <h3 className="text-[14px] font-bold mb-4">Team Velocity</h3>
         <div className="space-y-5">
           {teamVelocity.map(m => (
@@ -122,7 +122,7 @@ export function Velocity() {
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (
-    <div className="bg-[var(--color-surface-2)] rounded-[12px] p-4 border border-[var(--color-border)] text-center">
+    <div className="glass-card p-4 text-center">
       <div className="text-[11px] text-[var(--color-text-tertiary)] mb-1">{label}</div>
       <div className="text-[22px] font-bold font-mono" style={{ color }}>{value}</div>
     </div>

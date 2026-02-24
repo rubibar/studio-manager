@@ -22,7 +22,7 @@ export function ReviewSidebar() {
       {/* Overlay */}
       {open && (
         <div
-          className="fixed inset-0 bg-black/30 z-40"
+          className="fixed inset-0 bg-black/25 backdrop-blur-sm z-40"
           onClick={toggleReviewSidebar}
         />
       )}
@@ -30,7 +30,7 @@ export function ReviewSidebar() {
       {/* Panel */}
       <div
         className={`
-          fixed top-0 left-0 h-full w-80 glass-panel border-r border-[var(--glass-border)]
+          fixed top-0 left-0 h-full w-80 glass-panel border-l border-[var(--glass-border)]
           z-50 transition-transform duration-300 overflow-y-auto
           ${open ? 'translate-x-0' : '-translate-x-full'}
         `}

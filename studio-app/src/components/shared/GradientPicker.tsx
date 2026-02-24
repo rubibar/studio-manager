@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Palette, Check } from '@phosphor-icons/react'
+import { Drop, Check } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useUIStore } from '@/stores/uiStore'
 import { GRADIENT_PRESETS } from '@/lib/gradientPresets'
@@ -24,10 +24,10 @@ export function GradientPicker() {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(o => !o)}
-        className="p-1.5 rounded-[var(--radius-bento-sm)] hover:bg-[var(--color-surface-3)]/50 transition-colors"
+        className="p-1.5 rounded-[var(--radius-default)] hover:bg-[var(--color-surface-3)]/50 transition-colors"
         title="Background Theme"
       >
-        <Palette size={18} />
+        <Drop size={18} />
       </button>
 
       <AnimatePresence>

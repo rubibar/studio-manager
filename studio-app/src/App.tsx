@@ -47,6 +47,12 @@ function AppContent() {
     document.documentElement.classList.toggle('dark', darkMode)
   }, [darkMode])
 
+  // Initialize accent color attribute on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('accentColor') || 'blue'
+    document.documentElement.setAttribute('data-accent', saved)
+  }, [])
+
   function renderView() {
     switch (activeView) {
       case 'dashboard': return <Dashboard />
@@ -78,10 +84,10 @@ function AppContent() {
       <AnimatePresence mode="wait">
         <motion.div
           key={activeView}
-          initial={{ opacity: 0, y: 12, scale: 0.99 }}
+          initial={{ opacity: 0, y: 12, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -8, scale: 0.99 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          exit={{ opacity: 0, y: -8, scale: 0.98 }}
+          transition={{ type: 'spring', damping: 22, stiffness: 300 }}
         >
           <Suspense fallback={<ViewLoader />}>
             {renderView()}
@@ -121,9 +127,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-[#111111]">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-[#000000]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-[1.25rem] bg-[#E63B2E] flex items-center justify-center breathe">
+          <div className="w-12 h-12 rounded-[1.25rem] bg-[var(--color-accent)] flex items-center justify-center breathe">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
               <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
               <circle cx="12" cy="13" r="4" />

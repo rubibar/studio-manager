@@ -106,7 +106,7 @@ export function Timeline() {
                 return (
                   <div
                     key={t.id}
-                    className="relative mr-4 mb-2 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
+                    className="relative mr-4 mb-2 glass-card p-4 cursor-pointer hover:border-[var(--color-accent)] transition-colors"
                     style={isOverdue ? { borderColor: 'var(--color-red)' } : undefined}
                     onClick={() => openSlideOver(t.id)}
                   >

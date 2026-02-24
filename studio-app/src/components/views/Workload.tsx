@@ -49,7 +49,7 @@ export function Workload() {
         {teamStats.map(m => (
           <div
             key={m.id}
-            className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5"
+            className="glass-card p-5"
           >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-white text-[15px] font-bold" style={{ background: m.color }}>
@@ -112,7 +112,7 @@ export function Workload() {
       </div>
 
       {/* Heatmap */}
-      <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] p-5">
+      <div className="glass-card p-5">
         <h3 className="text-[14px] font-bold mb-4">Heatmap - 13 weeks</h3>
 
         {/* Week labels */}

@@ -129,7 +129,7 @@ export function ActivityLog() {
       {grouped.length === 0 ? (
         <EmptyState title="No activity" description="No activity of the selected type" />
       ) : (
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[12px] overflow-hidden">
+        <div className="glass-card overflow-hidden">
           {grouped.map(group => (
             <div key={group.date}>
               <div className="px-4 py-2 bg-[var(--color-surface-2)] text-[11px] font-bold text-[var(--color-text-tertiary)] border-b border-[var(--color-border)]">

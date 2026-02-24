@@ -18,9 +18,15 @@ export function AppShell({ children }: AppShellProps) {
   const closeSlideOver = useUIStore(s => s.closeSlideOver)
   const gradientPreset = useUIStore(s => s.gradientPreset)
   const darkMode = useUIStore(s => s.darkMode)
+  const accentColor = useUIStore(s => s.accentColor)
 
   const preset = getPresetById(gradientPreset)
   const bgGradient = darkMode ? preset.dark : preset.light
+
+  // Initialize accent color on mount
+  useEffect(() => {
+    document.documentElement.setAttribute('data-accent', accentColor)
+  }, [accentColor])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
