@@ -985,6 +985,96 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 @media (max-width:768px) {
   .project-grid { grid-template-columns:1fr; }
 }
+
+/* ===== CRITICALITY SYSTEM ===== */
+.score-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:30px; height:20px; border-radius:10px;
+  font-size:10px; font-weight:700; color:#fff; padding:0 6px;
+}
+.score-hot { background:linear-gradient(135deg,#ff6b6b,#ee5a24); }
+.score-warm { background:linear-gradient(135deg,#f9ca24,#f0932b); }
+.score-cold { background:linear-gradient(135deg,#74b9ff,#a4b0be); }
+.score-bar { width:48px; height:5px; border-radius:3px; background:var(--surface3); overflow:hidden; display:inline-block; vertical-align:middle; margin-right:6px; }
+.score-bar-fill { height:100%; border-radius:3px; transition:width 0.5s ease; }
+
+.spotlight-card {
+  background:linear-gradient(135deg,#ff6b6b 0%,#ee5a24 100%);
+  border-radius:12px; padding:20px 24px; margin-bottom:16px;
+  color:#fff; box-shadow:0 4px 20px rgba(238,90,36,0.3);
+  display:flex; align-items:center; gap:16px;
+  animation:spotlightPulse 3s ease-in-out infinite;
+}
+.spotlight-card.warm { background:linear-gradient(135deg,#f9ca24 0%,#f0932b 100%); box-shadow:0 4px 20px rgba(240,147,43,0.3); }
+.spotlight-score { font-size:36px; font-weight:800; min-width:60px; text-align:center; text-shadow:0 2px 8px rgba(0,0,0,0.2); }
+.spotlight-info { flex:1; }
+.spotlight-name { font-size:16px; font-weight:700; margin-bottom:4px; }
+.spotlight-meta { font-size:12px; opacity:0.85; }
+@keyframes spotlightPulse { 0%,100%{box-shadow:0 4px 20px rgba(238,90,36,0.3);} 50%{box-shadow:0 4px 30px rgba(238,90,36,0.5);} }
+
+.emergency-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:2px 8px; border-radius:8px; font-size:10px; font-weight:600;
+  background:var(--red); color:#fff; animation:emergencyPulse 1.5s infinite;
+}
+@keyframes emergencyPulse { 0%,100%{opacity:1;} 50%{opacity:0.7;} }
+
+.frozen-badge {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:2px 8px; border-radius:8px; font-size:10px;
+  background:#b2bec322; color:var(--text2);
+}
+
+.review-sidebar {
+  position:fixed; top:0; left:0; width:320px; height:100vh;
+  background:var(--surface); border-right:1px solid var(--border);
+  z-index:90; transform:translateX(-100%); transition:transform 0.3s ease;
+  overflow-y:auto; box-shadow:4px 0 20px rgba(0,0,0,0.1);
+  display:flex; flex-direction:column;
+}
+.review-sidebar.open { transform:translateX(0); }
+.review-sidebar-header {
+  padding:16px; border-bottom:1px solid var(--border);
+  background:var(--yellow-bg); display:flex; justify-content:space-between; align-items:center; flex-shrink:0;
+}
+.review-sidebar-header h3 { font-size:14px; font-weight:600; margin:0; }
+.review-list { flex:1; overflow-y:auto; }
+.review-item {
+  padding:12px 16px; border-bottom:1px solid var(--border);
+  cursor:pointer; transition:background 0.15s;
+}
+.review-item:hover { background:var(--surface2); }
+.review-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.2); z-index:89; }
+.review-overlay.open { display:block; }
+
+.capacity-toggle {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 10px; border-radius:14px; font-size:10px;
+  cursor:pointer; border:1px solid var(--border); transition:all 0.15s;
+  background:var(--surface); color:var(--text2); margin-right:auto;
+}
+.capacity-toggle:hover { border-color:var(--accent); }
+.capacity-toggle.active { background:var(--red-bg); border-color:var(--red); color:var(--red); font-weight:600; }
+
+.task-table tbody tr { transition:transform 0.3s ease-in-out, opacity 0.3s ease-in-out, background 0.2s; }
+.task-table tr.heat-hot td:first-child { border-right:3px solid var(--red); }
+.task-table tr.heat-warm td:first-child { border-right:3px solid var(--yellow); }
+.task-table tr.heat-cold td:first-child { border-right:3px solid var(--blue); }
+
+.type-badge { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:500; }
+.type-client { background:#2b8ed822; color:#2b8ed8; }
+.type-internal { background:#8777d922; color:#8777d9; }
+.type-admin { background:#6b778c22; color:#6b778c; }
+
+.meeting-mode-bar {
+  background:var(--yellow-bg); border:1px solid var(--yellow); border-radius:var(--radius);
+  padding:8px 16px; margin-bottom:12px; display:flex; align-items:center; gap:10px; font-size:12px;
+}
+@media (max-width:768px) {
+  .review-sidebar { width:100vw; }
+  .spotlight-card { flex-direction:column; text-align:center; padding:16px; }
+  .spotlight-score { font-size:28px; }
+}
 </style>
 
 <!-- Firebase SDKs (compat version for simple use) -->
@@ -1081,9 +1171,9 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
   </div>
   <div class="team-section">
     <h3>צוות</h3>
-    <div class="team-member"><div class="avatar avatar-rubi">ר</div> רובי - מייסד</div>
-    <div class="team-member"><div class="avatar avatar-gilad">ג</div> גלעד - מייסד</div>
-    <div class="team-member"><div class="avatar avatar-dana">ד</div> דנה - מעצבת</div>
+    <div class="team-member"><div class="avatar avatar-rubi">ר</div> רובי - מייסד <span class="capacity-toggle" id="cap-rubi" onclick="toggleCapacity('rubi')">⚡ עומס</span></div>
+    <div class="team-member"><div class="avatar avatar-gilad">ג</div> גלעד - מייסד <span class="capacity-toggle" id="cap-gilad" onclick="toggleCapacity('gilad')">⚡ עומס</span></div>
+    <div class="team-member"><div class="avatar avatar-dana">ד</div> דנה - מעצבת <span class="capacity-toggle" id="cap-dana" onclick="toggleCapacity('dana')">⚡ עומס</span></div>
   </div>
   <div class="theme-toggle" onclick="toggleTheme()">
     <span>🌙</span>
@@ -1105,6 +1195,7 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
       <button class="btn btn-primary" onclick="openAddTask()">+ משימה חדשה</button>
       <button class="btn btn-google" onclick="exportAllToGCal()">📅 ייצוא ל-Google Calendar</button>
       <button class="btn btn-secondary" onclick="exportICS()">⬇️ ICS</button>
+      <div class="notif-bell" onclick="toggleReviewSidebar()" id="reviewBell" title="בדיקות ממתינות" style="cursor:pointer;">👀<span class="notif-badge" id="reviewBadge" style="display:none;">0</span></div>
       <div class="notif-bell" onclick="toggleNotifPanel()" id="notifBell">🔔<span class="notif-badge" id="notifBadge" style="display:none;">0</span></div>
       <div id="userInfo" style="display:flex;align-items:center;gap:8px;margin-right:8px;"></div>
     </div>
@@ -1126,11 +1217,13 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
   <div class="content">
     <!-- DASHBOARD -->
     <div class="tab-content active" id="view-dashboard">
+      <div id="meetingModeBar" style="display:none;"></div>
+      <div id="spotlightCard"></div>
       <div class="widget-toggle" id="widgetToggle"></div>
       <div class="kpi-grid" id="kpiGrid"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
-          <h3 style="font-size:14px;margin-bottom:14px;">📌 משימות דחופות</h3>
+          <h3 style="font-size:14px;margin-bottom:14px;">🔥 משימות קריטיות</h3>
           <div id="urgentTasks"></div>
         </div>
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;">
@@ -1157,9 +1250,9 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
           <thead>
             <tr>
               <th style="width:36px"><input type="checkbox" id="selectAllTasks" onchange="batchToggleAll(this.checked)" title="בחר הכל"></th>
-              <th onclick="sortTasks('priority')" style="width:50px">עדיפות</th>
+              <th onclick="sortTasks('score')" style="width:50px">ציון</th>
               <th onclick="sortTasks('name')">משימה</th>
-              <th onclick="sortTasks('category')">קטגוריה</th>
+              <th onclick="sortTasks('category')">סוג</th>
               <th onclick="sortTasks('assignee')">אחראי</th>
               <th onclick="sortTasks('status')">סטטוס</th>
               <th onclick="sortTasks('deadline')">דד-ליין</th>
@@ -1419,6 +1512,10 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 
     <div class="tab-content" id="view-admin">
       <div class="admin-panel" style="background:var(--surface);border-radius:12px;padding:20px;margin-bottom:16px;">
+        <h3 style="font-size:16px;margin-bottom:16px;">📊 הגדרות קריטיות וציונים</h3>
+        <div id="adminCriticalitySection"></div>
+      </div>
+      <div class="admin-panel" style="background:var(--surface);border-radius:12px;padding:20px;margin-bottom:16px;">
         <h3 style="font-size:16px;margin-bottom:16px;">⚙️ ניהול הרשאות ותפקידים</h3>
         <div id="adminUserList"></div>
       </div>
@@ -1432,6 +1529,16 @@ body.light .gantt-day-header.weekend, body.light .gantt-day-cell.weekend { backg
 
 <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
   <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- REVIEW SIDEBAR -->
+<div class="review-overlay" id="reviewOverlay" onclick="toggleReviewSidebar()"></div>
+<div class="review-sidebar" id="reviewSidebar">
+  <div class="review-sidebar-header">
+    <h3>👀 בדיקות ממתינות</h3>
+    <button style="background:none;border:none;color:var(--text);cursor:pointer;font-size:18px;padding:4px;" onclick="toggleReviewSidebar()">✕</button>
+  </div>
+  <div class="review-list" id="reviewList"></div>
 </div>
 
 <script>
@@ -1544,6 +1651,7 @@ function serializeTasks(tasks) {
     ...t,
     startDate: serializeDate(t.startDate),
     endDate: serializeDate(t.endDate),
+    createdAt: serializeDate(t.createdAt),
     comments: (t.comments||[]).map(c => ({...c, time: serializeDate(c.time)}))
   }));
 }
@@ -1557,7 +1665,15 @@ function deserializeTasks(data) {
     subtasks: t.subtasks || [],
     tags: t.tags || [],
     project: t.project || null,
-    comments: (t.comments||[]).map(c => ({...c, time: deserializeDate(c.time)}))
+    comments: (t.comments||[]).map(c => ({...c, time: deserializeDate(c.time)})),
+    // Criticality system fields (with migration)
+    type: t.type || 'admin',
+    eisenhower: t.eisenhower || migrateEisenhower(t.priority),
+    reviewer: t.reviewer || null,
+    emergency: t.emergency || false,
+    isFrozen: t.isFrozen || false,
+    createdAt: deserializeDate(t.createdAt) || deserializeDate(t.startDate) || new Date(),
+    priority: t.priority || derivePriorityFromEisenhower(t.eisenhower || 'neither')
   }));
 }
 
@@ -1692,6 +1808,17 @@ function initFirebaseSync() {
     const val = snap.val();
     if (val && val > nextProjectId) nextProjectId = val;
   });
+  // Criticality settings sync
+  db.ref('settings/criticality').on('value', snap => {
+    const data = snap.val();
+    if (data) {
+      if (typeof data.thursdayMeetingMode === 'boolean') thursdayMeetingMode = data.thursdayMeetingMode;
+      if (data.teamCapacity) {
+        TEAM.forEach(m => { if (typeof data.teamCapacity[m.id] === 'boolean') teamCapacity[m.id] = data.teamCapacity[m.id]; });
+      }
+      updateCapacityUI();
+    }
+  });
 }
 
 const TEAM = [
@@ -1722,6 +1849,148 @@ const CATEGORIES = [
   { id:'networking', emoji:'🌐', name:'נטוורקינג', color:'#f7943e',
     subs:['Outreach','פגישות','סדנאות','אירועים','הרצאות'] }
 ];
+
+// ===== CRITICALITY SCORING ENGINE =====
+const WORK_START = 10;
+const WORK_END = 18;
+
+const TYPE_WEIGHTS = { client: 30, internal: 15, admin: 5 };
+const EISENHOWER_WEIGHTS = { 'urgent-important': 40, 'important': 25, 'urgent': 15, 'neither': 5 };
+
+const TYPE_LABELS = { client:'לקוח', internal:'פנימי/R&D', admin:'אדמין/סטודיו' };
+const EISENHOWER_LABELS = { 'urgent-important':'דחוף + חשוב', 'important':'חשוב / לא דחוף', 'urgent':'דחוף / לא חשוב', 'neither':'לא דחוף ולא חשוב' };
+
+function isWorkingDay(d) { const dow = d.getDay(); return dow >= 0 && dow <= 4; }
+function isWorkingHour(d) { return isWorkingDay(d) && d.getHours() >= WORK_START && d.getHours() < WORK_END; }
+function isWeekendFrozen(d) {
+  const dow = d.getDay();
+  if (dow === 5 || dow === 6) return true;
+  if (dow === 4 && d.getHours() >= WORK_END) return true;
+  if (dow === 0 && d.getHours() < WORK_START) return true;
+  return false;
+}
+function isSundayRDHolyTime(d) { return d.getDay() === 0 && d.getHours() >= 10 && d.getHours() < 13; }
+
+function countWorkingHoursBetween(from, to) {
+  if (!from || !to || to <= from) return 0;
+  let hours = 0;
+  const cursor = new Date(from);
+  cursor.setMinutes(0, 0, 0);
+  if (cursor < from) cursor.setHours(cursor.getHours() + 1);
+  while (cursor < to && hours < 2000) {
+    if (isWorkingDay(cursor) && cursor.getHours() >= WORK_START && cursor.getHours() < WORK_END) hours++;
+    cursor.setHours(cursor.getHours() + 1);
+  }
+  return hours;
+}
+
+function getWorkingHoursToDeadline(task, now) {
+  if (!task.endDate) return Infinity;
+  const deadline = new Date(task.endDate);
+  deadline.setHours(WORK_END, 0, 0, 0);
+  return countWorkingHoursBetween(now, deadline);
+}
+
+function computeTaskRawScore(task, now) {
+  if (task.isFrozen) return task._lastScore || 0;
+  if (task.status === 'done') return 0;
+  const n = now || new Date();
+  const Wbase = TYPE_WEIGHTS[task.type] || 5;
+  const Wuser = EISENHOWER_WEIGHTS[task.eisenhower] || 5;
+  let aging = 0;
+  if (task.status === 'todo' && task.createdAt) {
+    aging = Math.floor(countWorkingHoursBetween(task.createdAt, n) / 24) * 2;
+  }
+  let U = 1.0;
+  if (task.endDate && !isWeekendFrozen(n)) {
+    const hrsLeft = getWorkingHoursToDeadline(task, n);
+    if (hrsLeft < 8) U = 2.5;
+    else if (hrsLeft < 16) U = 2.0;
+    else if (hrsLeft < 40) U = 1.5;
+  }
+  let rawScore = (Wbase + Wuser + aging) * U;
+  if (task.status === 'review') rawScore += 50;
+  if (task.emergency) rawScore += 100;
+  if (isSundayRDHolyTime(n) && task.type === 'internal') rawScore += 100;
+  // Capacity: de-prioritize low-weight tasks for overloaded users
+  if (teamCapacity[task.assignee] && Wbase <= 5 && Wuser <= 15) rawScore *= 0.6;
+  return rawScore;
+}
+
+function computeAllScores(tasks, now) {
+  const n = now || new Date();
+  const scored = tasks.filter(t => t.status !== 'done').map(t => ({ id: t.id, raw: computeTaskRawScore(t, n) }));
+  const maxRS = scored.reduce((mx, s) => Math.max(mx, s.raw), 1);
+  const scoreMap = {};
+  scored.forEach(s => { scoreMap[s.id] = Math.min(100, Math.round((s.raw / maxRS) * 100)); });
+  tasks.filter(t => t.status === 'done').forEach(t => { scoreMap[t.id] = 0; });
+  return scoreMap;
+}
+
+let _scoreCache = {};
+let _scoreCacheTime = 0;
+function refreshScoreCache() {
+  _scoreCache = computeAllScores(allTasks, new Date());
+  _scoreCacheTime = Date.now();
+}
+
+let thursdayMeetingMode = false;
+let frozenScoreCache = {};
+function toggleThursdayMeeting(enabled) {
+  thursdayMeetingMode = enabled;
+  if (enabled) {
+    refreshScoreCache();
+    frozenScoreCache = { ..._scoreCache };
+    toast('🔒 מצב ישיבת יום חמישי - ציונים הוקפאו');
+  } else {
+    frozenScoreCache = {};
+    toast('🔓 מצב ישיבה בוטל - ציונים חיים');
+  }
+  if (typeof db !== 'undefined' && db) db.ref('settings/criticality/thursdayMeetingMode').set(enabled);
+  renderView();
+}
+
+function getDisplayScore(task) {
+  if (thursdayMeetingMode && frozenScoreCache[task.id] !== undefined) return frozenScoreCache[task.id];
+  if (Date.now() - _scoreCacheTime > 5000) refreshScoreCache();
+  return _scoreCache[task.id] || 0;
+}
+
+function getScoreHeatClass(score) {
+  if (score >= 70) return 'score-hot';
+  if (score >= 40) return 'score-warm';
+  return 'score-cold';
+}
+function getScoreColor(score) {
+  if (score >= 70) return 'var(--red)';
+  if (score >= 40) return 'var(--yellow)';
+  return 'var(--blue)';
+}
+function getScoreBg(score) {
+  if (score >= 70) return '#eb575722';
+  if (score >= 40) return '#f5a62322';
+  return '#4a9df822';
+}
+
+let teamCapacity = { rubi: false, gilad: false, dana: false };
+function toggleCapacity(memberId) {
+  teamCapacity[memberId] = !teamCapacity[memberId];
+  if (typeof db !== 'undefined' && db) db.ref('settings/criticality/teamCapacity/' + memberId).set(teamCapacity[memberId]);
+  renderView();
+  toast(teamCapacity[memberId] ? '⚠️ ' + (TEAM.find(m=>m.id===memberId)?.name||'') + ' - עומס מלא' : '✅ ' + (TEAM.find(m=>m.id===memberId)?.name||'') + ' - חזר/ה לזמינות');
+}
+function isAtCapacity(memberId) { return teamCapacity[memberId] === true; }
+
+function derivePriorityFromEisenhower(eis) {
+  if (eis === 'urgent-important') return 'high';
+  if (eis === 'important' || eis === 'urgent') return 'medium';
+  return 'low';
+}
+function migrateEisenhower(oldPriority) {
+  const map = { high: 'urgent-important', medium: 'important', low: 'neither' };
+  return map[oldPriority] || 'neither';
+}
+// ===== END CRITICALITY ENGINE =====
 
 let nextId = 1;
 const today = new Date();
@@ -1777,7 +2046,7 @@ function generateInitialNotifs() {
 
 let currentView = 'dashboard';
 let currentSort = { field:'deadline', asc:true };
-let activeFilters = { category:'all', assignee:'all', status:'all', priority:'all', project:'all' };
+let activeFilters = { category:'all', assignee:'all', status:'all', priority:'all', project:'all', type:'all' };
 let calendarDate = new Date(today);
 let calViewMode = 'month';
 
@@ -1801,6 +2070,9 @@ function renderGlobalStats() {
     prog=_vt.filter(t=>t.status==='progress').length,
     review=_vt.filter(t=>t.status==='review').length,
     overdue=_vt.filter(t=>t.endDate&&t.endDate<today&&t.status!=='done').length;
+  const active=_vt.filter(t=>t.status!=='done');
+  const hot=active.filter(t=>getDisplayScore(t)>=70).length;
+  const warm=active.filter(t=>{const s=getDisplayScore(t);return s>=40&&s<70;}).length;
   document.getElementById('globalStatsBar').innerHTML = `
     <div class="stat-pill accent" onclick="event.stopPropagation();toggleStatDropdown('total',this)">
       <span class="stat-val">${total}</span> סה"כ</div>
@@ -1809,11 +2081,17 @@ function renderGlobalStats() {
     <div class="stat-pill yellow" onclick="event.stopPropagation();toggleStatDropdown('progress',this)">
       <span class="stat-val">${prog+review}</span> 🔄</div>
     ${overdue ? `<div class="stat-pill red" onclick="event.stopPropagation();toggleStatDropdown('overdue',this)">
-      <span class="stat-val">${overdue}</span> ⚠️</div>` : ''}`;
+      <span class="stat-val">${overdue}</span> ⚠️</div>` : ''}
+    ${hot ? `<div class="stat-pill red"><span class="stat-val">${hot}</span> 🔥</div>` : ''}
+    ${warm ? `<div class="stat-pill yellow"><span class="stat-val">${warm}</span> 🌡️</div>` : ''}
+    ${review ? `<div class="stat-pill" style="background:var(--purple)11;" onclick="toggleReviewSidebar()"><span class="stat-val" style="color:var(--purple);">${review}</span> 👀</div>` : ''}`;
 }
 
 function renderView() {
+  refreshScoreCache();
   renderGlobalStats();
+  renderReviewBadge();
+  updateCapacityUI();
   switch(currentView) {
     case 'dashboard': renderDashboard(); break;
     case 'bank': renderBank(); break;
@@ -1836,6 +2114,47 @@ function renderView() {
     case 'okr': renderOKR(); break;
     case 'admin': renderAdmin(); break;
   }
+}
+
+// ===== REVIEW SIDEBAR =====
+function toggleReviewSidebar(){
+  document.getElementById('reviewSidebar').classList.toggle('open');
+  document.getElementById('reviewOverlay').classList.toggle('open');
+  renderReviewSidebar();
+}
+function renderReviewSidebar(){
+  const reviewTasks=allTasks.filter(t=>t.status==='review').sort((a,b)=>getDisplayScore(b)-getDisplayScore(a));
+  document.getElementById('reviewList').innerHTML=reviewTasks.length
+    ? reviewTasks.map(t=>{
+        const m=TEAM.find(x=>x.id===t.assignee);
+        const rv=TEAM.find(x=>x.id===t.reviewer);
+        const sc=getDisplayScore(t);
+        return `<div class="review-item" onclick="openEditTask(${t.id});toggleReviewSidebar();">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-weight:500;font-size:13px;">${t.name}</span>
+            <span class="score-badge ${getScoreHeatClass(sc)}">${sc}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text2);display:flex;gap:12px;">
+            <span>👤 ${m?.name||'—'}</span><span>👀 ${rv?.name||'לא שויך'}</span>
+          </div>
+          <div style="margin-top:6px;display:flex;gap:6px;">
+            <button class="btn btn-sm btn-primary" onclick="event.stopPropagation();updateStatus(${t.id},'done')">✅ אשר</button>
+            <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();updateStatus(${t.id},'progress')">↩️ החזר</button>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="text-align:center;padding:40px;color:var(--text2);font-size:13px;">אין משימות ממתינות לבדיקה</div>';
+}
+function renderReviewBadge(){
+  const count=allTasks.filter(t=>t.status==='review').length;
+  const badge=document.getElementById('reviewBadge');
+  if(badge){badge.textContent=count;badge.style.display=count>0?'':'none';}
+}
+function updateCapacityUI(){
+  TEAM.forEach(m=>{
+    const el=document.getElementById('cap-'+m.id);
+    if(el){el.classList.toggle('active',teamCapacity[m.id]===true);}
+  });
 }
 
 // ===== DASHBOARD =====
@@ -1865,14 +2184,39 @@ function renderDashboard() {
   urgentParent.style.display = dashWidgets.urgent ? '' : 'none';
   catParent.style.display = dashWidgets.categories ? '' : 'none';
 
-  const urgent=_vt.filter(t=>t.priority==='high'&&t.status!=='done').sort((a,b)=>(a.endDate||new Date(9999,0))-(b.endDate||new Date(9999,0))).slice(0,6);
+  // Spotlight card - highest scoring task
+  const scoredTasks = _vt.filter(t=>t.status!=='done').map(t=>({...t,_score:getDisplayScore(t)})).sort((a,b)=>b._score-a._score);
+  const spotlight = document.getElementById('spotlightCard');
+  if (scoredTasks.length>0 && scoredTasks[0]._score>=40) {
+    const top=scoredTasks[0]; const m=TEAM.find(x=>x.id===top.assignee);
+    spotlight.innerHTML=`<div class="spotlight-card${top._score<70?' warm':''}">
+      <div class="spotlight-score">${top._score}</div>
+      <div class="spotlight-info">
+        <div class="spotlight-name">${top.emergency?'<span class="emergency-badge">🚨 חירום</span> ':''}${top.name}</div>
+        <div class="spotlight-meta">${m?m.name:'🏦'} | ${top.endDate?fmtD(top.endDate):'ללא דד-ליין'} | ${TYPE_LABELS[top.type]||''} | ${EISENHOWER_LABELS[top.eisenhower]||''}</div>
+      </div>
+      <button style="background:rgba(255,255,255,0.2);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;" onclick="openEditTask(${top.id})">פתח</button>
+    </div>`;
+    spotlight.style.display='';
+  } else { spotlight.style.display='none'; }
+
+  // Thursday meeting mode bar
+  const mmBar=document.getElementById('meetingModeBar');
+  if(thursdayMeetingMode){
+    mmBar.style.display='';
+    mmBar.innerHTML=`<div class="meeting-mode-bar">🔒 <strong>מצב ישיבת יום חמישי</strong> - ציונים מוקפאים <button class="btn btn-sm btn-secondary" onclick="toggleThursdayMeeting(false)" style="margin-right:auto;">בטל הקפאה</button></div>`;
+  } else { mmBar.style.display='none'; }
+
+  // Score-sorted critical tasks (top 6)
+  const urgent = scoredTasks.slice(0,6);
   document.getElementById('urgentTasks').innerHTML = urgent.map(t=>{
     const m=TEAM.find(x=>x.id===t.assignee);
-    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;">
-      <span class="priority-dot priority-${t.priority}"></span><span style="flex:1;">${t.name}</span>
+    return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;cursor:pointer;" onclick="openEditTask(${t.id})">
+      <span class="score-badge ${getScoreHeatClass(t._score)}">${t._score}</span><span style="flex:1;">${t.name}</span>
+      <span class="type-badge type-${t.type||'admin'}" style="font-size:9px;">${TYPE_LABELS[t.type]||'אדמין'}</span>
       ${m?`<div class="avatar avatar-${t.assignee}" style="width:20px;height:20px;font-size:9px;">${m.name[0]}</div>`:'<span style="font-size:10px;color:var(--text2);">🏦</span>'}
-      <span style="color:var(--text2);">${t.endDate?fmtD(t.endDate):'בנק'}</span></div>`;
-  }).join('');
+      <span style="color:var(--text2);font-size:11px;">${t.endDate?fmtD(t.endDate):''}</span></div>`;
+  }).join('')||'<div style="text-align:center;padding:20px;color:var(--text2);font-size:12px;">אין משימות פעילות</div>';
 
   document.getElementById('recentActivity').innerHTML = CATEGORIES.map(c=>{
     const ct=_vt.filter(t=>t.category===c.id), cd=ct.filter(t=>t.status==='done').length;
@@ -1938,14 +2282,16 @@ function renderBank() {
       </div>
       <div class="bank-cards">`;
     groups[catId].forEach(t => {
-      const prioColors = {high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'};
-      const prioLabels = {high:'גבוהה',medium:'בינונית',low:'נמוכה'};
+      const sc=getDisplayScore(t);
       html += `<div class="bank-card" draggable="true"
         ondragstart="bankDragStart(event,${t.id})"
         ondragend="bankDragEnd(event)">
-        <div class="bank-card-title">${t.name}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="bank-card-title" style="flex:1;">${t.name}</div>
+          <span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:9px;min-width:24px;height:16px;">${sc}</span>
+        </div>
         <div class="bank-card-meta">
-          <span style="color:${prioColors[t.priority]||'var(--text2)'}">● ${prioLabels[t.priority]||t.priority}</span>
+          <span class="type-badge type-${t.type||'admin'}" style="font-size:9px;">${TYPE_LABELS[t.type]||'אדמין'}</span>
           <span>${t.sub}</span>
           <span>🎯 ${t.goal}</span>
         </div>
@@ -2062,16 +2408,18 @@ function renderTasks() {
     const c=CATEGORIES.find(x=>x.id===t.category), m=TEAM.find(x=>x.id===t.assignee);
     const od=t.endDate&&t.endDate<today&&t.status!=='done';
     const checked = selectedTaskIds.has(t.id) ? 'checked' : '';
-    return `<tr style="${checked?'background:rgba(74,108,247,0.06);':''}">
+    const sc=getDisplayScore(t);
+    const heatCls=t.status==='done'?'':`heat-${getScoreHeatClass(sc).replace('score-','')}`;
+    return `<tr class="${heatCls}" style="${checked?'background:rgba(74,108,247,0.06);':''}">
       <td><input type="checkbox" ${checked} onchange="batchToggleTask(${t.id}, this.checked)"></td>
-      <td><span class="priority-dot priority-${t.priority}"></span></td>
+      <td><span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:9px;min-width:26px;height:18px;">${sc}</span></td>
       <td class="task-name-cell" onclick="openEditTask(${t.id})">
-        <div>${t.name}${t.recurrence&&t.recurrence!=='none'?' <span class="recur-badge">🔁 '+getRecurrenceLabel(t.recurrence)+'</span>':''}</div>
+        <div>${t.emergency?'<span class="emergency-badge" style="font-size:9px;padding:1px 5px;">🚨</span> ':''}${t.name}${t.recurrence&&t.recurrence!=='none'?' <span class="recur-badge">🔁 '+getRecurrenceLabel(t.recurrence)+'</span>':''}</div>
         ${t.tags&&t.tags.length?'<div class="tags-wrap" style="margin-top:3px;">'+t.tags.map(tg=>'<span class="tag" style="background:'+getTagColor(tg)+'33;color:'+getTagColor(tg)+';">'+tg+'</span>').join('')+'</div>':''}
         ${t.subtasks&&t.subtasks.length?'<div style="font-size:10px;color:var(--text2);margin-top:2px;">📋 '+t.subtasks.filter(s=>s.done).length+'/'+t.subtasks.length+' תתי-משימות</div>':''}
         ${(()=>{const proj=t.project?projects.find(pp=>pp.id===t.project):null;return proj?'<span class="project-tag" style="background:'+proj.color+'22;color:'+proj.color+';margin-top:3px;display:inline-block;">📂 '+proj.name+'</span>':'';})()}
       </td>
-      <td><span class="category-tag" style="background:${c.color}22;color:${c.color};cursor:pointer;" onclick="event.stopPropagation();navigateToCategory('${c.id}')">${c.emoji} ${c.name}</span></td>
+      <td><span class="type-badge type-${t.type||'admin'}">${TYPE_LABELS[t.type]||'אדמין'}</span></td>
       <td>${m?`<div style="display:flex;align-items:center;gap:6px;"><div class="avatar avatar-${t.assignee}" style="width:22px;height:22px;font-size:10px;">${m.name[0]}</div>${m.name}</div>`:'<span style="color:var(--text2);font-size:12px;">🏦 בבנק</span>'}</td>
       <td><select onchange="updateStatus(${t.id},this.value)" style="background:transparent;border:none;color:inherit;font-family:'Heebo';font-size:12px;cursor:pointer;outline:none;">
         <option value="todo" ${t.status==='todo'?'selected':''}>📝 לביצוע</option>
@@ -2106,6 +2454,11 @@ function renderFilters() {
     h+=`<div class="filter-chip ${activeFilters.project==='none'?'active':''}" onclick="setFilter('project','none')">ללא פרויקט</div>`;
     projects.filter(p=>p.status!=='completed').forEach(p=>{h+=`<div class="filter-chip ${activeFilters.project==String(p.id)?'active':''}" onclick="setFilter('project','${p.id}')">${p.emoji} ${p.name}</div>`;});
   }
+  h+='<span style="margin-right:10px;font-size:12px;color:var(--text2);">|</span>';
+  h+=`<div class="filter-chip ${activeFilters.type==='all'?'active':''}" onclick="setFilter('type','all')">כל הסוגים</div>`;
+  h+=`<div class="filter-chip ${activeFilters.type==='client'?'active':''}" onclick="setFilter('type','client')">👥 לקוח</div>`;
+  h+=`<div class="filter-chip ${activeFilters.type==='internal'?'active':''}" onclick="setFilter('type','internal')">🔬 פנימי</div>`;
+  h+=`<div class="filter-chip ${activeFilters.type==='admin'?'active':''}" onclick="setFilter('type','admin')">🏢 אדמין</div>`;
   document.getElementById('filtersBar').innerHTML = h;
 }
 
@@ -2138,7 +2491,7 @@ function toggleStatDropdown(type, cardEl) {
     const m = TEAM.find(x => x.id === t.assignee);
     const od = t.endDate && t.endDate < today && t.status !== 'done';
     return `<div class="stat-dropdown-item" onclick="event.stopPropagation();openEditTask(${t.id})">
-      <span class="priority-dot priority-${t.priority}"></span>
+      <span class="score-badge ${getScoreHeatClass(getDisplayScore(t))}" style="font-size:9px;min-width:22px;height:16px;">${getDisplayScore(t)}</span>
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.name}</span>
       ${c ? `<span style="font-size:10px;">${c.emoji}</span>` : ''}
       ${m ? `<div class="avatar avatar-${m.id}" style="width:18px;height:18px;font-size:8px;">${m.name[0]}</div>` : ''}
@@ -2165,7 +2518,7 @@ function toggleBankDropdown(type, pillEl) {
     const c = CATEGORIES.find(x => x.id === t.category);
     const m = TEAM.find(x => x.id === t.assignee);
     return `<div class="stat-dropdown-item" onclick="event.stopPropagation();openEditTask(${t.id})">
-      <span class="priority-dot priority-${t.priority}"></span>
+      <span class="score-badge ${getScoreHeatClass(getDisplayScore(t))}" style="font-size:9px;min-width:22px;height:16px;">${getDisplayScore(t)}</span>
       <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.name}</span>
       ${c ? `<span style="font-size:10px;">${c.emoji}</span>` : ''}
       ${m ? `<div class="avatar avatar-${m.id}" style="width:18px;height:18px;font-size:8px;">${m.name[0]}</div>` : '<span style="font-size:10px;">🏦</span>'}
@@ -2190,6 +2543,7 @@ function getFilteredTasks() {
     if(activeFilters.project==='none') t=t.filter(x=>!x.project);
     else t=t.filter(x=>x.project==activeFilters.project);
   }
+  if(activeFilters.type&&activeFilters.type!=='all') t=t.filter(x=>x.type===activeFilters.type);
   return t;
 }
 
@@ -2197,15 +2551,22 @@ function sortTasks(f) { if(currentSort.field===f) currentSort.asc=!currentSort.a
 function sortTaskList(tasks) {
   const f=currentSort.field, d=currentSort.asc?1:-1;
   return tasks.sort((a,b)=>{
+    if(f==='score') return (getDisplayScore(b)-getDisplayScore(a))*d;
     if(f==='deadline') return ((a.endDate||new Date(9999,0))-(b.endDate||new Date(9999,0)))*d;
-    if(f==='priority'){const p={high:0,medium:1,low:2};return (p[a.priority]-p[b.priority])*d;}
+    if(f==='priority') return (getDisplayScore(b)-getDisplayScore(a))*d;
     return (a[f]||'').localeCompare(b[f]||'','he')*d;
   });
 }
-function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();
+function updateStatus(id,s){const t=allTasks.find(x=>x.id===id);if(t){
+  // Review Loop: when marking "done" and a reviewer is set, redirect to "review"
+  if(s==='done' && t.reviewer && t.status!=='review'){
+    s='review';
+    toast('👀 משימה נשלחה לבדיקה אצל '+(TEAM.find(m=>m.id===t.reviewer)?.name||''));
+  }
+  t.status=s;if(s==='done'){if(t.recurrence&&t.recurrence!=='none')generateRecurringTask(t);showConfetti();
   // Remove from GCal when done
   if(gcalAccessToken&&t.gcalEventId){fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${t.gcalEventId}`,{method:'DELETE',headers:{'Authorization':`Bearer ${gcalAccessToken}`}}).then(r=>{if(r.ok)toast('📅 נמחק מהיומן');}).catch(()=>{});}
-}logActivity('status',s==='done'?'✅':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();if(s!=='done')queueGCalSync(id);}}
+}refreshScoreCache();logActivity('status',s==='done'?'✅':s==='review'?'👀':'🔄',`<strong>${TEAM.find(m=>m.id===t.assignee)?.name||''}</strong> שינה/תה סטטוס ל${getStatusLabel(s)}: "${t.name}"`);saveTasks();renderView();if(s!=='done')queueGCalSync(id);}}
 function filterTasks(){renderView();}
 
 // ===== BATCH OPERATIONS =====
@@ -2515,12 +2876,12 @@ function renderCalendarDay() {
     dayTasks.forEach(t=>{
       const cat=CATEGORIES.find(c=>c.id===t.category);
       const member=TEAM.find(m=>m.id===t.assignee);
-      const pColor={high:'#e74c3c',medium:'#f39c12',low:'#27ae60'}[t.priority]||'var(--text2)';
-      html+=`<div class="day-task-item" style="border-right-color:${pColor};"
+      const sc=getDisplayScore(t);
+      html+=`<div class="day-task-item" style="border-right-color:${getScoreColor(sc)};"
         draggable="true" ondragstart="calDragStart(event,${t.id})" ondragend="calDragEnd(event)"
         onclick="openEditTask(${t.id})">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <strong style="font-size:13px;">${t.name}</strong>
+          <strong style="font-size:13px;display:flex;align-items:center;gap:6px;"><span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:9px;min-width:24px;height:16px;">${sc}</span>${t.name}</strong>
           <span class="status-badge status-${t.status}">${getStatusLabel(t.status)}</span>
         </div>
         <div style="display:flex;gap:12px;font-size:11px;color:var(--text2);">
@@ -2567,12 +2928,12 @@ function renderCalendarWeek() {
 
     dayTasks.forEach(t=>{
       const cat=CATEGORIES.find(c=>c.id===t.category);
-      const pColor={high:'#e74c3c',medium:'#f39c12',low:'#27ae60'}[t.priority]||'var(--text2)';
+      const sc=getDisplayScore(t);
       html+=`<div class="cal-event" draggable="true" data-task-id="${t.id}"
-        style="background:${cat.color}22;color:${cat.color};border-right:3px solid ${pColor};padding:6px 8px;margin-bottom:4px;font-size:11px;white-space:normal;"
+        style="background:${cat.color}22;color:${cat.color};border-right:3px solid ${getScoreColor(sc)};padding:6px 8px;margin-bottom:4px;font-size:11px;white-space:normal;"
         ondragstart="calDragStart(event,${t.id})" ondragend="calDragEnd(event)"
         onclick="openEditTask(${t.id})">
-        <div style="font-weight:600;margin-bottom:2px;">${t.name}</div>
+        <div style="display:flex;align-items:center;gap:4px;font-weight:600;margin-bottom:2px;"><span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:8px;min-width:18px;height:14px;padding:0 3px;">${sc}</span>${t.name}</div>
         <div style="font-size:9px;opacity:0.7;">${cat.emoji} ${getStatusLabel(t.status)}</div>
       </div>`;
     });
@@ -2730,7 +3091,7 @@ function renderCategories(){
       subs[sn].forEach(t=>{
         const m=TEAM.find(x=>x.id===t.assignee);
         html+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid rgba(51,51,70,0.3);font-size:13px;cursor:pointer;" onclick="openEditTask(${t.id})">
-          <span class="priority-dot priority-${t.priority}"></span><span style="flex:1;">${t.name}</span>
+          <span class="score-badge ${getScoreHeatClass(getDisplayScore(t))}" style="font-size:9px;min-width:22px;height:16px;">${getDisplayScore(t)}</span><span style="flex:1;">${t.name}</span>
           ${m?`<div class="avatar avatar-${t.assignee}" style="width:22px;height:22px;font-size:10px;">${m.name[0]}</div>`:'<span style="font-size:10px;color:var(--text2);">🏦</span>'}
           <select onchange="event.stopPropagation();updateStatus(${t.id},this.value)" style="background:transparent;border:none;color:inherit;font-family:'Heebo';font-size:11px;cursor:pointer;outline:none;">
             <option value="todo" ${t.status==='todo'?'selected':''}>📝 לביצוע</option>
@@ -2825,6 +3186,7 @@ function closeModal(){document.getElementById('modalOverlay').classList.remove('
 function openAddTask(){
   const co=CATEGORIES.map(c=>`<option value="${c.id}">${c.emoji} ${c.name}</option>`).join('');
   const ao=TEAM.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  const ro=`<option value="">ללא</option>`+TEAM.map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
   openModal(`<h2>➕ משימה חדשה</h2>
     <div class="form-group"><label>שם המשימה</label><input class="form-input" id="f-name" placeholder="מה צריך לעשות?"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -2832,15 +3194,31 @@ function openAddTask(){
       <div class="form-group"><label>תת-קטגוריה</label><select class="form-input" id="f-sub"></select></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-      <div class="form-group"><label>אחראי</label><select class="form-input" id="f-assignee">${ao}</select></div>
-      <div class="form-group"><label>עדיפות</label><select class="form-input" id="f-priority"><option value="high">🔴 גבוהה</option><option value="medium" selected>🟡 בינונית</option><option value="low">🟢 נמוכה</option></select></div>
+      <div class="form-group"><label>אחראי (Owner)</label><select class="form-input" id="f-assignee">${ao}</select></div>
+      <div class="form-group"><label>בודק (Reviewer)</label><select class="form-input" id="f-reviewer">${ro}</select></div>
       <div class="form-group"><label>סטטוס</label><select class="form-input" id="f-status"><option value="todo">📝 לביצוע</option><option value="progress">🔄 בתהליך</option></select></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>סוג משימה</label><select class="form-input" id="f-type">
+        <option value="client">👥 לקוח (30 נק׳)</option>
+        <option value="internal">🔬 פנימי/R&D (15 נק׳)</option>
+        <option value="admin" selected>🏢 אדמין/סטודיו (5 נק׳)</option>
+      </select></div>
+      <div class="form-group"><label>מטריצת אייזנהאואר</label><select class="form-input" id="f-eisenhower">
+        <option value="urgent-important">🔴 דחוף + חשוב</option>
+        <option value="important" selected>🟠 חשוב / לא דחוף</option>
+        <option value="urgent">🟡 דחוף / לא חשוב</option>
+        <option value="neither">⚪ לא דחוף ולא חשוב</option>
+      </select></div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="form-group"><label>תאריך התחלה</label><input class="form-input" type="date" id="f-start" value="${fmtISO(today)}"></div>
       <div class="form-group"><label>דד-ליין</label><input class="form-input" type="date" id="f-end"></div>
     </div>
-    <div class="form-group"><label>📂 פרויקט (אופציונלי)</label><select class="form-input" id="f-project"><option value="">ללא פרויקט</option>${projects.filter(p=>p.status!=='completed').map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>📂 פרויקט (אופציונלי)</label><select class="form-input" id="f-project"><option value="">ללא פרויקט</option>${projects.filter(p=>p.status!=='completed').map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="f-emergency" style="width:auto;"> 🚨 חירום (Emergency)</label></div>
+    </div>
     <div class="form-group"><label>יעד</label><input class="form-input" id="f-goal" placeholder="מה היעד של המשימה?"></div>
     <div class="form-group"><label>הערות</label><textarea class="form-input" id="f-notes" placeholder="פרטים נוספים..."></textarea></div>
     <div class="modal-actions">
@@ -2855,12 +3233,22 @@ function updateSubOpts(){const c=CATEGORIES.find(x=>x.id===document.getElementBy
 function saveNewTask(){
   const name=document.getElementById('f-name').value.trim();
   if(!name)return alert('נא להזין שם משימה');
+  const eis=document.getElementById('f-eisenhower').value;
   allTasks.push({id:nextId++,name,category:document.getElementById('f-category').value,sub:document.getElementById('f-sub').value,
-    assignee:document.getElementById('f-assignee').value,priority:document.getElementById('f-priority').value,
+    assignee:document.getElementById('f-assignee').value,priority:derivePriorityFromEisenhower(eis),
     status:document.getElementById('f-status').value,goal:document.getElementById('f-goal').value,
     startDate:document.getElementById('f-start').value?new Date(document.getElementById('f-start').value):null,endDate:document.getElementById('f-end').value?new Date(document.getElementById('f-end').value):null,notes:document.getElementById('f-notes').value,
-    subtasks:[],tags:[],recurrence:'none',comments:[],project:document.getElementById('f-project')?.value?parseInt(document.getElementById('f-project').value):null,inBank:!document.getElementById('f-assignee').value||!document.getElementById('f-start').value||!document.getElementById('f-end').value});
+    subtasks:[],tags:[],recurrence:'none',comments:[],project:document.getElementById('f-project')?.value?parseInt(document.getElementById('f-project').value):null,
+    inBank:!document.getElementById('f-assignee').value||!document.getElementById('f-start').value||!document.getElementById('f-end').value,
+    type:document.getElementById('f-type').value,
+    eisenhower:eis,
+    reviewer:document.getElementById('f-reviewer').value||null,
+    emergency:document.getElementById('f-emergency')?.checked||false,
+    isFrozen:false,
+    createdAt:new Date()
+  });
   const newTaskId = nextId - 1;
+  refreshScoreCache();
   saveTasks();closeModal();renderView();toast('✅ משימה חדשה נוספה');
   queueGCalSync(newTaskId);
 }
@@ -2869,20 +3257,39 @@ function openEditTask(id){
   const t=allTasks.find(x=>x.id===id);if(!t)return;
   const co=CATEGORIES.map(c=>`<option value="${c.id}" ${t.category===c.id?'selected':''}>${c.emoji} ${c.name}</option>`).join('');
   const ao=TEAM.map(m=>`<option value="${m.id}" ${t.assignee===m.id?'selected':''}>${m.name}</option>`).join('');
+  const ro=`<option value="">ללא</option>`+TEAM.map(m=>`<option value="${m.id}" ${t.reviewer===m.id?'selected':''}>${m.name}</option>`).join('');
   const cat=CATEGORIES.find(c=>c.id===t.category);
   const so=cat.subs.map(s=>`<option value="${s}" ${t.sub===s?'selected':''}>${s}</option>`).join('');
+  const score=getDisplayScore(t);
 
-  openModal(`<h2>✏️ עריכת משימה</h2>
+  openModal(`<h2>✏️ עריכת משימה ${t.emergency?'<span class="emergency-badge">🚨 חירום</span>':''} ${t.isFrozen?'<span class="frozen-badge">❄️ מוקפא</span>':''}</h2>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:${getScoreBg(score)};border-radius:8px;">
+      <span class="score-badge ${getScoreHeatClass(score)}" style="font-size:14px;min-width:40px;height:28px;">${score}</span>
+      <span style="font-size:12px;color:var(--text2);">ציון קריטיות</span>
+      <span class="type-badge type-${t.type||'admin'}" style="margin-right:auto;">${TYPE_LABELS[t.type]||'אדמין'}</span>
+    </div>
     <div class="form-group"><label>שם המשימה</label><input class="form-input" id="f-name" value="${t.name}"></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="form-group"><label>קטגוריה</label><select class="form-input" id="f-category" onchange="updateSubOptsE()">${co}</select></div>
       <div class="form-group"><label>תת-קטגוריה</label><select class="form-input" id="f-sub">${so}</select></div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-      <div class="form-group"><label>אחראי</label><select class="form-input" id="f-assignee">${ao}</select></div>
-      <div class="form-group"><label>עדיפות</label><select class="form-input" id="f-priority">
-        <option value="high" ${t.priority==='high'?'selected':''}>🔴 גבוהה</option><option value="medium" ${t.priority==='medium'?'selected':''}>🟡 בינונית</option><option value="low" ${t.priority==='low'?'selected':''}>🟢 נמוכה</option></select></div>
+      <div class="form-group"><label>אחראי (Owner)</label><select class="form-input" id="f-assignee">${ao}</select></div>
+      <div class="form-group"><label>בודק (Reviewer)</label><select class="form-input" id="f-reviewer">${ro}</select></div>
       <div class="form-group"><label>סטטוס</label><select class="form-input" id="f-status">
         <option value="todo" ${t.status==='todo'?'selected':''}>📝 לביצוע</option><option value="progress" ${t.status==='progress'?'selected':''}>🔄 בתהליך</option><option value="review" ${t.status==='review'?'selected':''}>👀 בבדיקה</option><option value="done" ${t.status==='done'?'selected':''}>✅ הושלם</option><option value="blocked" ${t.status==='blocked'?'selected':''}>🚫 חסום</option></select></div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>סוג משימה</label><select class="form-input" id="f-type">
+        <option value="client" ${t.type==='client'?'selected':''}>👥 לקוח (30 נק׳)</option>
+        <option value="internal" ${t.type==='internal'?'selected':''}>🔬 פנימי/R&D (15 נק׳)</option>
+        <option value="admin" ${t.type==='admin'?'selected':''}>🏢 אדמין/סטודיו (5 נק׳)</option>
+      </select></div>
+      <div class="form-group"><label>מטריצת אייזנהאואר</label><select class="form-input" id="f-eisenhower">
+        <option value="urgent-important" ${t.eisenhower==='urgent-important'?'selected':''}>🔴 דחוף + חשוב</option>
+        <option value="important" ${t.eisenhower==='important'?'selected':''}>🟠 חשוב / לא דחוף</option>
+        <option value="urgent" ${t.eisenhower==='urgent'?'selected':''}>🟡 דחוף / לא חשוב</option>
+        <option value="neither" ${t.eisenhower==='neither'?'selected':''}>⚪ לא דחוף ולא חשוב</option>
+      </select></div>
+    </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
       <div class="form-group"><label>תאריך התחלה</label><input class="form-input" type="date" id="f-start" value="${t.startDate?fmtISO(t.startDate):''}"></div>
       <div class="form-group"><label>דד-ליין</label><input class="form-input" type="date" id="f-end" value="${t.endDate?fmtISO(t.endDate):''}"></div></div>
@@ -2896,7 +3303,15 @@ function openEditTask(id){
         <option value="monthly" ${t.recurrence==='monthly'?'selected':''}>חודשי</option>
       </select></div>
     </div>
-    <div class="form-group"><label>📂 פרויקט</label><select class="form-input" id="f-project"><option value="">ללא פרויקט</option>${projects.map(p=>`<option value="${p.id}" ${t.project===p.id?'selected':''}>${p.emoji} ${p.name}</option>`).join('')}</select></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="form-group"><label>📂 פרויקט</label><select class="form-input" id="f-project"><option value="">ללא פרויקט</option>${projects.map(p=>`<option value="${p.id}" ${t.project===p.id?'selected':''}>${p.emoji} ${p.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label style="margin-bottom:8px;">דגלים</label>
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="f-emergency" ${t.emergency?'checked':''} style="width:auto;"> 🚨 חירום</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="f-frozen" ${t.isFrozen?'checked':''} style="width:auto;"> ❄️ הקפאה</label>
+        </div>
+      </div>
+    </div>
     <div class="form-group"><label>🏷️ תגיות</label>
       <div class="tags-wrap" id="f-tags-wrap">${(t.tags||[]).map((tag,i) => `<span class="tag" style="background:${TAG_COLORS[TAG_PRESETS.indexOf(tag)%TAG_COLORS.length]}33;color:${TAG_COLORS[TAG_PRESETS.indexOf(tag)%TAG_COLORS.length]};">${tag}<button class="tag-remove" onclick="removeTagFromEdit(${t.id},'${tag}')">✕</button></span>`).join('')}</div>
       <div class="tag-input-wrap"><input id="f-tag-input" placeholder="הוסף תגית..." onkeydown="if(event.key==='Enter'){addTagToEdit(${t.id});event.preventDefault();}"><button class="btn btn-secondary btn-sm" onclick="addTagToEdit(${t.id})">+</button></div>
@@ -2933,15 +3348,24 @@ function updateSubOptsE(){const c=CATEGORIES.find(x=>x.id===document.getElementB
 function saveEditTask(id){
   const t=allTasks.find(x=>x.id===id);if(!t)return;
   t.name=document.getElementById('f-name').value;t.category=document.getElementById('f-category').value;t.sub=document.getElementById('f-sub').value;
-  t.assignee=document.getElementById('f-assignee').value;t.priority=document.getElementById('f-priority').value;t.status=document.getElementById('f-status').value;
+  t.assignee=document.getElementById('f-assignee').value;t.status=document.getElementById('f-status').value;
+  // Criticality fields
+  t.type=document.getElementById('f-type').value;
+  t.eisenhower=document.getElementById('f-eisenhower').value;
+  t.priority=derivePriorityFromEisenhower(t.eisenhower);
+  t.reviewer=document.getElementById('f-reviewer').value||null;
+  t.emergency=document.getElementById('f-emergency')?.checked||false;
+  t.isFrozen=document.getElementById('f-frozen')?.checked||false;
   const sv=document.getElementById('f-start').value, ev=document.getElementById('f-end').value;
   t.startDate=sv?new Date(sv):null;t.endDate=ev?new Date(ev):null;
   t.goal=document.getElementById('f-goal').value;t.notes=document.getElementById('f-notes').value;
   t.recurrence=document.getElementById('f-recurrence').value;
   t.project=document.getElementById('f-project')?.value?parseInt(document.getElementById('f-project').value):null;
+  if(!t.createdAt) t.createdAt=new Date();
   // Update bank status based on assignment
   t.inBank = !t.assignee || !t.startDate || !t.endDate;
   if(t.status==='done' && t.recurrence && t.recurrence!=='none') generateRecurringTask(t);
+  refreshScoreCache();
   saveTasks();closeModal();renderView();toast('✅ משימה עודכנה');
   queueGCalSync(id);
 }
@@ -3025,6 +3449,7 @@ function renderWorkload() {
       <div class="wl-bar-row"><span>הושלם</span><div class="wl-fill" style="width:${mt.length ? done/mt.length*100 : 0}%;background:var(--green);"></div><span>${done}</span></div>
       <div class="wl-bar-row"><span>חסום</span><div class="wl-fill" style="width:${mt.length ? blocked/mt.length*100 : 0}%;background:var(--red);"></div><span>${blocked}</span></div>
       ${overdue > 0 ? `<div style="margin-top:8px;padding:6px 10px;background:var(--red-bg);border-radius:6px;font-size:12px;color:var(--red);">⚠️ ${overdue} משימות באיחור</div>` : ''}
+      ${isAtCapacity(m.id) ? '<div style="margin-top:6px;padding:6px 10px;background:var(--yellow-bg);border:1px solid var(--yellow);border-radius:6px;font-size:12px;color:#c07b00;font-weight:600;">⚡ עומס מלא - Overloaded</div>' : ''}
     </div>`;
   });
   document.getElementById('workloadCards').innerHTML = cards;
@@ -3090,12 +3515,12 @@ function renderWeekView() {
       const dayEnd = new Date(d); dayEnd.setHours(23,59,59,999);
       const tasks = _vtW.filter(t => t.assignee === m.id && t.startDate && t.endDate && t.startDate <= dayEnd && t.endDate >= dayStart && t.status !== 'done');
       html += '<div class="week-cell">';
-      tasks.forEach(t => {
+      tasks.sort((a,b)=>getDisplayScore(b)-getDisplayScore(a)).forEach(t => {
         const cat = CATEGORIES.find(c => c.id === t.category);
-        const pColor = {high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'}[t.priority];
-        html += `<div class="week-task" onclick="openEditTask(${t.id})" style="border-right:3px solid ${pColor};cursor:pointer;" title="${t.name}">
-          <div style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cat?cat.emoji:''} ${t.name}</div>
-          <div style="font-size:9px;color:var(--text2);margin-top:2px;">${getStatusLabel(t.status)}${t.timeLogged ? ' • '+(t.timeLogged/60).toFixed(1)+'ש' : ''}</div>
+        const sc=getDisplayScore(t);
+        html += `<div class="week-task" onclick="openEditTask(${t.id})" style="border-right:3px solid ${getScoreColor(sc)};cursor:pointer;" title="${t.name} (${sc})">
+          <div style="display:flex;align-items:center;gap:3px;"><span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:8px;min-width:18px;height:14px;padding:0 3px;">${sc}</span><span style="font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">${cat?cat.emoji:''} ${t.name}</span></div>
+          <div style="font-size:9px;color:var(--text2);margin-top:2px;">${getStatusLabel(t.status)}</div>
         </div>`;
       });
       if (tasks.length === 0) html += '<div style="font-size:10px;color:var(--text2);text-align:center;padding:8px;">—</div>';
@@ -3131,20 +3556,21 @@ function renderKanban() {
 
   let html = '';
   statuses.forEach(s => {
-    const tasks = filtered.filter(t => t.status === s.id);
+    const tasks = filtered.filter(t => t.status === s.id).sort((a,b)=>getDisplayScore(b)-getDisplayScore(a));
     html += `<div class="kanban-column" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="kanbanDrop(event,'${s.id}');this.classList.remove('drag-over')">
       <div class="kanban-col-header"><span>${s.icon} ${s.label}</span><span class="badge" style="background:${s.color}22;color:${s.color};">${tasks.length}</span></div>
       <div class="kanban-col-body">`;
     tasks.forEach(t => {
       const m = TEAM.find(x => x.id === t.assignee);
       const cat = CATEGORIES.find(c => c.id === t.category);
-      const pColor = {high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'}[t.priority];
+      const sc = getDisplayScore(t);
       html += `<div class="kanban-card" draggable="true" ondragstart="event.dataTransfer.setData('text','${t.id}')" onclick="openEditTask(${t.id})" style="cursor:pointer;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <span style="font-size:11px;color:var(--text2);cursor:pointer;" onclick="event.stopPropagation();navigateToCategory('${cat?cat.id:''}')">${cat ? cat.emoji + ' ' + cat.name : ''}</span>
-          <span style="width:8px;height:8px;border-radius:50%;background:${pColor};"></span>
+          <span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:9px;min-width:24px;height:16px;">${sc}</span>
         </div>
-        <div style="font-size:13px;font-weight:500;margin-bottom:8px;">${t.name}</div>
+        <div style="font-size:13px;font-weight:500;margin-bottom:4px;">${t.emergency?'🚨 ':''}${t.name}</div>
+        <span class="type-badge type-${t.type||'admin'}" style="font-size:9px;margin-bottom:6px;">${TYPE_LABELS[t.type]||'אדמין'}</span>
         ${(()=>{const proj=t.project?projects.find(pp=>pp.id===t.project):null;return proj?`<span class="project-tag" style="background:${proj.color}22;color:${proj.color};margin-bottom:6px;display:inline-block;">📂 ${proj.name}</span>`:'';})()}
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div class="avatar avatar-${t.assignee}" style="width:22px;height:22px;font-size:9px;" title="${m?m.name:''}">${m?m.name[0]:''}</div>
@@ -3975,7 +4401,7 @@ function renderTimeline() {
     }
 
     const cat = CATEGORIES.find(c => c.id === t.category);
-    const pColor = {high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'}[t.priority];
+    const sc=getDisplayScore(t);
     const sColor = {todo:'var(--blue)',progress:'var(--yellow)',review:'var(--purple)',done:'var(--green)',blocked:'var(--red)'}[t.status];
     const isOverdue = t.endDate < today && t.status !== 'done';
     const stPct = t.subtasks && t.subtasks.length ? Math.round(t.subtasks.filter(s=>s.done).length/t.subtasks.length*100) : null;
@@ -3984,13 +4410,13 @@ function renderTimeline() {
     html += `<div class="timeline-item" onclick="openEditTask(${t.id})" style="${isOverdue ? 'border-color:var(--red);' : ''}">
       <div class="timeline-dot" style="background:${sColor};"></div>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
-        <div style="font-weight:500;font-size:13px;">${t.name}</div>
+        <div style="display:flex;align-items:center;gap:6px;font-weight:500;font-size:13px;"><span class="score-badge ${getScoreHeatClass(sc)}" style="font-size:9px;min-width:24px;height:16px;">${sc}</span>${t.name}</div>
         <span style="font-size:10px;white-space:nowrap;color:${isOverdue?'var(--red)':'var(--text2)'};">${fmtDS(t.startDate)} - ${fmtDS(t.endDate)}${isOverdue?' ⚠️':''}</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <span class="category-tag" style="background:${cat?cat.color+'22':'var(--surface2)'};color:${cat?cat.color:'var(--text2)'};font-size:10px;padding:2px 6px;">${cat?cat.emoji+' '+cat.name:''}</span>
         <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:${sColor}22;color:${sColor};">${getStatusLabel(t.status)}</span>
-        <span style="width:6px;height:6px;border-radius:50%;background:${pColor};"></span>
+        <span class="type-badge type-${t.type||'admin'}" style="font-size:9px;">${TYPE_LABELS[t.type]||'אדמין'}</span>
         ${t.recurrence && t.recurrence !== 'none' ? '<span class="recur-badge">🔁 '+getRecurrenceLabel(t.recurrence)+'</span>' : ''}
         ${stPct !== null ? '<span style="font-size:10px;color:var(--text2);">📋 '+stPct+'%</span>' : ''}
         ${commentCount ? '<span style="font-size:10px;color:var(--text2);">💬 '+commentCount+'</span>' : ''}
@@ -4194,7 +4620,7 @@ function toggleProjectDetail(id, forceOpen) {
     const m=TEAM.find(x=>x.id===t.assignee), cat=CATEGORIES.find(c=>c.id===t.category);
     const od=t.endDate&&t.endDate<today&&t.status!=='done';
     return `<tr onclick="openEditTask(${t.id})" style="cursor:pointer;">
-      <td><span class="priority-dot priority-${t.priority}"></span></td>
+      <td><span class="score-badge ${getScoreHeatClass(getDisplayScore(t))}" style="font-size:9px;min-width:22px;height:16px;">${getDisplayScore(t)}</span></td>
       <td>${t.name}</td>
       <td>${cat?cat.emoji+' '+cat.name:''}</td>
       <td>${m?m.name:'🏦'}</td>
@@ -4438,6 +4864,26 @@ function renderAdmin() {
     document.getElementById('view-admin').innerHTML = '<div style="padding:40px;text-align:center;color:var(--text2);">אין לך הרשאת גישה לדף זה</div>';
     return;
   }
+
+  // Render criticality settings
+  let critHtml = `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--surface2);border-radius:8px;margin-bottom:12px;">
+    <div>
+      <div style="font-weight:600;font-size:14px;">🔒 מצב ישיבת יום חמישי</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px;">הקפאת ציוני קריטיות לדיון בישיבה - הציונים לא ישתנו בזמן הדיון</div>
+    </div>
+    <label style="position:relative;display:inline-block;width:48px;height:26px;cursor:pointer;">
+      <input type="checkbox" ${thursdayMeetingMode?'checked':''} onchange="toggleThursdayMeeting(this.checked)" style="opacity:0;width:0;height:0;">
+      <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:${thursdayMeetingMode?'var(--purple)':'var(--surface)'};border:1px solid var(--border);border-radius:26px;transition:.3s;"></span>
+      <span style="position:absolute;content:'';height:20px;width:20px;left:${thursdayMeetingMode?'24px':'3px'};bottom:3px;background:white;border-radius:50%;transition:.3s;"></span>
+    </label>
+  </div>`;
+  if(thursdayMeetingMode){
+    critHtml+=`<div style="padding:10px 16px;background:var(--purple-bg,rgba(108,92,231,0.1));border:1px solid var(--purple);border-radius:8px;font-size:12px;color:var(--purple);">
+      🔒 מצב ישיבה פעיל - הציונים מוקפאים. כבה את המצב כדי לחזור לציונים חיים.
+    </div>`;
+  }
+  const critSection = document.getElementById('adminCriticalitySection');
+  if(critSection) critSection.innerHTML = critHtml;
 
   // Render user list with role management
   let html = '';
