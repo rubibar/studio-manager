@@ -1,0 +1,8 @@
+{
+  "name": "studio-manager",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix studio-app run build",
+    "install:app": "npm --prefix studio-app install"
+  }
+}
