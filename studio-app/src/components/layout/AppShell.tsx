@@ -43,7 +43,7 @@ export function AppShell({ children }: AppShellProps) {
     <div className="flex min-h-[100dvh]" dir="rtl" style={{ background: bgGradient }}>
       <div className="noise-overlay" aria-hidden="true" />
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 depth-scene">
         <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}

@@ -36,11 +36,12 @@ export function SlideOver({ open, onClose, title, children }: SlideOverProps) {
             onClick={onClose}
           />
           <motion.div
-            className="fixed top-0 left-0 h-full z-[100] w-[560px] max-w-[95vw] glass-panel shadow-2xl flex flex-col"
-            initial={{ x: '-100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '-100%' }}
+            className="fixed top-0 left-0 h-full z-[100] w-[560px] max-w-[95vw] glass-panel glass-panel-elevated shadow-2xl flex flex-col"
+            initial={{ x: '-100%', rotateY: 5 }}
+            animate={{ x: 0, rotateY: 0 }}
+            exit={{ x: '-100%', rotateY: 5 }}
             transition={{ type: 'spring' as const, damping: 30, stiffness: 300 }}
+            style={{ transformOrigin: 'left center' }}
           >
             <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 border-b border-[var(--glass-border)] bg-[var(--glass-bg)]/50">
               {title && <h2 className="text-[16px] font-bold tracking-tight">{title}</h2>}

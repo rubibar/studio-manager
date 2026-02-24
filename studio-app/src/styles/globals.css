@@ -43,11 +43,19 @@
   --radius-bento-sm: 1.25rem;
   --radius-pill: 9999px;
 
-  /* ── visionOS Glassmorphism ── */
-  --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-bg-dark: rgba(28, 28, 30, 0.72);
-  --glass-border: rgba(210, 210, 215, 0.5);
-  --glass-border-dark: rgba(56, 56, 58, 0.5);
+  /* ── Amplified visionOS Glassmorphism ── */
+  --glass-blur: 60px;
+  --glass-saturate: 1.8;
+  --glass-bg: rgba(255, 255, 255, 0.45);
+  --glass-bg-dark: rgba(28, 28, 30, 0.40);
+  --glass-bg-elevated: rgba(255, 255, 255, 0.55);
+  --glass-bg-elevated-dark: rgba(28, 28, 30, 0.50);
+  --glass-border: rgba(255, 255, 255, 0.35);
+  --glass-border-dark: rgba(255, 255, 255, 0.08);
+  --glass-inner-glow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
+  --glass-inner-glow-dark: inset 0 1px 1px rgba(255, 255, 255, 0.06);
+  --glass-edge-top: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --glass-edge-top-dark: inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   /* ── Fonts ── */
   --font-sans: 'SF Pro Display', 'Inter', -apple-system, BlinkMacSystemFont, 'Heebo', sans-serif;
@@ -66,6 +74,17 @@
   --shadow-bento: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
   --shadow-bento-hover: 0 12px 40px rgba(0, 0, 0, 0.10), 0 4px 12px rgba(0, 0, 0, 0.05);
   --shadow-glow-accent: 0 0 20px rgba(0, 122, 255, 0.20);
+
+  /* ── 3D Glass Shadows ── */
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-glass-hover: 0 20px 60px rgba(0, 0, 0, 0.12), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-glass-dark: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-glass-hover-dark: 0 20px 60px rgba(0, 0, 0, 0.5), 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-float: 0 30px 80px rgba(0, 0, 0, 0.15), 0 12px 40px rgba(0, 0, 0, 0.08);
+  --shadow-float-dark: 0 30px 80px rgba(0, 0, 0, 0.5), 0 12px 40px rgba(0, 0, 0, 0.3);
+
+  /* ── 3D Depth ── */
+  --perspective-default: 1200px;
 
   /* ── Spring easing ── */
   --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -135,6 +154,11 @@ body {
   --color-text-secondary: #A1A1A6;
   --color-text-tertiary: #636366;
   --color-border: #38383A;
+  --glass-inner-glow: var(--glass-inner-glow-dark);
+  --glass-edge-top: var(--glass-edge-top-dark);
+  --shadow-glass: var(--shadow-glass-dark);
+  --shadow-glass-hover: var(--shadow-glass-hover-dark);
+  --shadow-float: var(--shadow-float-dark);
 }
 
 /* ── Noise overlay ── */
@@ -185,35 +209,177 @@ button:active:not(:disabled) {
   transition-duration: 0.2s;
 }
 
-/* ── visionOS Glass panels ── */
+/* ═════════════════════════════════════════════
+   AMPLIFIED GLASSMORPHISM + 3D DEPTH SYSTEM
+   ═════════════════════════════════════════════ */
+
+/* ── visionOS Amplified Glass Panels ── */
 .glass-panel {
   background: var(--glass-bg);
-  backdrop-filter: blur(40px) saturate(1.5);
-  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-inner-glow), var(--glass-edge-top);
+  position: relative;
 }
+
+/* Inner refraction highlight — top edge shimmer */
+.glass-panel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    rgba(255, 255, 255, 0.05) 8%,
+    transparent 20%
+  );
+  z-index: 0;
+}
+
 .dark .glass-panel {
   background: var(--glass-bg-dark);
   border-color: var(--glass-border-dark);
 }
 
-/* ── Glass card — reusable card component ── */
+.dark .glass-panel::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(255, 255, 255, 0.01) 8%,
+    transparent 20%
+  );
+}
+
+/* ── Glass Card with 3D Depth ── */
 .glass-card {
   background: var(--glass-bg);
-  backdrop-filter: blur(40px) saturate(1.5);
-  -webkit-backdrop-filter: blur(40px) saturate(1.5);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-bento);
-  transition: box-shadow 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  box-shadow: var(--shadow-glass), var(--glass-inner-glow);
+  transition:
+    box-shadow 0.4s var(--ease-out),
+    transform 0.4s var(--ease-out),
+    border-color 0.3s var(--ease-out);
+  position: relative;
+  will-change: transform, box-shadow;
+  transform: translateZ(0);
 }
+
+/* Top-edge refraction light */
+.glass-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 6%,
+    transparent 18%
+  );
+  z-index: 1;
+  transition: opacity 0.4s var(--ease-out);
+}
+
 .glass-card:hover {
-  box-shadow: var(--shadow-bento-hover);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-glass-hover), var(--glass-inner-glow);
+  transform: translateY(-4px) translateZ(10px);
+  border-color: rgba(255, 255, 255, 0.5);
 }
+
 .dark .glass-card {
   background: var(--glass-bg-dark);
   border-color: var(--glass-border-dark);
+}
+
+.dark .glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dark .glass-card::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.015) 6%,
+    transparent 18%
+  );
+}
+
+/* ── Glass Panel Elevated (sidebar, modals — feels closer) ── */
+.glass-panel-elevated {
+  background: var(--glass-bg-elevated);
+  backdrop-filter: blur(80px) saturate(2);
+  -webkit-backdrop-filter: blur(80px) saturate(2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    var(--shadow-float),
+    var(--glass-inner-glow),
+    var(--glass-edge-top);
+}
+
+.dark .glass-panel-elevated {
+  background: var(--glass-bg-elevated-dark);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.glass-panel-elevated::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.22) 0%,
+    rgba(255, 255, 255, 0.08) 5%,
+    transparent 15%
+  );
+  z-index: 0;
+}
+
+.dark .glass-panel-elevated::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 5%,
+    transparent 15%
+  );
+}
+
+/* ── Depth Scene (perspective context) ── */
+.depth-scene {
+  perspective: var(--perspective-default);
+  perspective-origin: center center;
+}
+
+/* ── 3D Tilt Card (driven by useTilt hook) ── */
+.tilt-card {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform 0.15s var(--ease-out);
+}
+
+/* ── Ambient accent glow ── */
+@keyframes ambient-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 15%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 25%, transparent),
+                0 0 80px color-mix(in srgb, var(--color-accent) 8%, transparent);
+  }
+}
+
+.ambient-glow {
+  animation: ambient-glow 4s ease-in-out infinite;
 }
 
 /* ── Skeleton shimmer ── */
@@ -255,21 +421,23 @@ button:active:not(:disabled) {
   box-shadow: var(--shadow-xs);
 }
 
-/* ── Spotlight border card ── */
+/* ── Spotlight border card — enhanced with chromatic refraction ── */
 .spotlight-border {
   position: relative;
   background: var(--color-surface);
   will-change: transform;
 }
+
 .spotlight-border::before {
   content: '';
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1px;
+  padding: 1.5px;
   background: radial-gradient(
-    250px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
-    color-mix(in srgb, var(--color-accent) 40%, transparent),
+    300px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    color-mix(in srgb, var(--color-accent) 60%, transparent),
+    color-mix(in srgb, var(--color-accent-light) 20%, transparent) 40%,
     transparent 70%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -277,6 +445,42 @@ button:active:not(:disabled) {
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.spotlight-border:hover::before {
+  opacity: 1;
+}
+
+/* Inner spotlight surface glow */
+.spotlight-border::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    400px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    color-mix(in srgb, var(--color-accent) 6%, transparent),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+  z-index: 1;
+}
+
+.spotlight-border:hover::after {
+  opacity: 1;
+}
+
+/* When spotlight + glass coexist, spotlight ::after wins */
+.spotlight-border.glass-card::after {
+  background: radial-gradient(
+    400px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+    color-mix(in srgb, var(--color-accent) 6%, transparent),
+    transparent 60%
+  );
 }
 
 /* ── Number scramble mono ── */
@@ -310,24 +514,37 @@ button:active:not(:disabled) {
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   .glass-panel,
-  .glass-card {
+  .glass-card,
+  .glass-panel-elevated {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
   }
   .dark .glass-panel,
-  .dark .glass-card {
+  .dark .glass-card,
+  .dark .glass-panel-elevated {
     background: var(--color-surface);
+  }
+  .glass-panel::after,
+  .glass-card::after,
+  .glass-panel-elevated::after,
+  .spotlight-border::before,
+  .spotlight-border::after {
+    display: none;
   }
   .skeleton { animation: none; }
   .breathe { animation: none; opacity: 1; }
-  .spotlight-border::before { display: none; }
-  .backdrop-blur-xl {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  .ambient-glow { animation: none; }
   .glass-card:hover {
     box-shadow: var(--shadow-bento);
     transform: none;
+  }
+  .tilt-card {
+    transform: none !important;
+  }
+  .backdrop-blur-xl {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

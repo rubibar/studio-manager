@@ -182,6 +182,7 @@ export function CommandPalette() {
       {open && (
         <motion.div
           className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh]"
+          style={{ perspective: '1200px' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -191,10 +192,10 @@ export function CommandPalette() {
           <div className="absolute inset-0 bg-[#000000]/40 backdrop-blur-sm" />
 
           <motion.div
-            className="relative w-full max-w-lg mx-4 glass-panel rounded-[var(--radius-bento)] shadow-2xl overflow-hidden"
-            initial={{ scale: 0.95, y: -10 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.95, y: -10 }}
+            className="relative w-full max-w-lg mx-4 glass-panel glass-panel-elevated rounded-[var(--radius-bento)] shadow-2xl overflow-hidden"
+            initial={{ scale: 0.92, y: -20, rotateX: -3 }}
+            animate={{ scale: 1, y: 0, rotateX: 0 }}
+            exit={{ scale: 0.92, y: -20, rotateX: -3 }}
             transition={{ type: 'spring' as const, damping: 25, stiffness: 300 }}
           >
             {/* Search input */}

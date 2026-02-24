@@ -28,6 +28,7 @@ export function Modal({ open, onClose, title, children, width = '540px' }: Modal
         <motion.div
           ref={overlayRef}
           className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+          style={{ perspective: '1200px' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -39,11 +40,11 @@ export function Modal({ open, onClose, title, children, width = '540px' }: Modal
 
           {/* Content */}
           <motion.div
-            className="relative glass-panel rounded-[var(--radius-xl)] shadow-lg overflow-hidden"
+            className="relative glass-panel glass-panel-elevated rounded-[var(--radius-xl)] shadow-lg overflow-hidden"
             style={{ width, maxWidth: '95vw', maxHeight: '85vh' }}
-            initial={{ scale: 0.95, y: 10 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.95, y: 10 }}
+            initial={{ scale: 0.92, y: 20, rotateX: 2 }}
+            animate={{ scale: 1, y: 0, rotateX: 0 }}
+            exit={{ scale: 0.92, y: 20, rotateX: 2 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
           >
             {/* Header */}

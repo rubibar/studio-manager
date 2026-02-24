@@ -8,6 +8,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { ScoreBadge } from '@/components/shared/ScoreBadge'
 import { AnimatedNumber } from '@/components/shared/AnimatedNumber'
 import { StaggeredList, StaggeredItem } from '@/components/shared/StaggeredList'
+import { useTiltSpring } from '@/hooks/useTilt'
 import { TEAM } from '@/lib/constants'
 import { formatDate } from '@/lib/formatters'
 
@@ -57,6 +58,8 @@ export function Dashboard() {
     return 'Good Evening'
   }, [])
 
+  const { ref: welcomeRef, onMouseMove: onWelcomeMove, onMouseLeave: onWelcomeLeave, style: tiltStyle } = useTiltSpring({ maxTilt: 5 })
+
   const todayStr = new Date().toLocaleDateString('he-IL', {
     weekday: 'long',
     year: 'numeric',
@@ -68,7 +71,12 @@ export function Dashboard() {
     <StaggeredList className="space-y-5 max-w-5xl">
       {/* Welcome card */}
       <StaggeredItem>
-        <div className="glass-card p-6">
+        <motion.div
+          ref={welcomeRef}
+          onMouseMove={onWelcomeMove}
+          onMouseLeave={onWelcomeLeave}
+          style={tiltStyle}
+          className="glass-card p-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-[22px] font-semibold tracking-tight mb-1">
@@ -88,7 +96,7 @@ export function Dashboard() {
               New Task
             </motion.button>
           </div>
-        </div>
+        </motion.div>
       </StaggeredItem>
 
       {/* Stats row */}

@@ -87,7 +87,7 @@ export function Sidebar() {
       {/* Sidebar rail */}
       <aside
         className={`
-          fixed top-0 right-0 h-full z-50 w-[68px] glass-panel border-l border-[var(--glass-border)]
+          fixed top-0 right-0 h-full z-50 w-[68px] glass-panel glass-panel-elevated border-l border-[var(--glass-border)]
           flex flex-col items-center py-4 gap-1
           transition-transform duration-300
           lg:static lg:translate-x-0
