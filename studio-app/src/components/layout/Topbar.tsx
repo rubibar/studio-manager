@@ -22,7 +22,7 @@ export function Topbar() {
   return (
     <header className="sticky top-0 z-30 glass-panel h-12 flex items-center justify-between px-4 gap-4 border-b border-[var(--glass-border)]">
       {/* Left: hamburger (mobile only) + title */}
-      <div className="flex items-center gap-3">
+      <div className="relative z-10 flex items-center gap-3">
         <button
           onClick={toggleSidebar}
           className="lg:hidden p-1.5 rounded-[var(--radius-default)] hover:bg-[var(--color-surface-3)]/50 transition-colors"
@@ -37,7 +37,7 @@ export function Topbar() {
       {/* Center: command palette trigger */}
       <button
         onClick={openCommandPalette}
-        className="hidden md:flex items-center gap-2 bg-[var(--color-surface-2)]/60 hover:bg-[var(--color-surface-2)] rounded-[var(--radius-default)] px-4 py-1.5 flex-1 max-w-xs cursor-pointer transition-colors"
+        className="relative z-10 hidden md:flex items-center gap-2 bg-[var(--color-surface-2)]/60 hover:bg-[var(--color-surface-2)] rounded-[var(--radius-default)] px-4 py-1.5 flex-1 max-w-xs cursor-pointer transition-colors"
       >
         <MagnifyingGlass size={14} className="text-[var(--color-text-tertiary)]" />
         <span className="text-[12px] text-[var(--color-text-tertiary)] flex-1 text-right">Search...</span>
@@ -47,7 +47,7 @@ export function Topbar() {
       </button>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-2">
+      <div className="relative z-10 flex items-center gap-2">
         {/* New task — magnetic */}
         <motion.button
           ref={newTaskRef}

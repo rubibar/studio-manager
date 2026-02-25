@@ -94,9 +94,9 @@ export function Sidebar() {
           ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Logo */}
+        {/* Logo — z-10 to sit above glass ::after overlay */}
         <motion.div
-          className="w-10 h-10 rounded-[var(--radius-default)] bg-[var(--color-accent)] flex items-center justify-center mb-4 cursor-default"
+          className="relative z-10 w-10 h-10 rounded-[var(--radius-default)] bg-[var(--color-accent)] flex items-center justify-center mb-4 cursor-default"
           style={{ boxShadow: 'var(--shadow-glow-accent)' }}
           animate={{
             boxShadow: ['var(--shadow-glow-accent)', '0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)', 'var(--shadow-glow-accent)'],
@@ -108,8 +108,8 @@ export function Sidebar() {
           <Aperture size={18} weight="bold" color="white" />
         </motion.div>
 
-        {/* Primary icons */}
-        <nav className="flex flex-col items-center gap-1 flex-1">
+        {/* Primary icons — z-10 to sit above glass ::after overlay */}
+        <nav className="relative z-10 flex flex-col items-center gap-1 flex-1">
           {PRIMARY_ITEMS.map(item => {
             const Icon = item.icon
             const active = activeView === item.id
@@ -143,10 +143,10 @@ export function Sidebar() {
         </nav>
 
         {/* Separator */}
-        <div className="w-8 h-px bg-[var(--color-border)]/50 my-1" />
+        <div className="relative z-10 w-8 h-px bg-[var(--color-border)]/50 my-1" />
 
         {/* More button */}
-        <div className="relative" ref={moreRef}>
+        <div className="relative z-10" ref={moreRef}>
           <motion.button
             onClick={() => setMoreOpen(prev => !prev)}
             whileHover={{ scale: 1.08 }}

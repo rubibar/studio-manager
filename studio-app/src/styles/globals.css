@@ -203,8 +203,8 @@ button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-/* ── Smooth transitions ── */
-* {
+/* ── Smooth transitions (exclude SVGs to prevent icon render issues) ── */
+*:not(svg):not(path):not(circle):not(rect):not(line):not(polyline):not(polygon) {
   transition-timing-function: var(--ease-out);
   transition-duration: 0.2s;
 }
@@ -223,7 +223,7 @@ button:active:not(:disabled) {
   position: relative;
 }
 
-/* Inner refraction highlight — top edge shimmer */
+/* Inner refraction highlight — top edge shimmer (z-index: -1 so content stays above) */
 .glass-panel::after {
   content: '';
   position: absolute;
@@ -236,7 +236,7 @@ button:active:not(:disabled) {
     rgba(255, 255, 255, 0.05) 8%,
     transparent 20%
   );
-  z-index: 0;
+  z-index: -1;
 }
 
 .dark .glass-panel {
@@ -283,7 +283,7 @@ button:active:not(:disabled) {
     rgba(255, 255, 255, 0.06) 6%,
     transparent 18%
   );
-  z-index: 1;
+  z-index: -1;
   transition: opacity 0.4s var(--ease-out);
 }
 
@@ -341,7 +341,7 @@ button:active:not(:disabled) {
     rgba(255, 255, 255, 0.08) 5%,
     transparent 15%
   );
-  z-index: 0;
+  z-index: -1;
 }
 
 .dark .glass-panel-elevated::after {
@@ -518,7 +518,7 @@ button:active:not(:disabled) {
   );
   opacity: 0;
   transition: opacity 0.3s var(--ease-out);
-  z-index: 1;
+  z-index: -1;
 }
 
 .spotlight-border:hover::after {
