@@ -113,6 +113,7 @@ export function Sidebar() {
           {PRIMARY_ITEMS.map(item => {
             const Icon = item.icon
             const active = activeView === item.id
+            const iconColor = active ? '#FFFFFF' : '#6E6E73'
             return (
               <motion.button
                 key={item.id}
@@ -120,8 +121,7 @@ export function Sidebar() {
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
                 style={{
-                  color: active ? '#FFFFFF' : '#A1A1A6',
-                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(255,255,255,0.06)',
+                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(0,0,0,0.04)',
                 }}
                 className={`
                   relative group w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center
@@ -129,7 +129,7 @@ export function Sidebar() {
                   ${active ? 'shadow-[var(--shadow-glow-accent)]' : ''}
                 `}
               >
-                <Icon size={22} weight={active ? 'fill' : 'duotone'} />
+                <Icon size={22} weight={active ? 'fill' : 'duotone'} color={iconColor} />
                 {/* Glass tooltip */}
                 <span
                   className="absolute right-full ml-3 px-2.5 py-1.5 rounded-[var(--radius-sm)] glass-panel text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
@@ -156,7 +156,7 @@ export function Sidebar() {
             }}
             className="w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center cursor-pointer"
           >
-            <DotsNine size={22} weight={isMoreView ? 'fill' : 'duotone'} />
+            <DotsNine size={22} weight={isMoreView ? 'fill' : 'duotone'} color={isMoreView || moreOpen ? 'var(--color-accent)' : '#6E6E73'} />
           </motion.button>
 
           {/* More popover — RTL-safe: opens towards content area (left in RTL) */}
@@ -177,7 +177,7 @@ export function Sidebar() {
                     onClick={() => setMoreOpen(false)}
                     className="p-0.5 rounded hover:bg-[var(--color-surface-3)]/50 transition-colors"
                   >
-                    <X size={12} className="text-[var(--color-text-tertiary)]" />
+                    <X size={12} color="#AEAEB2" />
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-1">
@@ -199,7 +199,7 @@ export function Sidebar() {
                           ${active ? 'bg-[var(--color-accent)]/10' : 'hover:bg-[var(--color-surface-3)]/50'}
                         `}
                       >
-                        <Icon size={20} weight={active ? 'fill' : 'duotone'} />
+                        <Icon size={20} weight={active ? 'fill' : 'duotone'} color={active ? 'var(--color-accent)' : '#6E6E73'} />
                         <span className="text-[10px] font-medium leading-tight text-center">
                           {item.label}
                         </span>
