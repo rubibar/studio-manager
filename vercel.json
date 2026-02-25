@@ -1,6 +1,6 @@
 {
-  "installCommand": "npm install && cd studio-app && npm install",
+  "installCommand": "npm install",
   "buildCommand": "npm run build",
-  "outputDirectory": "studio-app/dist",
+  "outputDirectory": "dist",
   "framework": "vite"
 }
