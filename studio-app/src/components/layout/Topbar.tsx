@@ -1,9 +1,6 @@
-import { useRef } from 'react'
-import { motion } from 'framer-motion'
-import { List, MagnifyingGlass, Eye, Plus, CaretRight } from '@phosphor-icons/react'
+import { List, MagnifyingGlass, Eye, Plus, CaretLeft } from '@phosphor-icons/react'
 import { useUIStore } from '@/stores/uiStore'
 import { useTaskStore } from '@/stores/taskStore'
-import { useMagnetic } from '@/hooks/useMagnetic'
 import { SettingsPopover } from '@/components/shared/SettingsPopover'
 import { VIEW_TITLES } from '@/lib/constants'
 
@@ -16,98 +13,158 @@ export function Topbar() {
   const tasks = useTaskStore(s => s.tasks)
 
   const reviewCount = tasks.filter(t => t.status === 'review').length
-  const newTaskRef = useRef<HTMLButtonElement>(null)
-  const { x: magnetX, y: magnetY } = useMagnetic(newTaskRef, 0.15)
 
   return (
     <header
-      className="sticky top-0 z-30 h-11 flex items-center justify-between px-4 gap-4"
+      className="sticky top-0 z-30 flex items-center justify-between px-4 gap-4"
       style={{
-        background: 'var(--color-surface)',
-        borderBottom: '1px solid var(--color-border)',
+        height: 44,
+        background: '#FFFFFF',
+        borderBottom: '1px solid var(--color-border, #E0DDD8)',
+        fontFamily: 'var(--font-sans, "DM Sans", sans-serif)',
       }}
     >
       {/* Left: hamburger + breadcrumb */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-1 hover:bg-[var(--color-surface-2)] transition-colors"
+          className="lg:hidden cursor-pointer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 4,
+            background: 'transparent',
+            border: 'none',
+            borderRadius: 2,
+            transition: 'background 150ms ease',
+            cursor: 'pointer',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#F7F6F4' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
         >
-          <List size={18} color="#8A8578" />
+          <List size={18} color="#7A756D" />
         </button>
 
-        {/* Breadcrumb — terminal style */}
-        <div className="flex items-center gap-1.5 font-mono text-[11px]">
-          <span style={{ color: 'var(--color-accent)' }}>SYS</span>
-          <CaretRight size={10} color="#504C44" />
-          <span className="font-bold tracking-wide uppercase" style={{ color: 'var(--color-text-primary)' }}>
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-1.5 min-w-0">
+          <span style={{ fontSize: 13, color: '#A8A39B' }}>
+            Studio
+          </span>
+          <CaretLeft size={10} color="#A8A39B" />
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              color: '#3D3A36',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {VIEW_TITLES[activeView] || ''}
           </span>
         </div>
       </div>
 
-      {/* Center: command palette — terminal trigger */}
+      {/* Center-right: search trigger */}
       <button
         onClick={openCommandPalette}
-        className="hidden md:flex items-center gap-2 px-3 py-1 flex-1 max-w-xs cursor-pointer transition-colors"
+        className="hidden md:flex items-center gap-2 cursor-pointer"
         style={{
-          background: 'var(--color-surface-2)',
-          border: '1px solid var(--color-border)',
+          maxWidth: 280,
+          flex: '0 1 280px',
+          padding: '5px 10px',
+          background: '#F7F6F4',
+          border: '1px solid var(--color-border, #E0DDD8)',
+          borderRadius: 2,
+          transition: 'border-color 150ms ease',
+          cursor: 'pointer',
         }}
+        onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#C8C4BC' }}
+        onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-border, #E0DDD8)' }}
       >
-        <MagnifyingGlass size={12} color="#504C44" />
-        <span className="text-[10px] font-mono flex-1 text-right" style={{ color: 'var(--color-text-tertiary)' }}>
-          search_
-        </span>
-        <kbd
-          className="text-[9px] font-mono px-1 py-0.5"
+        <MagnifyingGlass size={13} color="#A8A39B" />
+        <span
           style={{
-            background: 'var(--color-surface-3)',
-            color: 'var(--color-text-tertiary)',
-            border: '1px solid var(--color-border)',
+            fontSize: 13,
+            color: '#A8A39B',
+            flex: 1,
+            textAlign: 'start',
           }}
         >
-          ^K
+          Search...
+        </span>
+        <kbd
+          style={{
+            fontSize: 11,
+            fontFamily: 'var(--font-sans, "DM Sans", sans-serif)',
+            color: '#A8A39B',
+            padding: '1px 5px',
+            background: '#FFFFFF',
+            border: '1px solid var(--color-border, #E0DDD8)',
+            borderRadius: 2,
+            lineHeight: '16px',
+          }}
+        >
+          Ctrl K
         </kbd>
       </button>
 
       {/* Right: actions */}
-      <div className="flex items-center gap-2">
-        {/* New task */}
-        <motion.button
-          ref={newTaskRef}
-          style={{
-            x: magnetX,
-            y: magnetY,
-            background: 'var(--color-accent)',
-            boxShadow: 'var(--shadow-glow-accent)',
-          }}
+      <div className="flex items-center gap-2 shrink-0">
+        {/* New Task button */}
+        <button
           onClick={() => openModal({ type: 'addTask' })}
-          className="flex items-center gap-1.5 text-[11px] font-mono font-bold px-3 py-1.5 uppercase tracking-wider cursor-pointer"
-          whileTap={{ scale: 0.95 }}
+          className="cursor-pointer"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 5,
+            padding: '5px 12px',
+            background: 'var(--color-accent, #4A7FB5)',
+            color: '#FFFFFF',
+            fontSize: 13,
+            fontWeight: 500,
+            fontFamily: 'var(--font-sans, "DM Sans", sans-serif)',
+            border: 'none',
+            borderRadius: 2,
+            cursor: 'pointer',
+            transition: 'opacity 150ms ease',
+          }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = '0.9' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
         >
-          <Plus size={12} weight="bold" color="#080807" />
-          <span className="hidden sm:inline" style={{ color: '#080807' }}>
-            NEW
-          </span>
-        </motion.button>
+          <Plus size={13} weight="bold" color="#FFFFFF" />
+          <span className="hidden sm:inline">New Task</span>
+        </button>
 
-        {/* Review count — signal indicator */}
+        {/* Review count badge */}
         {reviewCount > 0 && (
-          <motion.button
+          <button
             onClick={toggleReviewSidebar}
-            className="flex items-center gap-1.5 px-2 py-1 cursor-pointer"
+            className="cursor-pointer"
             style={{
-              background: 'rgba(255, 45, 45, 0.08)',
-              border: '1px solid rgba(255, 45, 45, 0.2)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '4px 8px',
+              background: 'rgba(74, 127, 181, 0.08)',
+              color: 'var(--color-accent, #4A7FB5)',
+              fontSize: 12,
+              fontWeight: 500,
+              fontFamily: 'var(--font-sans, "DM Sans", sans-serif)',
+              border: 'none',
+              borderRadius: 2,
+              cursor: 'pointer',
+              transition: 'background 150ms ease',
             }}
-            whileTap={{ scale: 0.95 }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(74, 127, 181, 0.12)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(74, 127, 181, 0.08)' }}
           >
-            <Eye size={12} weight="fill" color="var(--color-accent)" />
-            <span className="text-[10px] font-mono font-bold signal-blink" style={{ color: 'var(--color-accent)' }}>
-              {reviewCount}
-            </span>
-          </motion.button>
+            <Eye size={13} weight="fill" color="var(--color-accent, #4A7FB5)" />
+            <span>{reviewCount}</span>
+          </button>
         )}
 
         {/* Settings */}

@@ -6,7 +6,6 @@ import { CommandPalette } from '@/components/shared/CommandPalette'
 import { SlideOver } from '@/components/shared/SlideOver'
 import { TaskDetailPanel } from '@/components/forms/TaskDetailPanel'
 import { useUIStore } from '@/stores/uiStore'
-import { getPresetById } from '@/lib/gradientPresets'
 
 interface AppShellProps {
   children: React.ReactNode
@@ -16,12 +15,7 @@ export function AppShell({ children }: AppShellProps) {
   const toggleCommandPalette = useUIStore(s => s.toggleCommandPalette)
   const slideOverTaskId = useUIStore(s => s.slideOverTaskId)
   const closeSlideOver = useUIStore(s => s.closeSlideOver)
-  const gradientPreset = useUIStore(s => s.gradientPreset)
-  const darkMode = useUIStore(s => s.darkMode)
   const accentColor = useUIStore(s => s.accentColor)
-
-  const preset = getPresetById(gradientPreset)
-  const bgGradient = darkMode ? preset.dark : preset.light
 
   // Initialize accent color on mount
   useEffect(() => {
@@ -40,10 +34,13 @@ export function AppShell({ children }: AppShellProps) {
   }, [toggleCommandPalette])
 
   return (
-    <div className="flex min-h-[100dvh]" dir="rtl" style={{ background: bgGradient }}>
-      <div className="noise-overlay" aria-hidden="true" />
+    <div
+      className="flex min-h-[100dvh]"
+      dir="rtl"
+      style={{ background: '#F7F6F4' }}
+    >
       <Sidebar />
-      <div className="flex-1 flex flex-col min-w-0 depth-scene">
+      <div className="flex-1 flex flex-col min-w-0">
         <Topbar />
         <main className="flex-1 overflow-auto p-4 md:p-6">
           {children}

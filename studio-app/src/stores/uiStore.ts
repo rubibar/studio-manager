@@ -21,6 +21,7 @@ interface ModalState {
 interface UIState {
   activeView: ViewName
   sidebarOpen: boolean
+  sidebarCollapsed: boolean
   darkMode: boolean
   filters: TaskFilters
   sort: SortConfig
@@ -37,6 +38,7 @@ interface UIState {
   setView: (view: ViewName) => void
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
+  toggleSidebarCollapse: () => void
   toggleDarkMode: () => void
   setFilters: (filters: Partial<TaskFilters>) => void
   resetFilters: () => void
@@ -59,6 +61,7 @@ interface UIState {
 export const useUIStore = create<UIState>((set) => ({
   activeView: 'dashboard',
   sidebarOpen: true,
+  sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true',
   darkMode: localStorage.getItem('darkMode') === 'true',
   filters: { ...DEFAULT_FILTERS },
   sort: { field: 'deadline', asc: true },
@@ -75,6 +78,12 @@ export const useUIStore = create<UIState>((set) => ({
   setView: (view) => set({ activeView: view }),
   toggleSidebar: () => set((s) => ({ sidebarOpen: !s.sidebarOpen })),
   setSidebarOpen: (open) => set({ sidebarOpen: open }),
+  toggleSidebarCollapse: () =>
+    set((s) => {
+      const next = !s.sidebarCollapsed
+      localStorage.setItem('sidebarCollapsed', String(next))
+      return { sidebarCollapsed: next }
+    }),
   toggleDarkMode: () =>
     set((s) => {
       const next = !s.darkMode

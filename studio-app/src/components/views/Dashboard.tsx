@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { motion } from 'framer-motion'
 import { Plus, CalendarBlank, Lightning, Users, CheckCircle } from '@phosphor-icons/react'
 import { useVisibleTasks } from '@/hooks/useFilters'
 import { useScoring } from '@/hooks/useScoring'
@@ -26,13 +25,13 @@ export function Dashboard() {
   const todayTasks = useMemo(() => {
     const today = new Date()
     today.setHours(0, 0, 0, 0)
-    const tomorrow = new Date(today)
-    tomorrow.setDate(tomorrow.getDate() + 3)
+    const horizon = new Date(today)
+    horizon.setDate(horizon.getDate() + 3)
     return active
       .filter(t => {
         if (!t.endDate) return false
         const d = new Date(t.endDate)
-        return d <= tomorrow
+        return d <= horizon
       })
       .sort((a, b) => getScore(b.id) - getScore(a.id))
       .slice(0, 8)
@@ -52,12 +51,12 @@ export function Dashboard() {
 
   const greeting = useMemo(() => {
     const hour = new Date().getHours()
-    if (hour < 12) return 'GOOD MORNING'
-    if (hour < 17) return 'GOOD AFTERNOON'
-    return 'GOOD EVENING'
+    if (hour < 12) return 'Good Morning'
+    if (hour < 17) return 'Good Afternoon'
+    return 'Good Evening'
   }, [])
 
-  const todayStr = new Date().toLocaleDateString('he-IL', {
+  const todayStr = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -66,71 +65,53 @@ export function Dashboard() {
 
   return (
     <StaggeredList className="space-y-4 max-w-6xl">
-      {/* Welcome — brutalist header block */}
+      {/* Header bar */}
       <StaggeredItem>
-        <div
-          className="p-5 relative"
-          style={{
-            background: 'var(--color-surface)',
-            border: '1px solid var(--color-border)',
-            borderLeft: '4px solid var(--color-accent)',
-          }}
-        >
-          <div className="flex items-start justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="font-mono text-[9px] tracking-[0.2em] uppercase" style={{ color: 'var(--color-accent)' }}>
-                  // {greeting}
-                </span>
-                <span className="font-mono text-[9px]" style={{ color: 'var(--color-text-tertiary)' }}>
-                  {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}
-                </span>
-              </div>
-              <h2
-                className="text-[28px] font-bold tracking-tight mb-1"
-                style={{ fontFamily: 'var(--font-sans)' }}
-              >
-                {user?.displayName?.split(' ')[0] || 'Operator'}
-              </h2>
-              <p className="text-[12px] font-mono" style={{ color: 'var(--color-text-tertiary)' }}>
-                {todayStr}
-              </p>
-            </div>
-            <motion.button
-              onClick={() => openModal({ type: 'addTask' })}
-              className="flex items-center gap-2 text-[11px] font-mono font-bold px-4 py-2 uppercase tracking-wider cursor-pointer"
-              style={{
-                background: 'var(--color-accent)',
-                color: '#080807',
-                boxShadow: 'var(--shadow-glow-accent)',
-              }}
-              whileTap={{ scale: 0.95 }}
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <h2
+              className="text-[18px] font-semibold"
+              style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}
             >
-              <Plus size={14} weight="bold" />
-              NEW TASK
-            </motion.button>
+              {greeting}, {user?.displayName?.split(' ')[0] || 'there'}
+            </h2>
+            <p className="text-[13px] mt-0.5" style={{ color: 'var(--color-text-tertiary)' }}>
+              {todayStr}
+            </p>
           </div>
+          <button
+            onClick={() => openModal({ type: 'addTask' })}
+            className="flex items-center gap-1.5 text-[13px] font-semibold px-4 py-2 text-white cursor-pointer transition-opacity duration-150 hover:opacity-90"
+            style={{
+              fontFamily: 'var(--font-sans)',
+              background: 'var(--color-accent)',
+              borderRadius: '4px',
+            }}
+          >
+            <Plus size={15} weight="bold" />
+            New Task
+          </button>
         </div>
       </StaggeredItem>
 
-      {/* Stats strip — raw data blocks */}
+      {/* Stats row */}
       <StaggeredItem>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-px" style={{ background: 'var(--color-border)' }}>
-          <StatCard label="ACTIVE" value={active.length} icon="lightning" delay={0} />
-          <StatCard label="OVERDUE" value={overdue.length} icon="calendar" delay={80} alert={overdue.length > 0} />
-          <StatCard label="REVIEW" value={inReview.length} icon="users" delay={160} />
-          <StatCard label="DONE" value={done.length} icon="check" delay={240} />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatBlock label="Active" value={active.length} icon={Lightning} />
+          <StatBlock label="Overdue" value={overdue.length} icon={CalendarBlank} alert={overdue.length > 0} />
+          <StatBlock label="In Review" value={inReview.length} icon={Users} />
+          <StatBlock label="Completed" value={done.length} icon={CheckCircle} />
         </div>
       </StaggeredItem>
 
-      {/* Focus + Team — asymmetric grid */}
+      {/* Two-column layout */}
       <StaggeredItem>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-px" style={{ background: 'var(--color-border)' }}>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-3">
           <div className="lg:col-span-3">
-            <TodayFocusWidget tasks={todayTasks} getScore={getScore} onTaskClick={openSlideOver} />
+            <TodayFocusSection tasks={todayTasks} getScore={getScore} onTaskClick={openSlideOver} />
           </div>
           <div className="lg:col-span-2">
-            <TeamActivityWidget teamStats={teamStats} />
+            <TeamActivitySection teamStats={teamStats} />
           </div>
         </div>
       </StaggeredItem>
@@ -138,110 +119,122 @@ export function Dashboard() {
   )
 }
 
-/* ── Stat Card — signal block ── */
-function StatCard({ label, value, icon, delay, alert }: {
+/* -- Stat Block -- */
+function StatBlock({ label, value, icon: Icon, alert }: {
   label: string
   value: number
-  icon: string
-  delay: number
+  icon: React.ElementType
   alert?: boolean
 }) {
-  const IconMap = {
-    lightning: Lightning,
-    calendar: CalendarBlank,
-    users: Users,
-    check: CheckCircle,
-  }
-  const Icon = IconMap[icon as keyof typeof IconMap] || Lightning
-
   return (
-    <motion.div
-      className="p-4 relative"
+    <div
+      className="relative p-4"
       style={{
-        background: 'var(--color-surface)',
-        borderLeft: alert ? '3px solid var(--color-red)' : '3px solid transparent',
+        background: '#FFFFFF',
+        border: '1px solid var(--color-border)',
+        borderRadius: '4px',
+        borderLeft: alert ? '3px solid #E5737E' : '1px solid var(--color-border)',
       }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: delay / 1000, duration: 0.2 }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[9px] font-mono font-bold tracking-[0.2em]" style={{ color: 'var(--color-text-tertiary)' }}>
-          {label}
-        </span>
+      <div className="absolute top-3 right-3">
         <Icon
-          size={14}
-          weight="bold"
-          color={alert ? 'var(--color-red)' : 'var(--color-text-tertiary)'}
+          size={16}
+          weight="regular"
+          color={alert ? '#E5737E' : 'var(--color-text-tertiary)'}
         />
+      </div>
+      <div
+        className="text-[11px] font-semibold uppercase tracking-wide mb-2"
+        style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-secondary)' }}
+      >
+        {label}
       </div>
       <AnimatedNumber
         value={value}
-        delay={delay}
-        className={`text-[32px] font-bold tracking-tighter font-mono ${alert ? 'text-[var(--color-red)]' : ''}`}
+        className={`text-[28px] font-semibold tracking-tight block`}
+        style={{
+          fontFamily: 'var(--font-sans)',
+          color: alert ? '#E5737E' : 'var(--color-text-primary)',
+        }}
       />
-      {alert && value > 0 && (
-        <div
-          className="absolute top-2 right-2 w-1.5 h-1.5 signal-blink"
-          style={{ background: 'var(--color-red)' }}
-        />
-      )}
-    </motion.div>
+    </div>
   )
 }
 
-/* ── Today's Focus — queue display ── */
-function TodayFocusWidget({ tasks, getScore, onTaskClick }: {
+/* -- Today's Focus Section -- */
+function TodayFocusSection({ tasks, getScore, onTaskClick }: {
   tasks: ReturnType<typeof useVisibleTasks>
   getScore: (id: number) => number
   onTaskClick: (id: number) => void
 }) {
   return (
-    <div className="p-4" style={{ background: 'var(--color-surface)' }}>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-[9px] font-mono font-bold tracking-[0.2em]" style={{ color: 'var(--color-accent)' }}>
-          // PRIORITY QUEUE
-        </span>
-        <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
-        <span className="text-[9px] font-mono" style={{ color: 'var(--color-text-tertiary)' }}>
-          {tasks.length}
-        </span>
+    <div
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid var(--color-border)',
+        borderRadius: '4px',
+      }}
+    >
+      <div className="px-4 pt-4 pb-2">
+        <h3
+          className="text-[12px] font-semibold uppercase tracking-wide"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-secondary)' }}
+        >
+          Today's Focus
+        </h3>
       </div>
-      <div className="space-y-0">
+
+      <div>
         {tasks.length === 0 && (
-          <p className="text-[11px] font-mono py-8 text-center" style={{ color: 'var(--color-text-tertiary)' }}>
-            NO_ITEMS_DUE
+          <p
+            className="text-[13px] py-10 text-center"
+            style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-tertiary)' }}
+          >
+            Nothing due soon
           </p>
         )}
-        {tasks.map((t, i) => {
+        {tasks.map((t) => {
           const score = getScore(t.id)
           const member = TEAM.find(m => m.id === t.assignee)
           return (
-            <motion.div
+            <div
               key={t.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.03 }}
-              className="flex items-center gap-3 p-2.5 cursor-pointer border-b transition-colors hover:bg-[var(--color-surface-2)]"
-              style={{ borderColor: 'var(--color-border)' }}
+              className="flex items-center gap-3 px-4 py-2.5 cursor-pointer transition-colors duration-150"
+              style={{ borderBottom: '1px solid var(--color-border)' }}
               onClick={() => onTaskClick(t.id)}
+              onMouseEnter={e => (e.currentTarget.style.background = '#EFEDE9')}
+              onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <span className="text-[9px] font-mono w-4 shrink-0" style={{ color: 'var(--color-text-tertiary)' }}>
-                {String(i + 1).padStart(2, '0')}
-              </span>
               <ScoreBadge score={score} />
-              <div className="flex-1 min-w-0">
-                <span className="text-[12px] font-mono block truncate">{t.name}</span>
-              </div>
-              <span className="text-[10px] font-mono shrink-0" style={{ color: member?.color || 'var(--color-text-tertiary)' }}>
-                {member?.name?.split(' ')[0] || '—'}
+              <span
+                className="flex-1 min-w-0 text-[13px] truncate"
+                style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}
+              >
+                {t.name}
               </span>
+              {member && (
+                <span className="flex items-center gap-1.5 shrink-0">
+                  <span
+                    className="w-2 h-2 shrink-0"
+                    style={{ background: member.color, borderRadius: '2px' }}
+                  />
+                  <span
+                    className="text-[11px]"
+                    style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-secondary)' }}
+                  >
+                    {member.name}
+                  </span>
+                </span>
+              )}
               {t.endDate && (
-                <span className="text-[9px] font-mono shrink-0" style={{ color: 'var(--color-text-tertiary)' }}>
+                <span
+                  className="text-[11px] shrink-0"
+                  style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-tertiary)' }}
+                >
                   {formatDate(t.endDate)}
                 </span>
               )}
-            </motion.div>
+            </div>
           )
         })}
       </div>
@@ -249,53 +242,70 @@ function TodayFocusWidget({ tasks, getScore, onTaskClick }: {
   )
 }
 
-/* ── Team Activity — status display ── */
-function TeamActivityWidget({ teamStats }: {
+/* -- Team Activity Section -- */
+function TeamActivitySection({ teamStats }: {
   teamStats: { id: string; name: string; color: string; total: number; inProgress: number }[]
 }) {
   const maxTasks = Math.max(...teamStats.map(m => m.total), 1)
 
   return (
-    <div className="p-4" style={{ background: 'var(--color-surface)' }}>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="text-[9px] font-mono font-bold tracking-[0.2em]" style={{ color: 'var(--color-accent)' }}>
-          // OPERATORS
-        </span>
-        <div className="flex-1 h-px" style={{ background: 'var(--color-border)' }} />
+    <div
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid var(--color-border)',
+        borderRadius: '4px',
+      }}
+    >
+      <div className="px-4 pt-4 pb-2">
+        <h3
+          className="text-[12px] font-semibold uppercase tracking-wide"
+          style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-secondary)' }}
+        >
+          Team Activity
+        </h3>
       </div>
-      <div className="space-y-3">
-        {teamStats.map((m, i) => (
-          <motion.div
-            key={m.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 + i * 0.06 }}
-            className="group"
-          >
+
+      <div className="px-4 pb-4 space-y-4">
+        {teamStats.map(m => (
+          <div key={m.id}>
             <div className="flex items-center gap-2 mb-1.5">
-              <div
-                className="w-2 h-2 shrink-0"
-                style={{ background: m.color }}
+              <span
+                className="w-2.5 h-2.5 shrink-0"
+                style={{ background: m.color, borderRadius: '2px' }}
               />
-              <span className="text-[12px] font-mono font-medium flex-1">{m.name}</span>
+              <span
+                className="text-[13px] font-medium flex-1"
+                style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-primary)' }}
+              >
+                {m.name}
+              </span>
               {m.inProgress > 0 && (
-                <span className="w-1.5 h-1.5 signal-blink" style={{ background: 'var(--color-green)' }} />
+                <span
+                  className="w-2 h-2 shrink-0 rounded-full"
+                  style={{ background: '#7EC886' }}
+                />
               )}
-              <span className="text-[11px] font-mono font-bold" style={{ color: 'var(--color-text-secondary)' }}>
+              <span
+                className="text-[12px] font-semibold"
+                style={{ fontFamily: 'var(--font-sans)', color: 'var(--color-text-secondary)' }}
+              >
                 {m.total}
               </span>
             </div>
-            {/* Progress — raw bar */}
-            <div className="h-1" style={{ background: 'var(--color-surface-3)' }}>
-              <motion.div
-                className="h-full"
-                style={{ background: m.color }}
-                initial={{ width: 0 }}
-                animate={{ width: `${(m.total / maxTasks) * 100}%` }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.08 }}
+            <div
+              className="h-[3px] w-full overflow-hidden"
+              style={{ background: '#EFEDE9', borderRadius: '2px' }}
+            >
+              <div
+                className="h-full transition-all duration-500 ease-out"
+                style={{
+                  background: m.color,
+                  width: `${(m.total / maxTasks) * 100}%`,
+                  borderRadius: '2px',
+                }}
               />
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

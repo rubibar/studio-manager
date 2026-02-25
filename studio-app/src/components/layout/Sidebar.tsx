@@ -1,21 +1,21 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChartBar, ListChecks, Kanban, CalendarBlank, ChartPie,
   DotsNine, Bank, ChartLine, FolderOpen, Scales,
   CalendarDots, TrendDown, ClockCounterClockwise, Rocket,
   GitBranch, Timer, CurrencyCircleDollar, Briefcase,
-  Buildings, Target, GearSix, X, Warning,
+  Buildings, Target, GearSix,
+  CaretLeft, CaretRight,
 } from '@phosphor-icons/react'
 import { useUIStore, type ViewName } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
 
-const PRIMARY_ITEMS: { id: ViewName; label: string; icon: React.ElementType; index: string }[] = [
-  { id: 'dashboard', label: 'DASH', icon: ChartBar, index: '01' },
-  { id: 'tasks', label: 'TASKS', icon: ListChecks, index: '02' },
-  { id: 'kanban', label: 'BOARD', icon: Kanban, index: '03' },
-  { id: 'calendar', label: 'CAL', icon: CalendarBlank, index: '04' },
-  { id: 'reports', label: 'DATA', icon: ChartPie, index: '05' },
+const PRIMARY_ITEMS: { id: ViewName; label: string; icon: React.ElementType }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: ChartBar },
+  { id: 'tasks', label: 'Tasks', icon: ListChecks },
+  { id: 'kanban', label: 'Board', icon: Kanban },
+  { id: 'calendar', label: 'Calendar', icon: CalendarBlank },
+  { id: 'reports', label: 'Reports', icon: ChartPie },
 ]
 
 const MORE_ITEMS: { id: ViewName; label: string; icon: React.ElementType; adminOnly?: boolean }[] = [
@@ -41,6 +41,8 @@ export function Sidebar() {
   const setView = useUIStore(s => s.setView)
   const sidebarOpen = useUIStore(s => s.sidebarOpen)
   const setSidebarOpen = useUIStore(s => s.setSidebarOpen)
+  const sidebarCollapsed = useUIStore(s => s.sidebarCollapsed)
+  const toggleSidebarCollapse = useUIStore(s => s.toggleSidebarCollapse)
   const isAdmin = useAuthStore(s => s.isAdmin)
 
   const [moreOpen, setMoreOpen] = useState(false)
@@ -73,196 +75,383 @@ export function Sidebar() {
     if (window.innerWidth <= 1024) setSidebarOpen(false)
   }
 
+  const expanded = !sidebarCollapsed
+  const sidebarWidth = expanded ? 200 : 48
+
   return (
     <>
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar — industrial rail */}
+      {/* Sidebar */}
       <aside
         className={`
-          fixed top-0 right-0 h-full z-50 w-[72px] bg-[var(--color-surface)]
-          border-l border-[var(--color-border)]
-          flex flex-col items-center py-3 gap-0
-          transition-transform duration-200
+          fixed top-0 right-0 h-full z-50
+          flex flex-col
+          transition-all duration-200 ease-in-out
           lg:static lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
         `}
-        style={{ borderLeft: '2px solid var(--color-border)' }}
+        style={{
+          width: sidebarWidth,
+          minWidth: sidebarWidth,
+          background: '#EFEDE9',
+          borderLeft: '1px solid var(--color-border, #E0DDD8)',
+          fontFamily: 'var(--font-sans, "DM Sans", sans-serif)',
+        }}
       >
-        {/* Signal mark */}
-        <div className="w-full flex items-center justify-center mb-3 pb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
-          <div
-            className="w-8 h-8 flex items-center justify-center"
-            style={{
-              background: 'var(--color-accent)',
-              boxShadow: 'var(--shadow-glow-accent)',
-            }}
-          >
-            <Warning size={16} weight="fill" color="#080807" />
-          </div>
+        {/* Logo area */}
+        <div
+          className="flex items-center h-11 px-3 shrink-0"
+          style={{ borderBottom: '1px solid var(--color-border, #E0DDD8)' }}
+        >
+          {expanded ? (
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: '#3D3A36',
+                letterSpacing: '-0.01em',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+              }}
+            >
+              Studio
+            </span>
+          ) : (
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: '#3D3A36',
+                width: '100%',
+                textAlign: 'center',
+                display: 'block',
+              }}
+            >
+              S
+            </span>
+          )}
         </div>
 
         {/* Primary nav */}
-        <nav className="flex flex-col items-center gap-0 flex-1 w-full">
+        <nav className="flex flex-col py-1 shrink-0">
           {PRIMARY_ITEMS.map(item => {
             const Icon = item.icon
             const active = activeView === item.id
             return (
-              <motion.button
+              <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
-                whileTap={{ scale: 0.92 }}
-                className="relative w-full group cursor-pointer"
+                className="relative group cursor-pointer"
+                title={!expanded ? item.label : undefined}
                 style={{
-                  height: 56,
                   display: 'flex',
-                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 2,
-                  background: active ? 'rgba(255, 45, 45, 0.06)' : 'transparent',
+                  gap: 8,
+                  height: 34,
+                  paddingLeft: expanded ? 12 : 0,
+                  paddingRight: expanded ? 12 : 0,
+                  justifyContent: expanded ? 'flex-start' : 'center',
+                  background: active ? 'rgba(74, 127, 181, 0.06)' : 'transparent',
+                  borderRight: active ? '3px solid var(--color-accent, #4A7FB5)' : '3px solid transparent',
+                  transition: 'background 150ms ease',
+                  border: 'none',
+                  borderLeft: 'none',
+                  outline: 'none',
+                  width: '100%',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={e => {
+                  if (!active) (e.currentTarget as HTMLElement).style.background = '#E6E3DD'
+                }}
+                onMouseLeave={e => {
+                  if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'
                 }}
               >
-                {/* Active signal bar */}
+                {/* Active indicator — right border in RTL means physically left */}
                 {active && (
-                  <motion.div
-                    layoutId="sidebar-active"
-                    className="absolute left-0 top-1 bottom-1 w-[3px]"
-                    style={{ background: 'var(--color-accent)' }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      top: 4,
+                      bottom: 4,
+                      width: 3,
+                      background: 'var(--color-accent, #4A7FB5)',
+                      borderRadius: 1,
+                    }}
                   />
                 )}
-
                 <Icon
-                  size={20}
-                  weight={active ? 'fill' : 'bold'}
-                  color={active ? 'var(--color-accent)' : '#8A8578'}
-                  style={{ display: 'block', flexShrink: 0, minWidth: 20, minHeight: 20 }}
+                  size={16}
+                  weight={active ? 'fill' : 'regular'}
+                  color={active ? 'var(--color-accent, #4A7FB5)' : '#7A756D'}
+                  style={{ flexShrink: 0 }}
                 />
-                <span
-                  className="font-mono text-[8px] tracking-[0.15em] uppercase"
-                  style={{
-                    color: active ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
-                    fontWeight: active ? 700 : 400,
-                  }}
-                >
-                  {item.label}
-                </span>
+                {expanded && (
+                  <span
+                    style={{
+                      fontSize: 13,
+                      fontWeight: active ? 500 : 400,
+                      color: active ? 'var(--color-accent, #4A7FB5)' : '#7A756D',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                )}
 
-                {/* Index number */}
-                <span
-                  className="absolute top-1 right-1 font-mono text-[7px]"
-                  style={{ color: 'var(--color-text-tertiary)', opacity: 0.5 }}
-                >
-                  {item.index}
-                </span>
-
-                {/* Tooltip */}
-                <span
-                  className="absolute right-full mr-2 px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
-                  {item.label}
-                </span>
-              </motion.button>
+                {/* Tooltip for collapsed state */}
+                {!expanded && (
+                  <span
+                    className="pointer-events-none opacity-0 group-hover:opacity-100"
+                    style={{
+                      position: 'absolute',
+                      right: '100%',
+                      marginRight: 6,
+                      padding: '4px 8px',
+                      background: '#3D3A36',
+                      color: '#FFFFFF',
+                      fontSize: 11,
+                      fontWeight: 500,
+                      whiteSpace: 'nowrap',
+                      borderRadius: 2,
+                      zIndex: 60,
+                      transition: 'opacity 150ms ease',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                )}
+              </button>
             )
           })}
         </nav>
 
-        {/* Separator — signal line */}
-        <div className="w-full h-px my-1" style={{ background: 'var(--color-border)' }} />
+        {/* Separator */}
+        <div style={{ height: 1, background: 'var(--color-border, #E0DDD8)', margin: '2px 0' }} />
 
-        {/* More button */}
-        <div className="relative w-full" ref={moreRef}>
-          <motion.button
-            onClick={() => setMoreOpen(prev => !prev)}
-            whileTap={{ scale: 0.92 }}
-            className="w-full flex flex-col items-center justify-center cursor-pointer"
-            style={{
-              height: 48,
-              color: isMoreView || moreOpen ? 'var(--color-accent)' : '#8A8578',
-              background: isMoreView || moreOpen ? 'rgba(255, 45, 45, 0.06)' : 'transparent',
-            }}
-          >
-            <DotsNine
-              size={20}
-              weight={isMoreView ? 'fill' : 'bold'}
-              color={isMoreView || moreOpen ? 'var(--color-accent)' : '#8A8578'}
-              style={{ display: 'block', flexShrink: 0, minWidth: 20, minHeight: 20 }}
-            />
-            <span
-              className="font-mono text-[8px] tracking-[0.15em] uppercase"
-              style={{ color: isMoreView || moreOpen ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
-            >
-              MORE
-            </span>
-          </motion.button>
-
-          {/* More popover — brutalist panel */}
-          <AnimatePresence>
-            {moreOpen && (
-              <motion.div
-                initial={{ opacity: 0, x: 8 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 8 }}
-                transition={{ duration: 0.1 }}
-                className="absolute bottom-0 right-full mr-1 bg-[var(--color-surface)] border border-[var(--color-border)] p-2 w-[260px] z-[60]"
-                style={{ boxShadow: '8px 8px 0 rgba(0,0,0,0.3)' }}
-              >
-                {/* Header */}
-                <div className="flex items-center justify-between mb-2 px-1">
-                  <span className="text-[9px] font-mono font-bold tracking-[0.2em] uppercase" style={{ color: 'var(--color-accent)' }}>
-                    // MORE VIEWS
-                  </span>
+        {/* More section */}
+        <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={moreRef}>
+          {expanded ? (
+            /* Expanded: show all more items inline */
+            <nav className="flex flex-col py-1">
+              {filteredMore.map(item => {
+                const Icon = item.icon
+                const active = activeView === item.id
+                return (
                   <button
-                    onClick={() => setMoreOpen(false)}
-                    className="p-0.5 hover:bg-[var(--color-surface-2)] transition-colors"
+                    key={item.id}
+                    onClick={() => handleNav(item.id)}
+                    className="relative group cursor-pointer"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      height: 34,
+                      paddingLeft: 12,
+                      paddingRight: 12,
+                      background: active ? 'rgba(74, 127, 181, 0.06)' : 'transparent',
+                      transition: 'background 150ms ease',
+                      border: 'none',
+                      outline: 'none',
+                      width: '100%',
+                      cursor: 'pointer',
+                    }}
+                    onMouseEnter={e => {
+                      if (!active) (e.currentTarget as HTMLElement).style.background = '#E6E3DD'
+                    }}
+                    onMouseLeave={e => {
+                      if (!active) (e.currentTarget as HTMLElement).style.background = 'transparent'
+                    }}
                   >
-                    <X size={12} color="#8A8578" />
+                    {active && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: 4,
+                          bottom: 4,
+                          width: 3,
+                          background: 'var(--color-accent, #4A7FB5)',
+                          borderRadius: 1,
+                        }}
+                      />
+                    )}
+                    <Icon
+                      size={16}
+                      weight={active ? 'fill' : 'regular'}
+                      color={active ? 'var(--color-accent, #4A7FB5)' : '#7A756D'}
+                      style={{ flexShrink: 0 }}
+                    />
+                    <span
+                      style={{
+                        fontSize: 13,
+                        fontWeight: active ? 500 : 400,
+                        color: active ? 'var(--color-accent, #4A7FB5)' : '#7A756D',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {item.label}
+                    </span>
                   </button>
-                </div>
+                )
+              })}
+            </nav>
+          ) : (
+            /* Collapsed: DotsNine icon that opens a popover */
+            <div className="relative flex flex-col items-center py-1">
+              <button
+                onClick={() => setMoreOpen(prev => !prev)}
+                className="group cursor-pointer"
+                title="More views"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: 34,
+                  width: '100%',
+                  background: isMoreView || moreOpen ? 'rgba(74, 127, 181, 0.06)' : 'transparent',
+                  transition: 'background 150ms ease',
+                  border: 'none',
+                  outline: 'none',
+                  cursor: 'pointer',
+                }}
+                onMouseEnter={e => {
+                  if (!isMoreView && !moreOpen) (e.currentTarget as HTMLElement).style.background = '#E6E3DD'
+                }}
+                onMouseLeave={e => {
+                  if (!isMoreView && !moreOpen) (e.currentTarget as HTMLElement).style.background = 'transparent'
+                }}
+              >
+                <DotsNine
+                  size={16}
+                  weight={isMoreView ? 'fill' : 'regular'}
+                  color={isMoreView || moreOpen ? 'var(--color-accent, #4A7FB5)' : '#7A756D'}
+                />
+              </button>
 
-                {/* Grid */}
-                <div className="grid grid-cols-3 gap-px" style={{ background: 'var(--color-border)' }}>
+              {/* Popover */}
+              {moreOpen && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    right: '100%',
+                    marginRight: 4,
+                    width: 200,
+                    background: '#FFFFFF',
+                    border: '1px solid var(--color-border, #E0DDD8)',
+                    borderRadius: 4,
+                    zIndex: 60,
+                    maxHeight: 400,
+                    overflowY: 'auto',
+                    padding: '4px 0',
+                  }}
+                >
+                  <div
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 11,
+                      fontWeight: 500,
+                      color: '#A8A39B',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em',
+                    }}
+                  >
+                    More Views
+                  </div>
                   {filteredMore.map(item => {
                     const Icon = item.icon
                     const active = activeView === item.id
                     return (
-                      <motion.button
+                      <button
                         key={item.id}
                         onClick={() => handleNav(item.id)}
-                        whileTap={{ scale: 0.95 }}
-                        className="flex flex-col items-center gap-1 p-2.5 cursor-pointer"
                         style={{
-                          background: active ? 'rgba(255, 45, 45, 0.08)' : 'var(--color-surface)',
-                          borderLeft: active ? '2px solid var(--color-accent)' : '2px solid transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 8,
+                          height: 32,
+                          width: '100%',
+                          paddingLeft: 12,
+                          paddingRight: 12,
+                          background: active ? 'rgba(74, 127, 181, 0.06)' : 'transparent',
+                          transition: 'background 150ms ease',
+                          border: 'none',
+                          outline: 'none',
+                          cursor: 'pointer',
+                        }}
+                        onMouseEnter={e => {
+                          if (!active) (e.currentTarget as HTMLElement).style.background = '#F7F6F4'
+                        }}
+                        onMouseLeave={e => {
+                          if (!active) (e.currentTarget as HTMLElement).style.background = active ? 'rgba(74, 127, 181, 0.06)' : 'transparent'
                         }}
                       >
                         <Icon
-                          size={18}
-                          weight={active ? 'fill' : 'bold'}
-                          color={active ? 'var(--color-accent)' : '#8A8578'}
-                          style={{ display: 'block', flexShrink: 0, minWidth: 18, minHeight: 18 }}
+                          size={14}
+                          weight={active ? 'fill' : 'regular'}
+                          color={active ? 'var(--color-accent, #4A7FB5)' : '#7A756D'}
+                          style={{ flexShrink: 0 }}
                         />
                         <span
-                          className="text-[8px] font-mono leading-tight text-center uppercase tracking-wider"
-                          style={{ color: active ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
+                          style={{
+                            fontSize: 13,
+                            fontWeight: active ? 500 : 400,
+                            color: active ? 'var(--color-accent, #4A7FB5)' : '#3D3A36',
+                            whiteSpace: 'nowrap',
+                          }}
                         >
                           {item.label}
                         </span>
-                      </motion.button>
+                      </button>
                     )
                   })}
                 </div>
-              </motion.div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Bottom: Collapse toggle */}
+        <div
+          className="shrink-0"
+          style={{ borderTop: '1px solid var(--color-border, #E0DDD8)' }}
+        >
+          <button
+            onClick={toggleSidebarCollapse}
+            className="hidden lg:flex items-center justify-center cursor-pointer"
+            title={expanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            style={{
+              height: 36,
+              width: '100%',
+              background: 'transparent',
+              transition: 'background 150ms ease',
+              border: 'none',
+              outline: 'none',
+              cursor: 'pointer',
+            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#E6E3DD' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent' }}
+          >
+            {/* In RTL: CaretRight visually points toward content (collapse), CaretLeft points away (expand) */}
+            {expanded ? (
+              <CaretRight size={14} color="#7A756D" />
+            ) : (
+              <CaretLeft size={14} color="#7A756D" />
             )}
-          </AnimatePresence>
+          </button>
         </div>
       </aside>
     </>
