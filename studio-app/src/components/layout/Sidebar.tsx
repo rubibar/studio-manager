@@ -119,24 +119,23 @@ export function Sidebar() {
                 onClick={() => handleNav(item.id)}
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.95 }}
+                style={{
+                  color: active ? '#FFFFFF' : '#A1A1A6',
+                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(255,255,255,0.06)',
+                }}
                 className={`
                   relative group w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center
-                  transition-colors duration-200 cursor-pointer
-                  ${active
-                    ? 'bg-[var(--color-accent)] text-white shadow-[var(--shadow-glow-accent)]'
-                    : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-3)]/50 hover:text-[var(--color-text-primary)]'
-                  }
+                  cursor-pointer
+                  ${active ? 'shadow-[var(--shadow-glow-accent)]' : ''}
                 `}
               >
-                <Icon size={20} weight={active ? 'fill' : 'regular'} />
+                <Icon size={22} weight={active ? 'fill' : 'duotone'} />
                 {/* Glass tooltip */}
-                <motion.span
-                  initial={{ opacity: 0, x: -4 }}
-                  whileInView={{ opacity: 0 }}
+                <span
                   className="absolute right-full ml-3 px-2.5 py-1.5 rounded-[var(--radius-sm)] glass-panel text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
                 >
                   {item.label}
-                </motion.span>
+                </span>
               </motion.button>
             )
           })}
@@ -151,16 +150,13 @@ export function Sidebar() {
             onClick={() => setMoreOpen(prev => !prev)}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
-            className={`
-              w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center
-              transition-colors duration-200 cursor-pointer
-              ${isMoreView || moreOpen
-                ? 'bg-[var(--color-accent)]/15 text-[var(--color-accent)]'
-                : 'text-[var(--color-text-tertiary)] hover:bg-[var(--color-surface-3)]/50 hover:text-[var(--color-text-primary)]'
-              }
-            `}
+            style={{
+              color: isMoreView || moreOpen ? 'var(--color-accent)' : '#636366',
+              backgroundColor: isMoreView || moreOpen ? 'rgba(0,122,255,0.12)' : 'rgba(255,255,255,0.04)',
+            }}
+            className="w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center cursor-pointer"
           >
-            <DotsNine size={20} weight={isMoreView ? 'fill' : 'regular'} />
+            <DotsNine size={22} weight={isMoreView ? 'fill' : 'duotone'} />
           </motion.button>
 
           {/* More popover — RTL-safe: opens towards content area (left in RTL) */}
@@ -194,16 +190,16 @@ export function Sidebar() {
                         onClick={() => handleNav(item.id)}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        style={{
+                          color: active ? 'var(--color-accent)' : '#A1A1A6',
+                        }}
                         className={`
                           flex flex-col items-center gap-1 p-2.5 rounded-[var(--radius-default)]
-                          transition-colors duration-200 cursor-pointer
-                          ${active
-                            ? 'bg-[var(--color-accent)]/10 text-[var(--color-accent)]'
-                            : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-3)]/50'
-                          }
+                          cursor-pointer
+                          ${active ? 'bg-[var(--color-accent)]/10' : 'hover:bg-[var(--color-surface-3)]/50'}
                         `}
                       >
-                        <Icon size={18} weight={active ? 'fill' : 'regular'} />
+                        <Icon size={20} weight={active ? 'fill' : 'duotone'} />
                         <span className="text-[10px] font-medium leading-tight text-center">
                           {item.label}
                         </span>

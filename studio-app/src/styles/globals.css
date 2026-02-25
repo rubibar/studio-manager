@@ -203,11 +203,7 @@ button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-/* ── Smooth transitions (exclude SVGs to prevent icon render issues) ── */
-*:not(svg):not(path):not(circle):not(rect):not(line):not(polyline):not(polygon) {
-  transition-timing-function: var(--ease-out);
-  transition-duration: 0.2s;
-}
+/* ── Smooth transitions — applied explicitly via utility classes, not globally ── */
 
 /* ═════════════════════════════════════════════
    AMPLIFIED GLASSMORPHISM + 3D DEPTH SYSTEM
