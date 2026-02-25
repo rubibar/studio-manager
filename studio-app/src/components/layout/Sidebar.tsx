@@ -115,28 +115,24 @@ export function Sidebar() {
             const active = activeView === item.id
             const iconColor = active ? '#FFFFFF' : '#6E6E73'
             return (
-              <motion.button
+              <button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
                 style={{
-                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(0,0,0,0.04)',
+                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(0,0,0,0.06)',
+                  border: '2px solid rgba(150,150,150,0.3)',
+                  width: 44,
+                  height: 44,
+                  borderRadius: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  position: 'relative',
                 }}
-                className={`
-                  relative group w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center
-                  cursor-pointer
-                  ${active ? 'shadow-[var(--shadow-glow-accent)]' : ''}
-                `}
               >
                 <Icon size={22} weight={active ? 'fill' : 'duotone'} color={iconColor} />
-                {/* Glass tooltip */}
-                <span
-                  className="absolute right-full ml-3 px-2.5 py-1.5 rounded-[var(--radius-sm)] glass-panel text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
-                >
-                  {item.label}
-                </span>
-              </motion.button>
+              </button>
             )
           })}
         </nav>
