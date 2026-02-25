@@ -3,16 +3,17 @@ import { motion } from 'framer-motion'
 const containerVariants = {
   hidden: {},
   visible: {
-    transition: { staggerChildren: 0.04 },
+    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
   },
 }
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 12 },
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring' as const, damping: 25, stiffness: 200 },
+    scale: 1,
+    transition: { type: 'spring' as const, damping: 22, stiffness: 260 },
   },
 }
 

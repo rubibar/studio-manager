@@ -5,7 +5,7 @@ import {
   DotsNine, Bank, ChartLine, FolderOpen, Scales,
   CalendarDots, TrendDown, ClockCounterClockwise, Rocket,
   GitBranch, Timer, CurrencyCircleDollar, Briefcase,
-  Buildings, Target, GearSix, X,
+  Buildings, Target, GearSix, X, Aperture,
 } from '@phosphor-icons/react'
 import { useUIStore, type ViewName } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -98,13 +98,14 @@ export function Sidebar() {
         <motion.div
           className="w-10 h-10 rounded-[var(--radius-default)] bg-[var(--color-accent)] flex items-center justify-center mb-4 cursor-default"
           style={{ boxShadow: 'var(--shadow-glow-accent)' }}
-          animate={{ boxShadow: ['var(--shadow-glow-accent)', '0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)', 'var(--shadow-glow-accent)'] }}
+          animate={{
+            boxShadow: ['var(--shadow-glow-accent)', '0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)', 'var(--shadow-glow-accent)'],
+            rotate: [0, 0, 0],
+          }}
+          whileHover={{ scale: 1.1, rotate: 90 }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-            <circle cx="12" cy="13" r="4" />
-          </svg>
+          <Aperture size={18} weight="bold" color="white" />
         </motion.div>
 
         {/* Primary icons */}

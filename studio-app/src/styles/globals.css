@@ -288,9 +288,10 @@ button:active:not(:disabled) {
 }
 
 .glass-card:hover {
-  box-shadow: var(--shadow-glass-hover), var(--glass-inner-glow);
-  transform: translateY(-4px) translateZ(10px);
-  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: var(--shadow-glass-hover), var(--glass-inner-glow),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  transform: translateY(-6px) translateZ(16px) scale(1.005);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 
 .dark .glass-card {
@@ -370,16 +371,18 @@ button:active:not(:disabled) {
 /* ── Ambient accent glow ── */
 @keyframes ambient-glow {
   0%, 100% {
-    box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 15%, transparent);
+    box-shadow: 0 0 20px color-mix(in srgb, var(--color-accent) 18%, transparent),
+                0 0 4px color-mix(in srgb, var(--color-accent) 10%, transparent);
   }
   50% {
-    box-shadow: 0 0 40px color-mix(in srgb, var(--color-accent) 25%, transparent),
-                0 0 80px color-mix(in srgb, var(--color-accent) 8%, transparent);
+    box-shadow: 0 0 48px color-mix(in srgb, var(--color-accent) 30%, transparent),
+                0 0 96px color-mix(in srgb, var(--color-accent) 12%, transparent),
+                0 0 8px color-mix(in srgb, var(--color-accent) 15%, transparent);
   }
 }
 
 .ambient-glow {
-  animation: ambient-glow 4s ease-in-out infinite;
+  animation: ambient-glow 3.5s ease-in-out infinite;
 }
 
 /* ── Skeleton shimmer ── */
@@ -402,23 +405,71 @@ button:active:not(:disabled) {
 /* ── Breathing pulse ── */
 @keyframes breathe {
   0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.08); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 .breathe {
-  animation: breathe 3s ease-in-out infinite;
+  animation: breathe 2.4s ease-in-out infinite;
+}
+
+/* ── Pulse ring — radiating accent ring ── */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 40%, transparent); }
+  70% { box-shadow: 0 0 0 8px color-mix(in srgb, var(--color-accent) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-accent) 0%, transparent); }
+}
+.pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+/* ── Gentle float ── */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* ── Gradient shift — living background ── */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease-in-out infinite;
+}
+
+/* ── Slide-in-up utility ── */
+@keyframes slide-in-up {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-slide-in-up {
+  animation: slide-in-up 0.5s var(--ease-out) both;
+}
+
+/* ── Fade scale in ── */
+@keyframes fade-scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-scale-in {
+  animation: fade-scale-in 0.4s var(--spring-bounce) both;
 }
 
 /* ── Tactile feedback ── */
 .tactile {
-  transition: transform 0.15s var(--spring-bounce), box-shadow 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+  transition: transform 0.2s var(--spring-bounce), box-shadow 0.25s var(--ease-out), background-color 0.2s var(--ease-out);
 }
 .tactile:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px) scale(1.01);
   box-shadow: var(--shadow-bento-hover);
 }
 .tactile:active {
-  transform: scale(0.97) translateY(1px);
+  transform: scale(0.96) translateY(1px);
   box-shadow: var(--shadow-xs);
+  transition-duration: 0.08s;
 }
 
 /* ── Spotlight border card — enhanced with chromatic refraction ── */
@@ -536,6 +587,11 @@ button:active:not(:disabled) {
   .skeleton { animation: none; }
   .breathe { animation: none; opacity: 1; }
   .ambient-glow { animation: none; }
+  .pulse-ring { animation: none; }
+  .float { animation: none; }
+  .gradient-shift { animation: none; }
+  .animate-slide-in-up { animation: none; opacity: 1; transform: none; }
+  .animate-fade-scale-in { animation: none; opacity: 1; transform: none; }
   .glass-card:hover {
     box-shadow: var(--shadow-bento);
     transform: none;

@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, CalendarBlank, Lightning, Users } from '@phosphor-icons/react'
+import { Plus, CalendarBlank, Lightning, Users, CheckCircle } from '@phosphor-icons/react'
 import { useVisibleTasks } from '@/hooks/useFilters'
 import { useScoring } from '@/hooks/useScoring'
 import { useUIStore } from '@/stores/uiStore'
@@ -76,7 +76,15 @@ export function Dashboard() {
           onMouseMove={onWelcomeMove}
           onMouseLeave={onWelcomeLeave}
           style={tiltStyle}
-          className="glass-card p-6">
+          className="glass-card p-6 relative overflow-hidden">
+          {/* Subtle accent gradient ribbon */}
+          <div
+            className="absolute top-0 left-0 right-0 h-[3px] opacity-60 gradient-shift"
+            style={{
+              background: 'linear-gradient(90deg, var(--color-accent), var(--color-accent-light), var(--color-accent))',
+              backgroundSize: '200% 100%',
+            }}
+          />
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-[22px] font-semibold tracking-tight mb-1">
@@ -88,9 +96,9 @@ export function Dashboard() {
             </div>
             <motion.button
               onClick={() => openModal({ type: 'addTask' })}
-              className="flex items-center gap-2 bg-[var(--color-accent)] text-white text-[13px] font-medium px-4 py-2.5 rounded-[var(--radius-default)] hover:bg-[var(--color-accent-hover)] transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.97 }}
+              className="flex items-center gap-2 bg-[var(--color-accent)] text-white text-[13px] font-medium px-4 py-2.5 rounded-[var(--radius-default)] hover:bg-[var(--color-accent-hover)] transition-colors shadow-[var(--shadow-glow-accent)]"
+              whileHover={{ scale: 1.04, boxShadow: '0 0 24px color-mix(in srgb, var(--color-accent) 40%, transparent)' }}
+              whileTap={{ scale: 0.96 }}
             >
               <Plus size={16} weight="bold" />
               New Task
@@ -136,28 +144,40 @@ function StatCard({ label, value, icon, delay, alert }: {
     lightning: Lightning,
     calendar: CalendarBlank,
     users: Users,
-    check: ({ size, className }: { size: number; className?: string }) => (
-      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-        <polyline points="20 6 9 17 4 12" />
-      </svg>
-    ),
+    check: CheckCircle,
   }
   const Icon = IconMap[icon as keyof typeof IconMap] || Lightning
 
   return (
-    <div className="glass-card p-4">
+    <motion.div
+      className="glass-card p-4 group"
+      initial={{ opacity: 0, y: 16, scale: 0.97 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: 'spring', damping: 22, stiffness: 280, delay: delay / 1000 }}
+      whileHover={{ y: -2 }}
+    >
       <div className="flex items-center justify-between mb-2">
         <span className="text-[11px] font-medium text-[var(--color-text-secondary)] uppercase tracking-wide">
           {label}
         </span>
-        <Icon size={16} className={alert ? 'text-[var(--color-red)]' : 'text-[var(--color-text-tertiary)]'} />
+        <motion.div
+          className={`w-8 h-8 rounded-[10px] flex items-center justify-center ${
+            alert
+              ? 'bg-[var(--color-red)]/10 text-[var(--color-red)]'
+              : 'bg-[var(--color-accent)]/8 text-[var(--color-text-tertiary)] group-hover:text-[var(--color-accent)] group-hover:bg-[var(--color-accent)]/12'
+          } transition-colors`}
+          whileHover={{ rotate: 8, scale: 1.1 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+        >
+          <Icon size={16} weight="duotone" />
+        </motion.div>
       </div>
       <AnimatedNumber
         value={value}
         delay={delay}
         className={`text-[28px] font-semibold tracking-tight ${alert ? 'text-[var(--color-red)]' : ''}`}
       />
-    </div>
+    </motion.div>
   )
 }
 
@@ -178,13 +198,17 @@ function TodayFocusWidget({ tasks, getScore, onTaskClick }: {
             Nothing due soon
           </p>
         )}
-        {tasks.map(t => {
+        {tasks.map((t, i) => {
           const score = getScore(t.id)
           const member = TEAM.find(m => m.id === t.assignee)
           return (
-            <div
+            <motion.div
               key={t.id}
-              className="flex items-center gap-3 p-3 rounded-[var(--radius-default)] hover:bg-[var(--color-surface-2)]/50 cursor-pointer transition-colors"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.04, type: 'spring', damping: 25, stiffness: 300 }}
+              whileHover={{ x: 4, backgroundColor: 'rgba(0,0,0,0.03)' }}
+              className="flex items-center gap-3 p-3 rounded-[var(--radius-default)] cursor-pointer transition-colors"
               onClick={() => onTaskClick(t.id)}
             >
               <ScoreBadge score={score} />
@@ -195,7 +219,7 @@ function TodayFocusWidget({ tasks, getScore, onTaskClick }: {
                   {t.endDate && ` · ${formatDate(t.endDate)}`}
                 </span>
               </div>
-            </div>
+            </motion.div>
           )
         })}
       </div>
@@ -215,35 +239,43 @@ function TeamActivityWidget({ teamStats }: {
         Team Activity
       </h3>
       <div className="space-y-4">
-        {teamStats.map(m => (
-          <div key={m.id} className="flex items-center gap-3">
-            <div
+        {teamStats.map((m, i) => (
+          <motion.div
+            key={m.id}
+            initial={{ opacity: 0, x: -12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.08, type: 'spring', damping: 22, stiffness: 280 }}
+            className="flex items-center gap-3 group"
+          >
+            <motion.div
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0"
               style={{ background: m.color }}
+              whileHover={{ scale: 1.15 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 15 }}
             >
               {m.name.charAt(0)}
-            </div>
+            </motion.div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[13px] font-medium">{m.name}</span>
                 {m.inProgress > 0 && (
-                  <span className="w-1.5 h-1.5 rounded-full breathe" style={{ background: m.color }} />
+                  <span className="w-2 h-2 rounded-full breathe pulse-ring" style={{ background: m.color }} />
                 )}
                 <span className="text-[11px] font-mono text-[var(--color-text-tertiary)] mr-auto">
                   {m.total}
                 </span>
               </div>
-              <div className="h-1.5 bg-[var(--color-surface-3)]/50 rounded-full overflow-hidden">
+              <div className="h-2 bg-[var(--color-surface-3)]/50 rounded-full overflow-hidden">
                 <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: m.color }}
+                  className="h-full rounded-full relative"
+                  style={{ background: `linear-gradient(90deg, ${m.color}, ${m.color}dd)` }}
                   initial={{ width: 0 }}
                   animate={{ width: `${(m.total / maxTasks) * 100}%` }}
-                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+                  transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.3 + i * 0.1 }}
                 />
               </div>
             </div>
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

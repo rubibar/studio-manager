@@ -1,13 +1,18 @@
 import { useMemo, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useVisibleTasks } from '@/hooks/useFilters'
 import { TEAM, CATEGORIES } from '@/lib/constants'
 import { formatDate, formatRelative } from '@/lib/formatters'
 import { EmptyState } from '@/components/shared/EmptyState'
-import { Funnel } from '@phosphor-icons/react'
+import {
+  Funnel, PlusCircle, Play, Eye, CheckCircle, ArrowsClockwise,
+} from '@phosphor-icons/react'
+
+type ActivityIcon = 'create' | 'in-progress' | 'review' | 'done' | 'change'
 
 interface ActivityEntry {
   type: 'create' | 'status' | 'assign' | 'edit'
-  icon: string
+  icon: ActivityIcon
   text: string
   time: Date
   taskName: string
@@ -33,7 +38,7 @@ export function ActivityLog() {
       if (t.createdAt) {
         log.push({
           type: 'create',
-          icon: '+',
+          icon: 'create',
           text: `${memberName} created "${t.name}" in ${cat?.emoji || ''} ${cat?.name || ''}`,
           time: new Date(t.createdAt),
           taskName: t.name,
@@ -48,16 +53,16 @@ export function ActivityLog() {
           'review': 'Review',
           'done': 'Done',
         }
-        const statusIcons: Record<string, string> = {
-          'in-progress': '~',
-          'review': '?',
-          'done': 'v',
+        const statusIcons: Record<string, ActivityIcon> = {
+          'in-progress': 'in-progress',
+          'review': 'review',
+          'done': 'done',
         }
         const d = new Date(t.startDate)
         d.setDate(d.getDate() + 2)
         log.push({
           type: 'status',
-          icon: statusIcons[t.status] || '~',
+          icon: statusIcons[t.status] || 'change',
           text: `${memberName} changed to ${statusLabels[t.status] || t.status}: "${t.name}"`,
           time: d,
           taskName: t.name,
@@ -69,7 +74,7 @@ export function ActivityLog() {
       if (t.status === 'done' && t.completedAt) {
         log.push({
           type: 'status',
-          icon: 'v',
+          icon: 'done',
           text: `${memberName} completed: "${t.name}"`,
           time: new Date(t.completedAt),
           taskName: t.name,
@@ -105,61 +110,85 @@ export function ActivityLog() {
     return groups
   }, [filtered])
 
+  const ICON_MAP: Record<ActivityIcon, { Icon: React.ElementType; bg: string; color: string }> = {
+    'create':      { Icon: PlusCircle,        bg: 'rgba(52,199,89,0.12)',  color: 'var(--color-green)' },
+    'in-progress': { Icon: Play,              bg: 'rgba(0,122,255,0.12)',  color: 'var(--color-blue)' },
+    'review':      { Icon: Eye,               bg: 'rgba(175,82,222,0.12)', color: 'var(--color-purple)' },
+    'done':        { Icon: CheckCircle,       bg: 'rgba(52,199,89,0.12)',  color: 'var(--color-green)' },
+    'change':      { Icon: ArrowsClockwise,   bg: 'rgba(161,161,170,0.1)', color: 'var(--color-text-tertiary)' },
+  }
+
   return (
     <div className="space-y-4">
       {/* Filter bar */}
       <div className="flex items-center gap-2">
         <Funnel size={14} className="text-[var(--color-text-tertiary)]" />
         {filters.map(f => (
-          <button
+          <motion.button
             key={f.key}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.96 }}
             className={`px-3 py-1.5 rounded-[8px] text-[12px] font-medium transition-colors ${
               filter === f.key
-                ? 'bg-[var(--color-accent)] text-white'
+                ? 'bg-[var(--color-accent)] text-white shadow-[var(--shadow-glow-accent)]'
                 : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-3)]'
             }`}
             onClick={() => setFilter(f.key)}
           >
             {f.label}
-          </button>
+          </motion.button>
         ))}
       </div>
 
       {/* Log entries */}
-      {grouped.length === 0 ? (
-        <EmptyState title="No activity" description="No activity of the selected type" />
-      ) : (
-        <div className="glass-card overflow-hidden">
-          {grouped.map(group => (
-            <div key={group.date}>
-              <div className="px-4 py-2 bg-[var(--color-surface-2)] text-[11px] font-bold text-[var(--color-text-tertiary)] border-b border-[var(--color-border)]">
-                {group.date}
-              </div>
-              {group.items.map((a, i) => (
-                <div
-                  key={`${group.date}-${i}`}
-                  className="flex items-center gap-3 px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0 text-[12px]"
-                >
-                  <span className="text-[10px] text-[var(--color-text-tertiary)] font-mono w-10 shrink-0">
-                    {a.time.getHours().toString().padStart(2, '0')}:{a.time.getMinutes().toString().padStart(2, '0')}
-                  </span>
-                  <div
-                    className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] shrink-0"
-                    style={{
-                      background: a.type === 'create' ? 'rgba(5,150,105,0.1)' : a.type === 'status' ? 'rgba(37,99,235,0.1)' : 'rgba(161,161,170,0.1)',
-                      color: a.type === 'create' ? 'var(--color-accent)' : a.type === 'status' ? 'var(--color-blue)' : 'var(--color-text-tertiary)',
-                    }}
-                  >
-                    {a.icon}
-                  </div>
-                  <span className="text-[var(--color-text-secondary)] flex-1">{a.text}</span>
-                  <span className="text-[10px] text-[var(--color-text-tertiary)]">{formatRelative(a.time)}</span>
+      <AnimatePresence mode="wait">
+        {grouped.length === 0 ? (
+          <motion.div key="empty" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
+            <EmptyState title="No activity" description="No activity of the selected type" />
+          </motion.div>
+        ) : (
+          <motion.div
+            key={filter}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+            className="glass-card overflow-hidden"
+          >
+            {grouped.map(group => (
+              <div key={group.date}>
+                <div className="px-4 py-2 bg-[var(--color-surface-2)]/60 backdrop-blur-sm text-[11px] font-bold text-[var(--color-text-tertiary)] uppercase tracking-wider border-b border-[var(--color-border)]">
+                  {group.date}
                 </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+                {group.items.map((a, i) => {
+                  const { Icon, bg, color } = ICON_MAP[a.icon] || ICON_MAP['change']
+                  return (
+                    <motion.div
+                      key={`${group.date}-${i}`}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.03, type: 'spring', damping: 25, stiffness: 300 }}
+                      className="flex items-center gap-3 px-4 py-2.5 border-b border-[var(--color-border)] last:border-b-0 text-[12px] hover:bg-[var(--color-surface-2)]/30 transition-colors"
+                    >
+                      <span className="text-[10px] text-[var(--color-text-tertiary)] font-mono w-10 shrink-0">
+                        {a.time.getHours().toString().padStart(2, '0')}:{a.time.getMinutes().toString().padStart(2, '0')}
+                      </span>
+                      <div
+                        className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+                        style={{ background: bg, color }}
+                      >
+                        <Icon size={14} weight="fill" />
+                      </div>
+                      <span className="text-[var(--color-text-secondary)] flex-1">{a.text}</span>
+                      <span className="text-[10px] text-[var(--color-text-tertiary)]">{formatRelative(a.time)}</span>
+                    </motion.div>
+                  )
+                })}
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
