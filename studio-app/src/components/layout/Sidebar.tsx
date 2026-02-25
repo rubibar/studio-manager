@@ -113,26 +113,36 @@ export function Sidebar() {
           {PRIMARY_ITEMS.map(item => {
             const Icon = item.icon
             const active = activeView === item.id
-            const iconColor = active ? '#FFFFFF' : '#6E6E73'
             return (
-              <button
+              <motion.button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
+                initial={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
                 style={{
-                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(0,0,0,0.06)',
-                  border: '2px solid rgba(150,150,150,0.3)',
-                  width: 44,
-                  height: 44,
-                  borderRadius: 12,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  position: 'relative',
+                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(0,0,0,0.04)',
+                  overflow: 'visible',
                 }}
+                className={`
+                  relative group w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center
+                  cursor-pointer
+                  ${active ? 'shadow-[var(--shadow-glow-accent)]' : ''}
+                `}
               >
-                <Icon size={22} weight={active ? 'fill' : 'duotone'} color={iconColor} />
-              </button>
+                <Icon
+                  size={22}
+                  weight={active ? 'fill' : 'bold'}
+                  color={active ? '#FFFFFF' : '#6E6E73'}
+                  style={{ display: 'block', flexShrink: 0, minWidth: 22, minHeight: 22 }}
+                />
+                <span
+                  className="absolute right-full ml-3 px-2.5 py-1.5 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-lg text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
+                  style={{ color: 'var(--color-text-primary)' }}
+                >
+                  {item.label}
+                </span>
+              </motion.button>
             )
           })}
         </nav>
@@ -152,7 +162,7 @@ export function Sidebar() {
             }}
             className="w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center cursor-pointer"
           >
-            <DotsNine size={22} weight={isMoreView ? 'fill' : 'duotone'} color={isMoreView || moreOpen ? 'var(--color-accent)' : '#6E6E73'} />
+            <DotsNine size={22} weight={isMoreView ? 'fill' : 'bold'} color={isMoreView || moreOpen ? 'var(--color-accent)' : '#6E6E73'} style={{ display: 'block', flexShrink: 0, minWidth: 22, minHeight: 22 }} />
           </motion.button>
 
           {/* More popover — RTL-safe: opens towards content area (left in RTL) */}
@@ -195,7 +205,7 @@ export function Sidebar() {
                           ${active ? 'bg-[var(--color-accent)]/10' : 'hover:bg-[var(--color-surface-3)]/50'}
                         `}
                       >
-                        <Icon size={20} weight={active ? 'fill' : 'duotone'} color={active ? 'var(--color-accent)' : '#6E6E73'} />
+                        <Icon size={20} weight={active ? 'fill' : 'bold'} color={active ? 'var(--color-accent)' : '#6E6E73'} style={{ display: 'block', flexShrink: 0, minWidth: 20, minHeight: 20 }} />
                         <span className="text-[10px] font-medium leading-tight text-center">
                           {item.label}
                         </span>
