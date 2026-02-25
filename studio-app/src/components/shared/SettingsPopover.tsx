@@ -6,12 +6,12 @@ import { useAuthStore } from '@/stores/authStore'
 import { GRADIENT_PRESETS } from '@/lib/gradientPresets'
 
 const ACCENT_COLORS: { id: AccentColor; hex: string }[] = [
-  { id: 'blue', hex: '#007AFF' },
-  { id: 'red', hex: '#FF3B30' },
-  { id: 'purple', hex: '#AF52DE' },
-  { id: 'green', hex: '#34C759' },
-  { id: 'orange', hex: '#FF9500' },
-  { id: 'pink', hex: '#FF2D55' },
+  { id: 'red', hex: '#FF2D2D' },
+  { id: 'blue', hex: '#448AFF' },
+  { id: 'green', hex: '#00E676' },
+  { id: 'orange', hex: '#FF8F00' },
+  { id: 'purple', hex: '#B388FF' },
+  { id: 'pink', hex: '#FF1493' },
 ]
 
 export function SettingsPopover() {

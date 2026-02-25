@@ -5,17 +5,17 @@ import {
   DotsNine, Bank, ChartLine, FolderOpen, Scales,
   CalendarDots, TrendDown, ClockCounterClockwise, Rocket,
   GitBranch, Timer, CurrencyCircleDollar, Briefcase,
-  Buildings, Target, GearSix, X, Aperture,
+  Buildings, Target, GearSix, X, Warning,
 } from '@phosphor-icons/react'
 import { useUIStore, type ViewName } from '@/stores/uiStore'
 import { useAuthStore } from '@/stores/authStore'
 
-const PRIMARY_ITEMS: { id: ViewName; label: string; icon: React.ElementType }[] = [
-  { id: 'dashboard', label: 'Dashboard', icon: ChartBar },
-  { id: 'tasks', label: 'Tasks', icon: ListChecks },
-  { id: 'kanban', label: 'Kanban', icon: Kanban },
-  { id: 'calendar', label: 'Calendar', icon: CalendarBlank },
-  { id: 'reports', label: 'Reports', icon: ChartPie },
+const PRIMARY_ITEMS: { id: ViewName; label: string; icon: React.ElementType; index: string }[] = [
+  { id: 'dashboard', label: 'DASH', icon: ChartBar, index: '01' },
+  { id: 'tasks', label: 'TASKS', icon: ListChecks, index: '02' },
+  { id: 'kanban', label: 'BOARD', icon: Kanban, index: '03' },
+  { id: 'calendar', label: 'CAL', icon: CalendarBlank, index: '04' },
+  { id: 'reports', label: 'DATA', icon: ChartPie, index: '05' },
 ]
 
 const MORE_ITEMS: { id: ViewName; label: string; icon: React.ElementType; adminOnly?: boolean }[] = [
@@ -56,7 +56,6 @@ export function Sidebar() {
     [activeView, filteredMore]
   )
 
-  // Close more popover on click outside
   useEffect(() => {
     if (!moreOpen) return
     const handleClick = (e: MouseEvent) => {
@@ -79,37 +78,38 @@ export function Sidebar() {
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar rail */}
+      {/* Sidebar — industrial rail */}
       <aside
         className={`
-          fixed top-0 right-0 h-full z-50 w-[68px] glass-panel glass-panel-elevated border-l border-[var(--glass-border)]
-          flex flex-col items-center py-4 gap-1
-          transition-transform duration-300
+          fixed top-0 right-0 h-full z-50 w-[72px] bg-[var(--color-surface)]
+          border-l border-[var(--color-border)]
+          flex flex-col items-center py-3 gap-0
+          transition-transform duration-200
           lg:static lg:translate-x-0
           ${sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
         `}
+        style={{ borderLeft: '2px solid var(--color-border)' }}
       >
-        {/* Logo — z-10 to sit above glass ::after overlay */}
-        <motion.div
-          className="relative z-10 w-10 h-10 rounded-[var(--radius-default)] bg-[var(--color-accent)] flex items-center justify-center mb-4 cursor-default"
-          style={{ boxShadow: 'var(--shadow-glow-accent)' }}
-          animate={{
-            boxShadow: ['var(--shadow-glow-accent)', '0 0 28px color-mix(in srgb, var(--color-accent) 35%, transparent)', 'var(--shadow-glow-accent)'],
-            rotate: [0, 0, 0],
-          }}
-          whileHover={{ scale: 1.1, rotate: 90 }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        >
-          <Aperture size={18} weight="bold" color="white" />
-        </motion.div>
+        {/* Signal mark */}
+        <div className="w-full flex items-center justify-center mb-3 pb-3" style={{ borderBottom: '1px solid var(--color-border)' }}>
+          <div
+            className="w-8 h-8 flex items-center justify-center"
+            style={{
+              background: 'var(--color-accent)',
+              boxShadow: 'var(--shadow-glow-accent)',
+            }}
+          >
+            <Warning size={16} weight="fill" color="#080807" />
+          </div>
+        </div>
 
-        {/* Primary icons — z-10 to sit above glass ::after overlay */}
-        <nav className="relative z-10 flex flex-col items-center gap-1 flex-1">
+        {/* Primary nav */}
+        <nav className="flex flex-col items-center gap-0 flex-1 w-full">
           {PRIMARY_ITEMS.map(item => {
             const Icon = item.icon
             const active = activeView === item.id
@@ -117,27 +117,55 @@ export function Sidebar() {
               <motion.button
                 key={item.id}
                 onClick={() => handleNav(item.id)}
-                initial={{ opacity: 1, scale: 1 }}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ scale: 0.92 }}
+                className="relative w-full group cursor-pointer"
                 style={{
-                  backgroundColor: active ? 'var(--color-accent)' : 'rgba(0,0,0,0.04)',
-                  overflow: 'visible',
+                  height: 56,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 2,
+                  background: active ? 'rgba(255, 45, 45, 0.06)' : 'transparent',
                 }}
-                className={`
-                  relative group w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center
-                  cursor-pointer
-                  ${active ? 'shadow-[var(--shadow-glow-accent)]' : ''}
-                `}
               >
+                {/* Active signal bar */}
+                {active && (
+                  <motion.div
+                    layoutId="sidebar-active"
+                    className="absolute left-0 top-1 bottom-1 w-[3px]"
+                    style={{ background: 'var(--color-accent)' }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+                  />
+                )}
+
                 <Icon
-                  size={22}
+                  size={20}
                   weight={active ? 'fill' : 'bold'}
-                  color={active ? '#FFFFFF' : '#6E6E73'}
-                  style={{ display: 'block', flexShrink: 0, minWidth: 22, minHeight: 22 }}
+                  color={active ? 'var(--color-accent)' : '#8A8578'}
+                  style={{ display: 'block', flexShrink: 0, minWidth: 20, minHeight: 20 }}
                 />
                 <span
-                  className="absolute right-full ml-3 px-2.5 py-1.5 rounded-[var(--radius-sm)] bg-[var(--color-surface)] shadow-lg text-[11px] font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
+                  className="font-mono text-[8px] tracking-[0.15em] uppercase"
+                  style={{
+                    color: active ? 'var(--color-accent)' : 'var(--color-text-tertiary)',
+                    fontWeight: active ? 700 : 400,
+                  }}
+                >
+                  {item.label}
+                </span>
+
+                {/* Index number */}
+                <span
+                  className="absolute top-1 right-1 font-mono text-[7px]"
+                  style={{ color: 'var(--color-text-tertiary)', opacity: 0.5 }}
+                >
+                  {item.index}
+                </span>
+
+                {/* Tooltip */}
+                <span
+                  className="absolute right-full mr-2 px-2 py-1 bg-[var(--color-surface-2)] border border-[var(--color-border)] text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-[60] hidden lg:block"
                   style={{ color: 'var(--color-text-primary)' }}
                 >
                   {item.label}
@@ -147,46 +175,61 @@ export function Sidebar() {
           })}
         </nav>
 
-        {/* Separator */}
-        <div className="relative z-10 w-8 h-px bg-[var(--color-border)]/50 my-1" />
+        {/* Separator — signal line */}
+        <div className="w-full h-px my-1" style={{ background: 'var(--color-border)' }} />
 
         {/* More button */}
-        <div className="relative z-10" ref={moreRef}>
+        <div className="relative w-full" ref={moreRef}>
           <motion.button
             onClick={() => setMoreOpen(prev => !prev)}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.92 }}
+            className="w-full flex flex-col items-center justify-center cursor-pointer"
             style={{
-              color: isMoreView || moreOpen ? 'var(--color-accent)' : '#636366',
-              backgroundColor: isMoreView || moreOpen ? 'rgba(0,122,255,0.12)' : 'rgba(255,255,255,0.04)',
+              height: 48,
+              color: isMoreView || moreOpen ? 'var(--color-accent)' : '#8A8578',
+              background: isMoreView || moreOpen ? 'rgba(255, 45, 45, 0.06)' : 'transparent',
             }}
-            className="w-11 h-11 rounded-[var(--radius-default)] flex items-center justify-center cursor-pointer"
           >
-            <DotsNine size={22} weight={isMoreView ? 'fill' : 'bold'} color={isMoreView || moreOpen ? 'var(--color-accent)' : '#6E6E73'} style={{ display: 'block', flexShrink: 0, minWidth: 22, minHeight: 22 }} />
+            <DotsNine
+              size={20}
+              weight={isMoreView ? 'fill' : 'bold'}
+              color={isMoreView || moreOpen ? 'var(--color-accent)' : '#8A8578'}
+              style={{ display: 'block', flexShrink: 0, minWidth: 20, minHeight: 20 }}
+            />
+            <span
+              className="font-mono text-[8px] tracking-[0.15em] uppercase"
+              style={{ color: isMoreView || moreOpen ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
+            >
+              MORE
+            </span>
           </motion.button>
 
-          {/* More popover — RTL-safe: opens towards content area (left in RTL) */}
+          {/* More popover — brutalist panel */}
           <AnimatePresence>
             {moreOpen && (
               <motion.div
-                initial={{ opacity: 0, scale: 0.95, x: -8 }}
-                animate={{ opacity: 1, scale: 1, x: 0 }}
-                exit={{ opacity: 0, scale: 0.95, x: -8 }}
-                transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                className="absolute bottom-0 right-full ml-2 glass-panel rounded-[var(--radius-xl)] p-3 w-[280px] z-[60] shadow-lg"
+                initial={{ opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.1 }}
+                className="absolute bottom-0 right-full mr-1 bg-[var(--color-surface)] border border-[var(--color-border)] p-2 w-[260px] z-[60]"
+                style={{ boxShadow: '8px 8px 0 rgba(0,0,0,0.3)' }}
               >
+                {/* Header */}
                 <div className="flex items-center justify-between mb-2 px-1">
-                  <span className="text-[11px] font-semibold text-[var(--color-text-tertiary)] uppercase tracking-wider">
-                    More Views
+                  <span className="text-[9px] font-mono font-bold tracking-[0.2em] uppercase" style={{ color: 'var(--color-accent)' }}>
+                    // MORE VIEWS
                   </span>
                   <button
                     onClick={() => setMoreOpen(false)}
-                    className="p-0.5 rounded hover:bg-[var(--color-surface-3)]/50 transition-colors"
+                    className="p-0.5 hover:bg-[var(--color-surface-2)] transition-colors"
                   >
-                    <X size={12} color="#AEAEB2" />
+                    <X size={12} color="#8A8578" />
                   </button>
                 </div>
-                <div className="grid grid-cols-3 gap-1">
+
+                {/* Grid */}
+                <div className="grid grid-cols-3 gap-px" style={{ background: 'var(--color-border)' }}>
                   {filteredMore.map(item => {
                     const Icon = item.icon
                     const active = activeView === item.id
@@ -194,19 +237,23 @@ export function Sidebar() {
                       <motion.button
                         key={item.id}
                         onClick={() => handleNav(item.id)}
-                        whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        className="flex flex-col items-center gap-1 p-2.5 cursor-pointer"
                         style={{
-                          color: active ? 'var(--color-accent)' : '#A1A1A6',
+                          background: active ? 'rgba(255, 45, 45, 0.08)' : 'var(--color-surface)',
+                          borderLeft: active ? '2px solid var(--color-accent)' : '2px solid transparent',
                         }}
-                        className={`
-                          flex flex-col items-center gap-1 p-2.5 rounded-[var(--radius-default)]
-                          cursor-pointer
-                          ${active ? 'bg-[var(--color-accent)]/10' : 'hover:bg-[var(--color-surface-3)]/50'}
-                        `}
                       >
-                        <Icon size={20} weight={active ? 'fill' : 'bold'} color={active ? 'var(--color-accent)' : '#6E6E73'} style={{ display: 'block', flexShrink: 0, minWidth: 20, minHeight: 20 }} />
-                        <span className="text-[10px] font-medium leading-tight text-center">
+                        <Icon
+                          size={18}
+                          weight={active ? 'fill' : 'bold'}
+                          color={active ? 'var(--color-accent)' : '#8A8578'}
+                          style={{ display: 'block', flexShrink: 0, minWidth: 18, minHeight: 18 }}
+                        />
+                        <span
+                          className="text-[8px] font-mono leading-tight text-center uppercase tracking-wider"
+                          style={{ color: active ? 'var(--color-accent)' : 'var(--color-text-tertiary)' }}
+                        >
                           {item.label}
                         </span>
                       </motion.button>

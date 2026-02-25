@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { List, MagnifyingGlass, Eye, Plus } from '@phosphor-icons/react'
+import { List, MagnifyingGlass, Eye, Plus, CaretRight } from '@phosphor-icons/react'
 import { useUIStore } from '@/stores/uiStore'
 import { useTaskStore } from '@/stores/taskStore'
 import { useMagnetic } from '@/hooks/useMagnetic'
@@ -20,61 +20,97 @@ export function Topbar() {
   const { x: magnetX, y: magnetY } = useMagnetic(newTaskRef, 0.15)
 
   return (
-    <header className="sticky top-0 z-30 glass-panel h-12 flex items-center justify-between px-4 gap-4 border-b border-[var(--glass-border)]">
-      {/* Left: hamburger (mobile only) + title */}
-      <div className="relative z-10 flex items-center gap-3">
+    <header
+      className="sticky top-0 z-30 h-11 flex items-center justify-between px-4 gap-4"
+      style={{
+        background: 'var(--color-surface)',
+        borderBottom: '1px solid var(--color-border)',
+      }}
+    >
+      {/* Left: hamburger + breadcrumb */}
+      <div className="flex items-center gap-3">
         <button
           onClick={toggleSidebar}
-          className="lg:hidden p-1.5 rounded-[var(--radius-default)] hover:bg-[var(--color-surface-3)]/50 transition-colors"
+          className="lg:hidden p-1 hover:bg-[var(--color-surface-2)] transition-colors"
         >
-          <List size={20} />
+          <List size={18} color="#8A8578" />
         </button>
-        <h1 className="text-[15px] font-semibold tracking-tight">
-          {VIEW_TITLES[activeView] || ''}
-        </h1>
+
+        {/* Breadcrumb — terminal style */}
+        <div className="flex items-center gap-1.5 font-mono text-[11px]">
+          <span style={{ color: 'var(--color-accent)' }}>SYS</span>
+          <CaretRight size={10} color="#504C44" />
+          <span className="font-bold tracking-wide uppercase" style={{ color: 'var(--color-text-primary)' }}>
+            {VIEW_TITLES[activeView] || ''}
+          </span>
+        </div>
       </div>
 
-      {/* Center: command palette trigger */}
+      {/* Center: command palette — terminal trigger */}
       <button
         onClick={openCommandPalette}
-        className="relative z-10 hidden md:flex items-center gap-2 bg-[var(--color-surface-2)]/60 hover:bg-[var(--color-surface-2)] rounded-[var(--radius-default)] px-4 py-1.5 flex-1 max-w-xs cursor-pointer transition-colors"
+        className="hidden md:flex items-center gap-2 px-3 py-1 flex-1 max-w-xs cursor-pointer transition-colors"
+        style={{
+          background: 'var(--color-surface-2)',
+          border: '1px solid var(--color-border)',
+        }}
       >
-        <MagnifyingGlass size={14} className="text-[var(--color-text-tertiary)]" />
-        <span className="text-[12px] text-[var(--color-text-tertiary)] flex-1 text-right">Search...</span>
-        <kbd className="text-[10px] bg-[var(--color-surface-3)]/60 text-[var(--color-text-tertiary)] px-1.5 py-0.5 rounded font-mono">
-          Ctrl K
+        <MagnifyingGlass size={12} color="#504C44" />
+        <span className="text-[10px] font-mono flex-1 text-right" style={{ color: 'var(--color-text-tertiary)' }}>
+          search_
+        </span>
+        <kbd
+          className="text-[9px] font-mono px-1 py-0.5"
+          style={{
+            background: 'var(--color-surface-3)',
+            color: 'var(--color-text-tertiary)',
+            border: '1px solid var(--color-border)',
+          }}
+        >
+          ^K
         </kbd>
       </button>
 
       {/* Right: actions */}
-      <div className="relative z-10 flex items-center gap-2">
-        {/* New task — magnetic */}
+      <div className="flex items-center gap-2">
+        {/* New task */}
         <motion.button
           ref={newTaskRef}
-          style={{ x: magnetX, y: magnetY }}
+          style={{
+            x: magnetX,
+            y: magnetY,
+            background: 'var(--color-accent)',
+            boxShadow: 'var(--shadow-glow-accent)',
+          }}
           onClick={() => openModal({ type: 'addTask' })}
-          className="flex items-center gap-1.5 bg-[var(--color-accent)] text-white text-[12px] font-medium px-3 py-1.5 rounded-[var(--radius-default)] hover:bg-[var(--color-accent-hover)] transition-colors"
+          className="flex items-center gap-1.5 text-[11px] font-mono font-bold px-3 py-1.5 uppercase tracking-wider cursor-pointer"
+          whileTap={{ scale: 0.95 }}
         >
-          <Plus size={14} weight="bold" />
-          <span className="hidden sm:inline">New Task</span>
+          <Plus size={12} weight="bold" color="#080807" />
+          <span className="hidden sm:inline" style={{ color: '#080807' }}>
+            NEW
+          </span>
         </motion.button>
 
-        {/* Review — dynamic island pill */}
+        {/* Review count — signal indicator */}
         {reviewCount > 0 && (
           <motion.button
-            layout
             onClick={toggleReviewSidebar}
-            className="flex items-center gap-1.5 bg-[var(--color-accent)]/10 text-[var(--color-accent)] rounded-full px-3 py-1.5 cursor-pointer"
-            whileHover={{ scale: 1.05 }}
+            className="flex items-center gap-1.5 px-2 py-1 cursor-pointer"
+            style={{
+              background: 'rgba(255, 45, 45, 0.08)',
+              border: '1px solid rgba(255, 45, 45, 0.2)',
+            }}
             whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring' as const, stiffness: 300, damping: 20 }}
           >
-            <Eye size={14} weight="fill" />
-            <motion.span layout className="text-[11px] font-bold font-mono">{reviewCount}</motion.span>
+            <Eye size={12} weight="fill" color="var(--color-accent)" />
+            <span className="text-[10px] font-mono font-bold signal-blink" style={{ color: 'var(--color-accent)' }}>
+              {reviewCount}
+            </span>
           </motion.button>
         )}
 
-        {/* Settings gear — contains dark mode, accent color, background, user/logout */}
+        {/* Settings */}
         <SettingsPopover />
       </div>
     </header>
